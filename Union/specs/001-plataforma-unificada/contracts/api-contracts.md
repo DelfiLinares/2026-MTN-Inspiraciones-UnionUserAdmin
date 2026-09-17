@@ -20,6 +20,10 @@ con el equipo de backend**, trazadas a la sección 8 (`Ambigüedades`) de `spec.
 - **200 OK**: `{ token: string, usuario: { id, nombre, apellido, rol } }`
 - **400 Bad Request**: `{ error: "CAMPOS_INVALIDOS" }`
 - **401 Unauthorized**: `{ error: "CREDENCIALES_INVALIDAS" }` (mensaje genérico — RF-03)
+- **403 Forbidden**: `{ error: "CUENTA_BANEADA" }` / `{ error: "CUENTA_ELIMINADA" }` — la cuenta
+  tiene `estadoCuenta = BANEADO` o `ELIMINADO`; el frontend muestra el mensaje específico
+  correspondiente (RF-77, resuelto **A10** en sesión de clarificación 2026-09-17). Aplica tanto al
+  login de usuario como al login de administrador.
 
 ### `GET /auth/google` / `GET /auth/github`
 - Redirección iniciada por el frontend (RF-01); el backend gestiona el intercambio OAuth y
@@ -40,6 +44,9 @@ con el equipo de backend**, trazadas a la sección 8 (`Ambigüedades`) de `spec.
 - **200 OK**: `{ id, nombre, apellido, rol, estadoCuenta }` — usado para verificar sesión activa y
   rol (RF-05, RF-12).
 - **401 Unauthorized**: sesión inválida/expirada (CB-06, RF-75).
+- **403 Forbidden**: `{ error: "ROL_NO_AUTORIZADO" }` — el usuario autenticado no tiene rol ADMIN e
+  intenta acceder al módulo administrativo (resuelto **B6** en sesión de clarificación 2026-09-17,
+  usado por `sessionGuard`).
 
 ### `POST /auth/logout`
 - **200 OK**: invalida el token del lado backend (si aplica).
@@ -175,11 +182,22 @@ si `rol !== "ADMIN"` tras `GET /auth/me`, mostrando mensaje claro (AC-10.2).
 - 409 Conflict: `{ error: "USUARIO_YA_ES_ADMIN" }` (CB-12, no-op)
 - 403 Forbidden: solo ejecutable por rol ADMIN (validado también por `sessionGuard` en frontend)
 
+**`POST /admin/usuarios/{id}/degradar`** — RF-76 (agregado en sesión de clarificación 2026-09-17,
+resuelve **A8**)
+- 200 OK: `UsuarioAdmin` actualizado (`rol: "USER"`)
+- 403 Forbidden: `{ error: "NO_PUEDE_DEGRADARSE_A_SI_MISMO" }` — un ADMIN no puede degradarse a sí
+  mismo.
+- 409 Conflict: `{ error: "USUARIO_NO_ES_ADMIN" }` — el usuario objetivo ya tiene rol USER (no-op).
+
 ### Moderación de Publicaciones y Reportes
 
 **`GET /admin/publicaciones/reportadas`** — RF-61
 - Query: `motivo?`, `estado?`, `page`, `pageSize`
-- 200 OK: `{ items: PublicacionModeracion[], total: number }`
+- 200 OK: `{ items: PublicacionModeracion[], total: number }` — **una fila por cada reporte
+  individual**, no agrupada por publicación (resuelto **A1** en sesión de clarificación
+  2026-09-17); si una publicación tiene N reportes, aparece N veces en `items` (o el backend expone
+  un array `reportes` embebido por fila — a confirmar con backend, no bloquea el frontend porque el
+  criterio de agrupación ya está fijado).
 
 **`GET /admin/reportes/{id}`** — RF-62
 - 200 OK: `Reporte` (con `publicacion`, `reportante`, `motivo`, `fecha`, `prioridad`)
@@ -219,14 +237,21 @@ si `rol !== "ADMIN"` tras `GET /auth/me`, mostrando mensaje claro (AC-10.2).
 
 ## D. Ambigüedades / Puntos a Resolver con Backend
 
-| ID | Descripción | Endpoints afectados |
-|---|---|---|
-| **B1** | Formato exacto del callback OAuth (`code` vs `token` vs error en query params) para Google/GitHub. | `GET /auth/callback` |
-| **B2** | Campos exactos del formulario de propuesta de desafío (`contenidoFormulario`); `spec.md` no los detalla. | `POST /desafios/propuestas`, `GET /admin/desafios-propuestos/{id}` |
-| **B3** | Estructura exacta de los datos agregados de `/admin/analiticas` (qué series, agrupaciones o rankings expone). | `GET /admin/analiticas` |
-| **B4** | Estrategia de paginación (`page`/`pageSize` vs. `cursor`) no está cerrada en ningún specify original; se asume `page`/`pageSize` por convención hasta definición conjunta con backend. | Todos los listados paginados |
-| **B5** | Formato/extensión del archivo devuelto por `POST /reportes-analiticas/exportaciones` (`urlDescarga`): no definido en `spec.md` (ver **A11**). | `POST /admin/reportes-analiticas/exportaciones` |
-| **B6** | Estructura exacta de la respuesta de error al intentar acceder al módulo admin sin rol ADMIN (mensaje, código). | `GET /auth/me` (uso en `sessionGuard`) |
+> Actualizado en sesión de clarificación 2026-09-17. Las filas marcadas **RESUELTO** ya tienen
+> decisión tomada y no bloquean la implementación. Las marcadas **DIFERIDO EXPLÍCITAMENTE** quedan
+> intencionalmente abiertas por decisión del equipo (no por omisión): el frontend debe
+> implementarse de forma que tolere el cambio posterior sin asumir un formato específico.
+
+| ID | Descripción | Estado | Endpoints afectados |
+|---|---|---|---|
+| **B1** | Formato exacto del callback OAuth (`code` vs `token` vs error en query params) para Google/GitHub. | **DIFERIDO EXPLÍCITAMENTE**: no se resuelve en esta sesión; `googleProvider`/`githubProvider` deben implementarse parseando la URL de forma defensiva (leer ambos formatos posibles) hasta que backend confirme. | `GET /auth/callback` |
+| **B2** | Campos exactos del formulario de propuesta de desafío (`contenidoFormulario`). | **DIFERIDO EXPLÍCITAMENTE**: se mantiene `Record<string, unknown>` genérico; no se fija un mínimo de campos en esta sesión. | `POST /desafios/propuestas`, `GET /admin/desafios-propuestos/{id}` |
+| **B3** | Estructura exacta de los datos agregados de `/admin/analiticas`. | **DIFERIDO EXPLÍCITAMENTE**: el frontend consume la respuesta como un objeto agregado genérico (`Record<string, unknown>`) sin asumir series/agrupaciones específicas, conforme a "no recalcular en cliente" de `plan.md`. | `GET /admin/analiticas` |
+| **B4** | Estrategia de paginación (`page`/`pageSize` vs. `cursor`). | **RESUELTO** (2026-09-17): se confirma `page`/`pageSize` para todos los listados paginados del sistema. | Todos los listados paginados |
+| **B5** | Formato/extensión del archivo devuelto por la exportación (`urlDescarga`). | **DIFERIDO EXPLÍCITAMENTE**: el frontend trata `urlDescarga` como una URL opaca de descarga, sin asumir extensión ni metadatos adicionales (ver **A11** en `spec.md`). Path del endpoint corregido y unificado a `POST /admin/reportes-analiticas/exportaciones` (antes había una inconsistencia entre la sección C y esta tabla). | `POST /admin/reportes-analiticas/exportaciones` |
+| **B6** | Estructura de la respuesta de error al intentar acceder al módulo admin sin rol ADMIN. | **RESUELTO** (2026-09-17): `403 Forbidden` con `{ error: "ROL_NO_AUTORIZADO" }` en `GET /auth/me` (ver sección A). | `GET /auth/me` (uso en `sessionGuard`) |
+| **B7** *(nuevo)* | Formato de error de login para cuentas BANEADO/ELIMINADO. | **RESUELTO** (2026-09-17): `403 Forbidden` con `{ error: "CUENTA_BANEADA" }` / `{ error: "CUENTA_ELIMINADA" }` en `POST /auth/login` (RF-77, resuelve **A10**). | `POST /auth/login` |
+| **B8** *(nuevo)* | Endpoint de degradar ADMIN a USER. | **RESUELTO** (2026-09-17): `POST /admin/usuarios/{id}/degradar` (RF-76, resuelve **A8**). | `POST /admin/usuarios/{id}/degradar` |
 
 Estas ambigüedades son consistentes con las ya registradas en `spec.md` (A2, A5, A11) y se agregan
 aquí desde la perspectiva de contrato de API para que el equipo de backend las revise antes de la

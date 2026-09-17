@@ -169,6 +169,10 @@ contenido, distancia)
   a la API.
 - AC-04.7: El botón de submit permanece deshabilitado mientras la operación está en curso.
 - AC-04.8: Un usuario ya autenticado que accede a login es redirigido al home.
+- AC-04.9: Una cuenta con `estadoCuenta = BANEADO` o `estadoCuenta = ELIMINADO` NO puede iniciar
+  sesión; el sistema muestra un mensaje específico indicando el estado de la cuenta (baneada o
+  eliminada), sin permitir continuar el flujo de login (resuelto **A10**, sesión de clarificación
+  2026-09-17).
 
 ---
 
@@ -311,7 +315,9 @@ corresponda, eliminar la publicación reportada
 **Prioridad:** Alta
 
 **Criterios de aceptación:**
-- AC-11.1: El listado de publicaciones en estado REPORTADA se muestra paginado.
+- AC-11.1: El listado de moderación se muestra paginado, con **una fila por cada reporte
+  individual** (si una misma publicación tiene varios reportes, aparece una fila distinta por cada
+  uno de ellos, no agrupada por publicación) — resuelto **A1**, sesión de clarificación 2026-09-17.
 - AC-11.2: Se pueden aplicar filtros (por ejemplo, motivo o estado), resueltos vía API.
 - AC-11.3: El detalle de un reporte muestra motivo, fecha, publicación asociada y reportante.
 - AC-11.4: Eliminar una publicación reportada requiere confirmación explícita.
@@ -319,6 +325,10 @@ corresponda, eliminar la publicación reportada
   distingue visualmente como sensible.
 - AC-11.6: Un reporte puede marcarse como "resuelto sin eliminar" mediante una acción explícita, sin
   eliminar la publicación (cambia el estado del **reporte**, no de la publicación).
+- AC-11.7: La moderación de una publicación (ver reportes, eliminar, resolver sin eliminar) aplica
+  de la misma forma sin importar si el autor de la publicación tiene rol USER o ADMIN; no existe
+  ninguna restricción adicional sobre publicaciones cuyo autor sea ADMIN (resuelto **A7**, sesión de
+  clarificación 2026-09-17).
 
 ---
 
@@ -344,6 +354,9 @@ promover a administrador
 - AC-12.6: Promover a un usuario que ya es ADMIN se rechaza como operación inválida (no-op).
 - AC-12.7: Las acciones banear/eliminar/promover se diferencian visualmente de las acciones de solo
   consulta (color/iconografía distintiva).
+- AC-12.8: Un administrador puede **degradar** a otro usuario con rol ADMIN de vuelta a rol USER,
+  requiriendo confirmación explícita; un administrador NO puede degradarse a sí mismo (resuelto
+  **A8**, sesión de clarificación 2026-09-17).
 
 ---
 
@@ -572,13 +585,15 @@ promover a administrador
   quienes ya tienen rol ADMIN, requiriendo confirmación explícita. Si el usuario objetivo ya tiene
   rol ADMIN, la acción DEBE rechazarse como operación inválida (no-op).
 - **RF-60**: El sistema DEBE diferenciar visualmente las acciones sensibles (eliminar, banear,
-  promover a administrador) de las acciones de solo consulta/lectura en toda la interfaz
-  administrativa.
+  promover a administrador, degradar a administrador) de las acciones de solo consulta/lectura en
+  toda la interfaz administrativa, en el 100% de las pantallas del módulo (RF-60 aplica también a
+  Moderación, Desafíos y Reportes/Analíticas, no solo a Gestión de Usuarios).
 
 ### Moderación de publicaciones y reportes
 
-- **RF-61**: El sistema DEBE mostrar el listado de publicaciones en estado REPORTADA, con paginación y
-  filtros resueltos contra la API.
+- **RF-61**: El sistema DEBE mostrar el listado de moderación con **una fila por cada reporte
+  individual** (no agrupado por publicación), con paginación y filtros resueltos contra la API
+  (resuelto **A1**, sesión de clarificación 2026-09-17).
 - **RF-62**: El sistema DEBE permitir visualizar el detalle de un reporte sobre una publicación
   (motivo, publicación asociada, y demás datos provistos por el backend).
 - **RF-63**: El sistema DEBE permitir eliminar una publicación reportada, requiriendo confirmación
@@ -619,6 +634,30 @@ promover a administrador
   banear, promover) si la sesión del administrador expira durante su ejecución, descartando la
   confirmación pendiente y redirigiendo al login con un mensaje explícito de que la acción no fue
   aplicada.
+
+### Resoluciones de Clarificación (sesión 2026-09-17)
+
+> Requisitos nuevos derivados de la sesión `/speckit.clarify` del 2026-09-17, que resuelven las
+> ambigüedades A1, A2, A7, A8, A10 y A14 (sección 8) sin alterar la numeración ya existente.
+
+- **RF-76**: El sistema DEBE permitir a un administrador **degradar** a otro usuario con rol ADMIN
+  de vuelta a rol USER, requiriendo confirmación explícita antes de ejecutar la acción; un
+  administrador NO puede degradarse a sí mismo (resuelto **A8**).
+- **RF-77**: El sistema DEBE rechazar el inicio de sesión de una cuenta con `estadoCuenta = BANEADO`
+  o `estadoCuenta = ELIMINADO`, mostrando un mensaje específico que indique el estado de la cuenta,
+  tanto en el login de usuario como en el login de administrador (resuelto **A10**).
+- **RF-78**: El frontend de usuario (`frontend/`) NO DEBE permitir operar con una cuenta de rol
+  ADMIN: una cuenta ADMIN que intente usar `frontend/` es rechazada o redirigida, ya que ADMIN NO
+  conserva las capacidades de USER (publicar, dar like, seguir, guardar, reportar, proponer
+  desafíos) en el frontend de usuario (resuelto **A14** — decisión: ADMIN opera exclusivamente en
+  `frontend-admin/`).
+- **RF-79**: El estado de cierre de un reporte se representa mediante el enum `EstadoModeracion`
+  con los valores `PENDIENTE`, `EN_REVISION`, `RESUELTO`, `DESESTIMADO`, ya definidos en
+  `data-model.md` (resuelto **A2** — se confirma el nombre y valores ya propuestos como decisión
+  final, no solo como propuesta técnica).
+- **RF-80**: La moderación de una publicación (ver detalle de reporte, eliminar, resolver sin
+  eliminar) NO distingue el rol del autor de la publicación: se aplica exactamente igual si el
+  autor tiene rol USER o rol ADMIN (resuelto **A7**).
 
 ---
 
@@ -753,73 +792,75 @@ promover a administrador
 ### Reportes (estado de cierre)
 
 Los specify originales establecen que un **reporte** puede cerrarse mediante la acción "resuelto sin
-eliminar la publicación" (cambia el estado del reporte, no el de la publicación). El nombre exacto
-del enum/valor de dicho estado de cierre no está definido en ninguno de los dos documentos
-originales — ver **A2**.
+eliminar la publicación" (cambia el estado del reporte, no el de la publicación). El enum de dicho
+estado de cierre se confirma como `EstadoModeracion` (`PENDIENTE`, `EN_REVISION`, `RESUELTO`,
+`DESESTIMADO`) — **resuelto A2 / RF-79**, sesión de clarificación 2026-09-17.
 
 ### Roles (`RolUsuario`)
 
 | Rol | Significado | Alcance |
 | --- | --- | --- |
 | **USER** | Usuario final registrado. | Frontend de usuario: publicar, interactuar, buscar, seguir, guardar, proponer desafíos. Sin acceso al módulo administrativo. |
-| **ADMIN** | Administrador/moderador. | Frontend de administración: dashboard, moderación, gestión de usuarios/desafíos, reportes/analíticas. Solo un ADMIN puede promover a otro usuario a ADMIN. |
+| **ADMIN** | Administrador/moderador. | Frontend de administración: dashboard, moderación, gestión de usuarios/desafíos, reportes/analíticas. Solo un ADMIN puede promover a otro usuario a ADMIN; un ADMIN puede degradar a otro ADMIN a rol USER (RF-76). ADMIN NO opera en el frontend de usuario (RF-78, resuelto **A14**). |
 
 ### Estado de cuenta de usuario
 
 Los specify originales mencionan `estadoCuenta = ACTIVO` (para el indicador de "usuarios activos" del
 dashboard) y las acciones "banear" y "eliminar" sobre una cuenta, lo que implica al menos los
-estados **ACTIVO**, **BANEADO** y **ELIMINADO**, pero ninguno de los dos documentos define un enum
-explícito con ese nombre ni el comportamiento funcional detallado de una cuenta baneada/eliminada
-desde la perspectiva del frontend — ver **A10**.
+estados **ACTIVO**, **BANEADO** y **ELIMINADO**. Se confirma (resuelto **A10**, RF-77): una cuenta
+con `estadoCuenta = BANEADO` o `ELIMINADO` **no puede iniciar sesión**; el login (tanto de usuario
+como de administrador) rechaza el intento mostrando un mensaje específico del estado de la cuenta.
 
 ---
+
 
 ## 7. Permisos por Rol
 
 | Funcionalidad | Visitante | USER | ADMIN |
 | --- | --- | --- | --- |
 | Ver contenido público / descubrir | Sí | Sí | Sí |
-| Crear publicaciones | No (debe autenticarse) | Sí | Ambiguo — ver **A14** |
-| Dar like a publicaciones ajenas | No (debe autenticarse) | Sí | Ambiguo — ver **A14** |
-| Reportar publicaciones ajenas | No (debe autenticarse) | Sí | Ambiguo — ver **A14** |
-| Gestionar perfil propio | No aplica | Sí | Ambiguo — ver **A14** |
-| Seguir usuarios | No (debe autenticarse) | Sí | Ambiguo — ver **A14** |
-| Gestionar carpetas propias | No aplica | Sí | Ambiguo — ver **A14** |
-| Proponer desafíos | No (debe autenticarse) | Sí | Ambiguo — ver **A14** |
+| Crear publicaciones | No (debe autenticarse) | Sí | No — ADMIN no opera en `frontend/` (RF-78, resuelto **A14**) |
+| Dar like a publicaciones ajenas | No (debe autenticarse) | Sí | No (RF-78) |
+| Reportar publicaciones ajenas | No (debe autenticarse) | Sí | No (RF-78) |
+| Gestionar perfil propio | No aplica | Sí | No (RF-78) |
+| Seguir usuarios | No (debe autenticarse) | Sí | No (RF-78) |
+| Gestionar carpetas propias | No aplica | Sí | No (RF-78) |
+| Proponer desafíos | No (debe autenticarse) | Sí | No (RF-78) |
 | Acceder al dashboard administrativo | No | No | Sí |
 | Gestionar usuarios (banear/eliminar) | No | No | Sí, solo sobre usuarios con rol USER (nunca sobre otro ADMIN ni sobre sí mismo) |
-| Moderar publicaciones (eliminar/resolver reporte) | No | No | Sí |
+| Moderar publicaciones (eliminar/resolver reporte) | No | No | Sí, sin distinguir el rol del autor (RF-80, resuelto **A7**) |
 | Gestionar reportes | No | No | Sí |
 | Gestionar desafíos (aprobar/rechazar) | No | No | Sí |
 | Ver reportes/analíticas | No | No | Sí |
 | Exportar/descargar reportes | No | No | Sí |
 | Promover usuarios a ADMIN | No | No | Sí (solo un ADMIN puede promover; no puede promover a quien ya es ADMIN) |
-| Degradar un ADMIN a USER | No | No | No especificado — ver **A13** |
+| Degradar un ADMIN a USER | No | No | Sí, requiere confirmación explícita; un ADMIN no puede degradarse a sí mismo (RF-76, resuelto **A8**) |
 
 ---
 
 ## 8. Ambigüedades
 
 > Tabla única, renumerada A1–A14, unificando ambigüedades/contradicciones de ambos specify
-> originales. No se resuelven automáticamente. Se indica explícitamente cuando una ambigüedad de un
-> documento queda cubierta de forma inequívoca por un requisito del otro.
+> originales. Las filas marcadas **RESUELTO** fueron cerradas en la sesión `/speckit.clarify` del
+> 2026-09-17 y ya no bloquean la implementación; su decisión final está reflejada en los RF-76 a
+> RF-80 y en las tablas de las secciones 6 y 7. Las filas restantes siguen abiertas.
 
-| ID | Descripción | Impacto | Acción requerida |
+| ID | Descripción | Impacto | Estado / Acción requerida |
 | --- | --- | --- | --- |
-| **A1** | Comportamiento de reportes duplicados sobre la **misma** publicación desde la perspectiva de moderación: ¿el listado de moderación muestra una fila por publicación (agregando todos sus reportes) o una fila por cada reporte individual? El specify de Admin no lo define; el de Usuario solo define el estado de reporte propio del reportante. | Afecta el diseño de la pantalla de moderación (HU-11) y del listado de reportes. | Definir en una futura clarificación si el listado agrupa por publicación o por reporte individual. |
-| **A2** | Nombre y valores exactos del enum de "estado de cierre" de un reporte (acción "resuelto sin eliminar publicación"). Ninguno de los dos specify originales define el value object correspondiente. | Afecta el modelado de dominio de UI para reportes (Principio de enums/value objects). | Definir el enum de estado de reporte (por ejemplo, `PENDIENTE`/`RESUELTO_SIN_ELIMINACION`/`RESUELTO_CON_ELIMINACION`) en fase de diseño técnico. |
+| **A1** | ~~Comportamiento de reportes duplicados sobre la misma publicación: ¿fila por publicación o por reporte individual?~~ | Afecta el diseño de la pantalla de moderación (HU-11). | **RESUELTO** (2026-09-17): una fila por cada reporte individual (RF-61, AC-11.1). |
+| **A2** | ~~Nombre y valores exactos del enum de "estado de cierre" de un reporte.~~ | Afecta el modelado de dominio de UI para reportes. | **RESUELTO** (2026-09-17): `EstadoModeracion { PENDIENTE, EN_REVISION, RESUELTO, DESESTIMADO }` (RF-79), ya reflejado en `data-model.md`. |
 | **A3** | Mecanismo de cambio de contraseña: el specify de Usuario solo referencia un enlace "Cambiar contraseña" y deja el mecanismo de verificación (mail, código, etc.) para un documento separado, sin especificarlo. | Bloquea el diseño detallado de la pantalla/flujo de cambio de contraseña. | Especificar el flujo en un documento dedicado antes de planificar su implementación. |
 | **A4** | Campos adicionales del perfil de usuario: el specify de Usuario asume como mínimo nombre, apellido, bio/descripción y foto, aclarando que "campos adicionales se incorporarán si el contrato de API los expone", sin definir cuáles serían. | Afecta el alcance final de la pantalla de edición de perfil. | Confirmar el listado definitivo de campos de perfil cuando se defina el contrato de API. |
 | **A5** | Contrato exacto del endpoint de autocompletado de tags (vocabulario controlado): el tipo de dato "vocabulario controlado" ya está resuelto (no es texto libre), pero el contrato exacto (estructura de respuesta, paginación del autocompletado, etc.) no está definido en el specify de Usuario. | Afecta el diseño de la capa de servicios/infraestructura del formulario de publicación. | Definir el contrato del endpoint en la fase de planificación técnica. |
 | **A6** | El frontend no conoce de antemano el tamaño máximo permitido por tipo de contenido (solo valida tipo/extensión en cliente); no hay forma de informar preventivamente al usuario el límite antes de intentar subir el archivo. | Puede degradar la experiencia de usuario al recibir el error recién luego de intentar subir el archivo. | Evaluar si el backend expondrá el límite máximo como metadato consumible por el frontend. |
-| **A7** | ¿Puede un ADMIN eliminar o moderar una publicación cuyo autor es **otro ADMIN**? Los specify originales solo definen restricciones sobre acciones de banear/eliminar/promover **usuarios** con rol ADMIN, pero no aclaran el tratamiento de publicaciones creadas por una cuenta ADMIN. | Afecta el alcance exacto de la moderación de contenido (HU-11). | Definir explícitamente si la moderación de publicaciones distingue el rol del autor. |
-| **A8** | ¿Un ADMIN puede degradar a otro ADMIN de vuelta a rol USER? Ambos specify originales solo contemplan la acción de **promover** a ADMIN; ninguno define una acción de "degradar"/revocar el rol ADMIN. | Afecta el alcance de la gestión de usuarios administrativa (HU-12) y la matriz de permisos (sección 7, fila "Degradar un ADMIN a USER"). | Definir si esta funcionalidad existe o queda explícitamente fuera de alcance. |
+| **A7** | ~~¿Puede un ADMIN eliminar o moderar una publicación cuyo autor es otro ADMIN?~~ | Afecta el alcance exacto de la moderación de contenido (HU-11). | **RESUELTO** (2026-09-17): sí, sin ninguna restricción adicional; la moderación no distingue el rol del autor (RF-80, AC-11.7). |
+| **A8** | ~~¿Un ADMIN puede degradar a otro ADMIN de vuelta a rol USER?~~ | Afecta el alcance de la gestión de usuarios administrativa (HU-12). | **RESUELTO** (2026-09-17): sí, con confirmación explícita; un ADMIN no puede degradarse a sí mismo (RF-76, AC-12.8). |
 | **A9** | Comportamiento de interacción de usuarios sobre una publicación ya en estado REPORTADA: ¿sigue siendo visible/likeable/reportable nuevamente por otros usuarios mientras está pendiente de revisión, o se restringe alguna interacción mientras dura la revisión? Ninguno de los dos specify lo define. | Afecta las reglas de habilitación de botones de interacción (like/reportar) en publicaciones REPORTADAS. | Definir el comportamiento esperado en una futura clarificación. |
-| **A10** | Comportamiento funcional detallado de una cuenta con `estadoCuenta` BANEADO o ELIMINADO desde la perspectiva del frontend: ¿puede el usuario baneado/eliminado iniciar sesión y ver algún mensaje específico? ¿su contenido publicado deja de ser visible automáticamente? Ninguno de los dos specify lo define. | Afecta el diseño de login y de la visibilidad de contenido de usuarios baneados/eliminados. | Definir el comportamiento esperado en una futura clarificación. |
-| **A11** | Formato/tipo exacto del archivo exportado en reportes/analíticas (por ejemplo, extensión `.xlsx`, nombre de archivo, metadatos mostrados junto al enlace de descarga). El specify de Admin solo define que la exportación es síncrona y que ante error se muestra "Error: Reporte no generado.", sin especificar el formato del archivo resultante desde la perspectiva del frontend. | Afecta el diseño de la UI de descarga (HU-15). | Definir el formato exacto cuando se especifique el contrato de la API de exportación. |
+| **A10** | ~~Comportamiento funcional detallado de una cuenta con `estadoCuenta` BANEADO o ELIMINADO.~~ | Afecta el diseño de login y de la visibilidad de contenido de usuarios baneados/eliminados. | **RESUELTO parcialmente** (2026-09-17): la cuenta NO puede iniciar sesión, con mensaje específico (RF-77, AC-04.9). Pendiente: comportamiento de visibilidad automática del contenido ya publicado por esa cuenta (no se resolvió en esta sesión; queda como ambigüedad secundaria de bajo impacto para no bloquear la implementación). |
+| **A11** | Formato/tipo exacto del archivo exportado en reportes/analíticas (por ejemplo, extensión `.xlsx`, nombre de archivo, metadatos mostrados junto al enlace de descarga). | Afecta el diseño de la UI de descarga (HU-15). | **Diferido explícitamente** (decisión 2026-09-17): no se define formato ahora; el frontend trata `urlDescarga` como una URL opaca (enlace de descarga genérico, sin asumir extensión/ícono específico) hasta que el backend confirme el contrato. No bloquea la implementación de HU-15. |
 | **A12** | Concurrencia: ¿qué sucede si dos administradores actúan simultáneamente sobre el mismo reporte o usuario (por ejemplo, uno elimina una publicación mientras otro la está revisando)? El specify de Admin deja esta pregunta explícitamente abierta, sin resolución. | Puede generar estados inconsistentes en la UI de dos sesiones administrativas simultáneas. | Definir el comportamiento esperado (por ejemplo, refrescar/mostrar error de conflicto) en una futura clarificación. |
 | **A13** | ¿Qué sucede si el usuario reportado/objetivo de una acción administrativa ya no existe al momento de revisar el reporte o ejecutar la acción? El specify de Admin deja esta pregunta explícitamente abierta, sin resolución. | Afecta el manejo de errores en las pantallas de moderación y gestión de usuarios. | Definir el mensaje/comportamiento esperado en una futura clarificación. |
-| **A14** | ¿Una cuenta con rol ADMIN puede además operar como usuario común en el frontend de usuario (publicar, dar like, seguir, guardar, reportar, proponer desafíos)? Ninguno de los dos specify originales lo aclara explícitamente: el specify de Usuario asume un único rol USER en su módulo, y el de Admin asume que la autenticación se reutiliza diferenciando "el acceso posterior" solo por el rol, sin precisar si el ADMIN conserva las capacidades de USER en el otro frontend. | Afecta directamente la fila "ADMIN" en la matriz de permisos de la sección 7 para todas las funcionalidades de usuario final. | Definir explícitamente si ADMIN hereda o no las capacidades de USER en el frontend de usuario. |
+| **A14** | ~~¿Una cuenta con rol ADMIN puede además operar como usuario común en el frontend de usuario?~~ | Afecta directamente la fila "ADMIN" en la matriz de permisos de la sección 7. | **RESUELTO** (2026-09-17): NO. ADMIN opera exclusivamente en `frontend-admin/`; no conserva capacidades de USER en `frontend/` (RF-78). |
 
 **Nota de resolución inequívoca**: La pregunta abierta en el specify de Admin *"¿qué sucede si se
 intenta acceder directamente (por URL) a una pantalla del módulo administrativo sin haber iniciado
@@ -921,20 +962,26 @@ Verificación realizada antes de finalizar esta especificación unificada:
 3. ✅ Se eliminaron duplicaciones evidentes (por ejemplo, los enunciados generales de "confirmación
    explícita antes de acción destructiva" y "resolución vía API sin filtrar en memoria" se
    consolidaron una vez, evitando repetir la misma regla para cada pantalla).
-4. ✅ Numeraciones unificadas: HU-01–HU-15, RF-01–RF-75, RNF-01–RNF-16, CB-01–CB-15, A1–A14.
+4. ✅ Numeraciones unificadas: HU-01–HU-15, RF-01–RF-80 (RF-76–RF-80 agregados en clarificación
+   2026-09-17), RNF-01–RNF-16, CB-01–CB-15, A1–A14.
 5. ✅ Prioridades de cada historia mantenidas según el documento de origen.
-6. ✅ Criterios de aceptación de cada historia mantenidos (renumerados como AC-XX.N).
+6. ✅ Criterios de aceptación de cada historia mantenidos (renumerados como AC-XX.N), con
+   ampliaciones AC-04.9, AC-11.1 (redefinido), AC-11.7 y AC-12.8 agregadas en la clarificación.
 7. ✅ Casos borde mantenidos; los que en el original de Admin eran preguntas abiertas sin resolución
    se trasladaron a Ambigüedades (A12, A13) en lugar de inventarse una solución.
-8. ✅ Ambigüedades mantenidas y unificadas (A1–A14), incluyendo una contradicción/zona gris nueva
-   identificada al fusionar ambos módulos (A14: alcance de un ADMIN sobre funcionalidades de USER).
-9. ✅ Contradicciones detectadas y marcadas explícitamente (A7, A8, A14).
+8. ✅ Ambigüedades unificadas (A1–A14); **A1, A2, A7, A8, A14 quedaron RESUELTAS y A10 parcialmente
+   resuelta** en la sesión `/speckit.clarify` del 2026-09-17 (ver sección 8). A3, A4, A5, A6, A9,
+   A11 (diferida explícitamente), A12, A13 permanecen abiertas sin bloquear la implementación de las
+   historias ya completamente especificadas.
+9. ✅ Contradicciones detectadas y resueltas explícitamente (A7, A8, A14 — ver RF-76, RF-78, RF-80).
 10. ✅ Verificado que USER no tiene acceso a funcionalidades ADMIN (RF-12, RF-14, RF-15; matriz de
     permisos sección 7).
 11. ✅ Verificado que ADMIN puede realizar las acciones administrativas definidas en los specify
-    originales (RF-54–RF-75; HU-10 a HU-15).
+    originales (RF-54–RF-80; HU-10 a HU-15), incluyendo degradar a otro ADMIN (RF-76).
 12. ✅ Verificado que ninguna funcionalidad de backend (persistencia, analytics, generación de
     reportes, integraciones externas) se convirtió en una funcionalidad a implementar por el
     frontend (sección 9, Fuera de Alcance; sección 10, Reglas de Separación de Responsabilidades).
+13. ✅ Verificado que ADMIN NO opera con capacidades de USER en `frontend/` (RF-78, resuelto A14),
+    corrigiendo la matriz de permisos de la sección 7 (antes marcada como "Ambiguo").
 
 **No se implementó código como parte de esta especificación.**

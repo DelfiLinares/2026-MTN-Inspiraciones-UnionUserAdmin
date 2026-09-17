@@ -90,7 +90,8 @@ mobile-first).
   publicaciones; límites confirmados: 10 tags por publicación, 100 carpetas por usuario.
 - `frontend-admin/`: 6 pantallas (login admin, dashboard, gestión de usuarios, moderación de
   publicaciones/reportes, gestión de desafíos, reportes/analíticas exportables).
-- 9 entidades de dominio de UI en total (5 de usuario + 4 de administración, ver `data-model.md`).
+- 10 entidades de dominio de UI en total (5 de usuario + 5 de administración, ver `data-model.md`;
+  corregido en sesión de clarificación 2026-09-17 — antes decía erróneamente "9 / 4 administración").
 
 ## Constitution Check
 
@@ -101,7 +102,7 @@ Evaluado contra `.specify/memory/constitution.md` (Inspiraciones Union Constitut
 | Principio | Verificación | Estado |
 |---|---|---|
 | I. La especificación manda sobre la implementación | Las 15 historias de usuario planificadas (HU-01–HU-15) y las 14 pantallas (8 usuario + 6 admin) están trazadas 1:1 a `spec.md`. No se agrega ninguna pantalla o funcionalidad no listada allí. | ✅ PASS |
-| II. Dominio orientado a objetos real | `data-model.md` define 9 entidades de UI (`Publicacion`, `Usuario`, `Filtro`, `Carpeta`, `Desafio`, `UsuarioAdmin`, `PublicacionModeracion`, `Reporte`, `DesafioPropuesto`) con métodos que encapsulan reglas (`puedeEditar()`, `puedeDarLike()`, `puedeBanear()`, `puedeAprobarse()`, etc.), no como DTOs anémicos. | ✅ PASS |
+| II. Dominio orientado a objetos real | `data-model.md` define **10 entidades** de UI (`Publicacion`, `Usuario`, `Filtro`, `Carpeta`, `Desafio`, `UsuarioAdmin`, `PublicacionModeracion`, `Reporte`, `DesafioPropuesto`, `ExportacionReporte`) con métodos que encapsulan reglas (`puedeEditar()`, `puedeDarLike()`, `puedeBanear()`, `puedeAprobarse()`, `puedeSerDegradado()`, etc.), no como DTOs anémicos. | ✅ PASS |
 | III. Separación estricta por capas | La estructura de proyecto (sección "Project Structure") define 4 capas explícitas en `frontend/` y en `frontend-admin/`; ningún componente de presentación importa el cliente HTTP directamente. | ✅ PASS |
 | IV. Frontends separados y con límites claros | `frontend/` y `frontend-admin/` son carpetas/proyectos independientes, sin acceso directo a MySQL ni responsabilidades de backend en ninguno de los dos. | ✅ PASS |
 | V. Backend Java limpio y delegación correcta | Fuera de alcance de este plan (no se planifica backend); los contratos consumidos se documentan en `contracts/api-contracts.md` para que el equipo de backend los implemente sin lógica de negocio en el cliente. | ✅ PASS (N/A directo) |

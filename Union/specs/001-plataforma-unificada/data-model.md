@@ -133,6 +133,18 @@ enum EstadoDesafioPropuesto {
 Trazabilidad: RF-70, sección 6 de `spec.md`. Transición final: `APROBADO`/`RECHAZADO` no puede
 revertirse (CB-15).
 
+### `PrioridadReporte`
+```ts
+enum PrioridadReporte {
+  ALTA = "ALTA",
+  MEDIA = "MEDIA",
+  BAJA = "BAJA",
+}
+```
+Trazabilidad: RF-65. Agregado en sesión de clarificación 2026-09-17 para reemplazar la unión de
+strings previa (`"ALTA"|"MEDIA"|"BAJA"`) por un enum cerrado, conforme al Principio VII de la
+constitución (enums/value objects para valores cerrados).
+
 ---
 
 ## Entidades — Frontend de Usuario
@@ -242,6 +254,9 @@ conforme al Principio IV (separación de aplicaciones) de la constitución.
   `esElPropioAdministrador`.
 - `puedeSerEliminado(adminActualId: string): boolean` → misma regla que `puedeSerBaneado`.
 - `puedeSerPromovido(): boolean` → `false` si `rol === ADMIN` (operación inválida/no-op, CB-12).
+- `puedeSerDegradado(adminActualId: string): boolean` → `true` solo si `rol === ADMIN` y
+  `!esElPropioAdministrador(adminActualId)` (RF-76, agregado en sesión de clarificación
+  2026-09-17, resuelve **A8**: un ADMIN puede degradar a otro ADMIN a USER, pero no a sí mismo).
 
 ### `PublicacionModeracion`
 
@@ -264,7 +279,8 @@ conforme al Principio IV (separación de aplicaciones) de la constitución.
 - `motivo: MotivoReporte`
 - `reportanteId: string`
 - `fecha: string` (ISO 8601)
-- `prioridad?: "ALTA" | "MEDIA" | "BAJA"` (si el backend la provee, RF-65)
+- `prioridad?: PrioridadReporte` (si el backend la provee, RF-65; tipado como enum desde la sesión
+  de clarificación 2026-09-17, antes era unión de strings)
 - `estado: EstadoModeracion`
 
 **Métodos**:
@@ -313,3 +329,17 @@ Trazabilidad: RF-71–RF-74 (visualización, exportación síncrona, descarga y 
 | `Reporte` | Admin | HU-11 |
 | `DesafioPropuesto` | Admin | HU-14 |
 | `ExportacionReporte` | Admin | HU-15 |
+
+**Conteo total**: 10 entidades de dominio de UI (5 en `frontend/`: `Publicacion`, `Usuario`,
+`Filtro`, `Carpeta`, `Desafio`; 5 en `frontend-admin/`: `UsuarioAdmin`, `PublicacionModeracion`,
+`Reporte`, `DesafioPropuesto`, `ExportacionReporte`), más el enum auxiliar `PrioridadReporte`
+agregado en la sesión de clarificación 2026-09-17. Este conteo corrige la cifra "9 entidades / 4
+administración" que figuraba erróneamente en `plan.md`.
+
+## Notas de la sesión de clarificación (2026-09-17)
+
+- `UsuarioAdmin.puedeSerDegradado()` se agregó para resolver **A8** (RF-76 de `spec.md`).
+- `Reporte.prioridad` pasó de unión de strings a enum `PrioridadReporte` para cumplir el Principio
+  VII de la constitución (resuelto en el reporte de `/speckit.analyze`).
+- El nombre y valores de `EstadoModeracion` (ya definidos aquí) quedaron confirmados como decisión
+  final por RF-79 (resuelve **A2**), no solo como propuesta técnica.
