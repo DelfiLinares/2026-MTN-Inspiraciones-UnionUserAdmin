@@ -35,7 +35,7 @@ carpetas necesaria para las tareas siguientes.
 ### T002 [P] — Confirmar estructura de carpetas del frontend de administración
 **Archivos**: `Admin/my-proyect/frontend-admin/src/domain/`, `.../src/domain/enums/`,
 `.../src/application/`, `.../src/infrastructure/`, `.../src/presentation/`, `.../tests/domain/`,
-`.../tests/application/`, `.../tests/presentation/`, `.../tests/integration/`
+`.../tests/application/`, `.../tests/presentation/`, `.../tests/integration/` 
 **Descripción**: Verificar la estructura de 4 capas ya presente (`domain/application/
 infrastructure/presentation`) descrita en `plan.md`, ajustando nombres de subcarpetas por pantalla
 (`usuarios/`, `moderacion/`, `desafios/`, `reportes/`, `dashboard/`, `login/`) si faltan.
