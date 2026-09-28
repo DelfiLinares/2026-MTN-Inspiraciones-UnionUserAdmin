@@ -102,7 +102,7 @@ Mientras el backend no esté disponible, se recomienda:
 6. Intentar banear/eliminar a otro ADMIN o a sí mismo (CB-11) → verificar que la acción está
    deshabilitada en la UI.
 7. Promover un usuario USER a ADMIN (HU-12) → verificar confirmación explícita previa.
-8. Intentar promover a un usuario que ya es ADMIN (CB-12) → verificar rechazo como no-op.
+8. Intentar promover a un usuario que ya es ADMIN (CB-12) → verificar rechazo como no-op. 
 9. Aprobar/rechazar un desafío propuesto (HU-14) → verificar que las acciones quedan deshabilitadas
    permanentemente tras la decisión (CB-15).
 10. Solicitar una exportación de reporte (HU-15) → verificar comportamiento síncrono y, en caso de
