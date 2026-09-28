@@ -146,6 +146,83 @@ describe('publicacionService (T070)', () => {
       expect(resFinal.likeDelUsuarioActual).toBe(false)
       expect(resFinal.cantidadLikes).toBe(10)
     })
+
+    /**
+     * T108 — Test de integración: like/unlike en rápida sucesión (CB-02).
+     *
+     * Fuente de verdad:
+     * - Union/specs/001-plataforma-unificada/spec.md (CB-02)
+     * - Union/specs/001-plataforma-unificada/tasks.md (T108, depende de T048; complementa T070)
+     *
+     * Nota de ubicación: la ruta canónica de T108 en tasks.md es
+     * `Usuario/my-project/backend_usuario/frontend/tests/services/publicacionService.test.ts`,
+     * fuera del alcance permitido (no se debe tocar `Usuario/`). Por instrucción expresa del
+     * usuario (misma autorización general aplicada en T102, T107 y siguientes), el test
+     * equivalente se agrega aquí, en `Union/.../frontend/tests/services/publicacionService.test.ts`,
+     * complementando el test de T070 ya existente ("aborta la petición anterior en vuelo...").
+     * No se leyó ni modificó ningún archivo de `Usuario/` ni `Admin/` para esta tarea.
+     *
+     * Dispara like (clic 1) y, antes de que la primera petición responda, dispara unlike
+     * (clic 2, sobre la publicación ya con like optimista); verifica que la primera petición
+     * queda cancelada (`AbortSignal.aborted === true`) y que el contador final refleja
+     * consistentemente el último estado solicitado (unlike: `cantidadLikes` original,
+     * `likeDelUsuarioActual: false`), sin importar en qué orden resuelva la promesa cancelada.
+     */
+    it(
+      'dispara like y unlike en rápida sucesión antes de que la primera responda; ' +
+        'el contador final es consistente con el último estado solicitado (CB-02)',
+      async () => {
+        let signalClic1: AbortSignal | undefined
+        let signalClic2: AbortSignal | undefined
+
+        // Clic 1 (like): la petición nunca resuelve por sí sola, solo se cancela vía AbortSignal
+        vi.mocked(httpClient.post).mockImplementationOnce(
+          (_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
+            signalClic1 = options?.signal
+            return new Promise(() => {
+              // Intencionalmente no se resuelve: solo debe cancelarse por el clic 2.
+            }) as Promise<unknown>
+          }
+        )
+
+        // Clic 2 (unlike): responde de inmediato con el estado final consistente
+        vi.mocked(httpClient.delete).mockImplementationOnce(
+          (_url: string, options?: { signal?: AbortSignal }) => {
+            signalClic2 = options?.signal
+            return Promise.resolve({
+              cantidadLikes: publicacionBase.cantidadLikes,
+              likeDelUsuarioActual: false,
+            })
+          }
+        )
+
+        // Clic 1: dar like sobre la publicación sin like (queda "en vuelo")
+        const promesaClic1 = alternarLike(publicacionBase, usuarioActualId, true)
+
+        // Clic 2 inmediato: quitar like, partiendo del estado optimista ya aplicado por el clic 1
+        const publicacionConLikeOptimista = publicacionBase.toggleLike()
+        const promesaClic2 = alternarLike(publicacionConLikeOptimista, usuarioActualId, true)
+
+        // La primera petición (like) debe haber sido cancelada por el segundo clic (CB-02)
+        expect(signalClic1?.aborted).toBe(true)
+        expect(httpClient.delete).toHaveBeenCalledWith(
+          '/publicaciones/pub-100/like',
+          expect.objectContaining({ signal: signalClic2 })
+        )
+
+        // Solo la segunda petición (unlike) determina el estado final
+        const resultadoFinal = await promesaClic2
+        expect(resultadoFinal.likeDelUsuarioActual).toBe(false)
+        expect(resultadoFinal.cantidadLikes).toBe(publicacionBase.cantidadLikes)
+
+        // La promesa del clic 1 (like), al haber sido abortada, nunca resuelve por su cuenta;
+        // se verifica que el flujo no depende de su resolución para llegar al estado consistente.
+        await Promise.race([
+          promesaClic1.catch(() => undefined),
+          new Promise((resolve) => setTimeout(resolve, 10)),
+        ])
+      }
+    )
   })
 
   describe('reportarPublicacion & Estado Reporte', () => {
