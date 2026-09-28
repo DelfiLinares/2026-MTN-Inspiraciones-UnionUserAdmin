@@ -32,11 +32,16 @@ export const LoginPage: React.FC = () => {
   const [mail, setMail] = useState('')
   const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
-  const [errorMensaje, setErrorMensaje] = useState<string | null>(null)
 
   // Determinar la ruta de destino original tras el login (fallback a /feed)
-  const estadoNavegacion = location.state as { from?: { pathname: string } } | undefined
+  const estadoNavegacion = location.state as
+    | { from?: { pathname: string }; mensaje?: string }
+    | undefined
   const destinoPostLogin = estadoNavegacion?.from?.pathname ?? '/feed'
+
+  // RF-78 / Resuelto A14: refuerzo de mensaje cuando `RutaProtegida` (T094) redirige aquí
+  // tras rechazar una sesión ADMIN persistida que intentaba operar en `frontend/`.
+  const [errorMensaje, setErrorMensaje] = useState<string | null>(estadoNavegacion?.mensaje ?? null)
 
   const handleSubmitMailPassword = async (e: React.FormEvent) => {
     e.preventDefault()
