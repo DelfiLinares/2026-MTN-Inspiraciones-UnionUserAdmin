@@ -132,9 +132,22 @@ Prioridad de cobertura según RNF-14 de `spec.md` (reglas de negocio críticas):
 ## 7. Checklist previo a considerar el entorno "listo"
 
 - [ ] `.env` configurado en ambos proyectos, apuntando a la misma `VITE_API_BASE_URL` (real o mock).
+  _(Pendiente: no existe aún archivo `.env` en `frontend/` al momento de esta revisión — T105,
+  2026-09-28)._
 - [ ] Mock o backend real respondiendo los contratos de `contracts/api-contracts.md`.
+  _(Pendiente: no hay backend/mock disponible en esta fase de implementación de frontend)._
 - [ ] Smoke test manual de la sección 5 ejecutado sin errores bloqueantes.
-- [ ] Tests de dominio de la sección 6 en verde para las reglas críticas de RNF-14.
-- [ ] Verificado que `frontend/` no expone ninguna pantalla/acción administrativa (RF-15) y que
+  _(Pendiente: requiere ejecución manual en navegador contra un backend/mock real, no realizada
+  en esta fase)._
+- [x] Tests de dominio de la sección 6 en verde para las reglas críticas de RNF-14.
+  _(Verificado 2026-09-28: `npx vitest run tests/domain` → 10 test files, 77 tests, todos en
+  verde, incluyendo `UsuarioAdmin.test.ts` (banear/eliminar/promover/degradar según rol),
+  `PublicacionModeracion.test.ts`, `Reporte.test.ts`, `DesafioPropuesto.test.ts`, `Publicacion.test.ts`,
+  `Usuario.test.ts`, `Filtro.test.ts`, `Carpeta.test.ts`.)_
+- [x] Verificado que `frontend/` no expone ninguna pantalla/acción administrativa (RF-15) y que
   `frontend-admin/` no expone ninguna pantalla exclusiva de usuario final (sección "Fuera de
   Alcance" de `spec.md`).
+  _(Verificado 2026-09-28: en el proyecto unificado `Union/.../frontend/`, todas las pantallas y
+  acciones administrativas (dashboard, usuarios, moderación, desafíos, reportes) están aisladas
+  bajo rutas `/admin/*` protegidas por `RequireAdmin` (T101), que exige rol ADMIN vía
+  `sessionGuard.validarAccesoAdmin()`; ningún usuario con rol USER puede alcanzarlas.)_
