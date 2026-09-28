@@ -34,6 +34,7 @@
 
 import React, { useState } from 'react'
 import { UsuarioAdmin } from '../../domain/UsuarioAdmin'
+import { RolUsuarioAdmin } from '../../domain/enums/RolUsuarioAdmin'
 import {
   banearUsuario,
   eliminarUsuario,
@@ -76,7 +77,7 @@ export const UsuarioAccionesSensibles: React.FC<UsuarioAccionesSensiblesProps> =
   const puedeBanear = usuario.puedeSerBaneado(adminActualId)
   const puedeEliminar = usuario.puedeSerEliminado(adminActualId)
   const puedePromover = usuario.puedeSerPromovido()
-  const puedeDegradar = usuario.rol === 'ADMIN' && usuario.puedeSerDegradado(adminActualId)
+  const puedeDegradar = usuario.rol === RolUsuarioAdmin.ADMIN && usuario.puedeSerDegradado(adminActualId)
 
   const configuraciones: ConfiguracionAccion[] = [
     {
