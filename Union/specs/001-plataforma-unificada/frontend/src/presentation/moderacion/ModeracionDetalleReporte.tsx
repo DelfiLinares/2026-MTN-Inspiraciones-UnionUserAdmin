@@ -16,14 +16,15 @@
  * Criterios de aceptación cubiertos:
  * - AC-11.3: Muestra motivo, fecha, publicación asociada y reportante.
  * - RF-65: Muestra prioridad/antigüedad del reporte.
- * - Alcance de T098A: SOLO lectura. Las acciones sensibles (eliminar publicación / resolver sin
- *   eliminar) quedan fuera de esta tarea y corresponden a T098B (`ModeracionAcciones`).
+ * - Integra `ModeracionAcciones` (T098B) para las acciones sensibles (eliminar publicación /
+ *   resolver sin eliminar), recargando el detalle tras cada acción exitosa.
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { obtenerDetalleReporte } from '../../services/ModeracionService'
 import type { DetalleReporteModeracion } from '../../services/ModeracionService'
 import { Spinner, EmptyState } from '../../components/comunes'
+import { ModeracionAcciones } from './ModeracionAcciones'
 
 export interface ModeracionDetalleReporteProps {
   reporteId: string
@@ -38,34 +39,22 @@ export const ModeracionDetalleReporte: React.FC<ModeracionDetalleReporteProps> =
   const [cargando, setCargando] = useState(true)
   const [errorMensaje, setErrorMensaje] = useState<string | null>(null)
 
-  useEffect(() => {
-    let cancelado = false
-
-    const cargar = async () => {
-      setCargando(true)
-      setErrorMensaje(null)
-      try {
-        const datos = await obtenerDetalleReporte(reporteId)
-        if (!cancelado) {
-          setDetalle(datos)
-        }
-      } catch {
-        if (!cancelado) {
-          setErrorMensaje('No se pudo cargar el detalle del reporte.')
-        }
-      } finally {
-        if (!cancelado) {
-          setCargando(false)
-        }
-      }
-    }
-
-    cargar()
-
-    return () => {
-      cancelado = true
+  const cargarDetalle = useCallback(async () => {
+    setCargando(true)
+    setErrorMensaje(null)
+    try {
+      const datos = await obtenerDetalleReporte(reporteId)
+      setDetalle(datos)
+    } catch {
+      setErrorMensaje('No se pudo cargar el detalle del reporte.')
+    } finally {
+      setCargando(false)
     }
   }, [reporteId])
+
+  useEffect(() => {
+    cargarDetalle()
+  }, [cargarDetalle])
 
   const calcularAntiguedadDias = (fecha: string): number => {
     const diferencia = Date.now() - new Date(fecha).getTime()
@@ -132,6 +121,15 @@ export const ModeracionDetalleReporte: React.FC<ModeracionDetalleReporteProps> =
                   <span className="text-sm text-gray-900">{detalle.reporte.prioridad}</span>
                 </div>
               )}
+            </div>
+
+            <div className="pt-4 border-t border-gray-100">
+              <ModeracionAcciones
+                reporte={detalle.reporte}
+                publicacion={detalle.publicacion}
+                onPublicacionEliminada={cargarDetalle}
+                onReporteResuelto={cargarDetalle}
+              />
             </div>
           </div>
         )}
