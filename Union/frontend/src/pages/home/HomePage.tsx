@@ -129,8 +129,6 @@ export const HomePage: React.FC = () => {
             <h2 id="home-challenge-title">Challenge semanal</h2>
             <p>Te invitamos a hacer el challenge de esta semana, el cual consiste en:</p>
             <p className="home-challenge-details">pipipipi<br />pipippfiṕfa<br />fjskfhñfhñf</p>
-            <Link className="home-challenge-button" to="/desafios">Challenge</Link>
-            <small>Sabé más del challenge y mirá respuestas de nuestros miembros</small>
           </div>
         </section>
 
@@ -206,7 +204,6 @@ export const HomePage: React.FC = () => {
             <div className="home-empty-state">
               <h2>Tu feed está vacío</h2>
               <p>Seguí a otros artistas para ver sus publicaciones acá.</p>
-              <Link to="/descubrir">Descubrir artistas</Link>
             </div>
           )}
 

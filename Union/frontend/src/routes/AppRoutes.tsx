@@ -11,8 +11,7 @@
  *   RF-05: si un usuario ya autenticado accede a `/login`, se lo redirige al home (`/feed`).
  *
  * Rutas protegidas (requieren sesión activa, `RutaProtegida`):
- * - `/cuestionario`, `/feed`, `/descubrir`, `/desafios`, `/perfil/:id`, `/editar-perfil`,
- *   `/carpetas`.
+ * - `/feed`, `/perfil/:id`, `/editar-perfil`.
  *   Todas ellas, además, rechazan/redirigen cualquier cuenta con rol ADMIN (RF-78, Resuelto A14),
  *   reforzando lo ya aplicado en `LoginPage` (T084) a nivel de guard de rutas.
  */
@@ -24,13 +23,9 @@ import { RutaProtegida } from './RutaProtegida'
 
 import { LoginPage } from '../pages/login'
 import { RegistroPage } from '../pages/registro'
-import { CuestionarioPage } from '../pages/cuestionario'
 import { HomePage } from '../pages/home'
-import { DescubrirPage } from '../pages/descubrir'
-import { DesafiosPage } from '../pages/desafios'
 import { PerfilPage } from '../pages/perfil'
 import { EditarPerfilPage } from '../pages/editar-perfil'
-import { CarpetasPage } from '../pages/carpetas'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -73,34 +68,10 @@ export const AppRoutes: React.FC = () => {
 
       {/* Rutas protegidas (requieren sesión activa; rechazan rol ADMIN — RF-78 / A14) */}
       <Route
-        path="/cuestionario"
-        element={
-          <RutaProtegida>
-            <CuestionarioPage />
-          </RutaProtegida>
-        }
-      />
-      <Route
         path="/feed"
         element={
           <RutaProtegida>
             <HomePage />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/descubrir"
-        element={
-          <RutaProtegida>
-            <DescubrirPage />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/desafios"
-        element={
-          <RutaProtegida>
-            <DesafiosPage />
           </RutaProtegida>
         }
       />
@@ -120,15 +91,6 @@ export const AppRoutes: React.FC = () => {
           </RutaProtegida>
         }
       />
-      <Route
-        path="/carpetas"
-        element={
-          <RutaProtegida>
-            <CarpetasPage />
-          </RutaProtegida>
-        }
-      />
-
       {/* Redirecciones por defecto */}
       <Route path="/" element={<Navigate to="/feed" replace />} />
       <Route path="*" element={<Navigate to="/feed" replace />} />

@@ -2,7 +2,7 @@
  * Pantalla de Registro de Usuario (`RegistroPage.tsx`, HU-05, RF-07).
  *
  * Fuente de verdad:
- * - Union/specs/001-plataforma-unificada/spec.md (HU-05, AC-05.1, AC-05.2, AC-05.3, AC-05.4, AC-05.5, RF-07)
+ * - Union/specs/001-plataforma-unificada/spec.md (HU-05, AC-05.1, AC-05.2, AC-05.3, AC-05.5, RF-07)
  * - Union/specs/001-plataforma-unificada/plan.md
  * - Union/specs/001-plataforma-unificada/tasks.md (T085)
  * - Diseño visual: Union/specs/001-plataforma-unificada/frontend_visual/Registro
@@ -17,7 +17,7 @@
  * - Muestra coincidencia de contraseñas.
  * - Requiere aceptar los términos y condiciones antes de registrarse.
  * - Opciones de registro OAuth (Google, GitHub) que autentican en un solo paso.
- * - Tras registro exitoso, guarda sesión y redirige al cuestionario de onboarding (`/cuestionario`).
+ * - Tras registro exitoso, guarda sesión y redirige al home (`/feed`).
  */
 
 import React, { useState } from 'react'
@@ -114,8 +114,7 @@ export const RegistroPage: React.FC = () => {
       })
 
       iniciarSesion(resultado.usuario)
-      // AC-05.4: Un registro exitoso inicia el flujo de cuestionario de onboarding
-      navigate('/cuestionario')
+      navigate('/feed')
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMensaje(err.message)

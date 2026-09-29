@@ -12,7 +12,7 @@
  * - Muestra mensaje de error específico si la cuenta está BANEADA / ELIMINADA (AC-04.9, RF-77).
  * - Muestra mensaje de credenciales inválidas (RF-03).
  * - Si la cuenta autenticada posee el rol ADMIN, rechaza el acceso a `frontend/` y redirige a la consola administrativa / módulo de admin con mensaje claro (RF-78, Resuelto A14).
- * - Redirección post-login a la página de origen o `/feed` (o `/descubrir`).
+ * - Redirección post-login a la página de origen o `/feed`.
  */
 
 import React, { useState } from 'react'
@@ -155,7 +155,8 @@ export const LoginPage: React.FC = () => {
 
         <div className="login-divider" aria-hidden="true" />
 
-        <button
+          {/* 
+                  <button
           className="login-social login-social--google"
           type="button"
           onClick={handleOAuthGoogle}
@@ -177,7 +178,8 @@ export const LoginPage: React.FC = () => {
             </svg>
           </span>
           <span>Continuar con GitHub</span>
-        </button>
+        </button> */}
+
       </section>
 
       <aside className="login-promo" aria-labelledby="login-promo-title">
