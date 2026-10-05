@@ -4,10 +4,14 @@
  * Trazabilidad:
  * - Union/specs/002-frontend-admin/tasks.md (T034a: `listar()`, depende de T008, T009, T017, T033;
  *   T034b: `banear()`, depende de T009, T017, T034a, hace pasar la porción "banear" de T033;
- *   T034c: `eliminar()`, depende de T009, T017, T034a, hace pasar la porción "eliminar" de T033)
- * - Union/specs/002-frontend-admin/spec.md RF-01, RF-02, RF-03, CB-01, CB-08
+ *   T034c: `eliminar()`, depende de T009, T017, T034a, hace pasar la porción "eliminar" de T033;
+ *   T065: `promover()`, depende de T008, T017, T064, T064b, hace pasar T064 y la regla de negocio
+ *   crítica #5 de `spec.md` §6)
+ * - Union/specs/002-frontend-admin/spec.md RF-01, RF-02, RF-03, RF-06, RF-07, RF-08, CB-01, CB-02,
+ *   CB-08
  * - Union/specs/002-frontend-admin/contracts/openapi.yaml
- *   (`GET /usuarios`, `POST /usuarios/{id}/banear`, `POST /usuarios/{id}/eliminar`)
+ *   (`GET /usuarios`, `POST /usuarios/{id}/banear`, `POST /usuarios/{id}/eliminar`,
+ *   `POST /usuarios/{id}/promover`)
  *
  * Nota de colisión de nombres (ver `tests/application/UsuariosServiceAdmin.test.ts`, T033):
  * ya existe `src/services/UsuariosService.ts` (clase `UsuariosService`, de
@@ -24,6 +28,14 @@
  *   valida que no esté en el pasado (CB-08) antes de invocar el `HttpClient`.
  * - `eliminar(usuario)`: Delega `usuario.puedeSerEliminado()` a la entidad `UsuarioAdmin` antes de
  *   invocar el `HttpClient`.
+ * - `promover(usuario)`: Delega `usuario.puedeSerPromovidoAAdmin()` a la entidad `UsuarioAdmin`
+ *   (RF-06, RF-08, CB-02: no-op si el usuario objetivo ya es `ADMIN`) y, si se provee
+ *   `obtenerRolActorActual` al constructor, verifica que el actor autenticado tenga rol `ADMIN`
+ *   (RF-07; regla de negocio crítica #5 de `spec.md` §6) antes de invocar el `HttpClient`. Si no se
+ *   provee ese callback, se asume que la verificación de rol del actor ya fue realizada en una capa
+ *   superior (p. ej. guardia de ruta `GuardiaRolAdmin`, T028), manteniendo compatibilidad con la
+ *   forma de instanciación existente de `banear()`/`eliminar()` (T034b/T034c), que tampoco reciben
+ *   el rol del actor.
  */
 
 import type { HttpClient } from '../infrastructure/AdminHttpClientPort'
@@ -38,10 +50,30 @@ export const MENSAJE_ACCION_PROHIBIDA_ADMIN_O_UNO_MISMO =
 export const MENSAJE_FECHA_BANEO_INVALIDA =
   'La fecha de fin del baneo temporal debe ser una fecha futura.'
 
+export const MENSAJE_USUARIO_YA_ES_ADMIN =
+  'El usuario ya tiene rol ADMIN y no puede volver a promoverse.'
+
+export const MENSAJE_ACTOR_SIN_PERMISO_ADMIN =
+  'Solo un usuario con rol ADMIN puede ejecutar esta acción.'
+
 export class AccionUsuarioProhibidaError extends Error {
   constructor(mensaje = MENSAJE_ACCION_PROHIBIDA_ADMIN_O_UNO_MISMO) {
     super(mensaje)
     this.name = 'AccionUsuarioProhibidaError'
+  }
+}
+
+export class UsuarioYaEsAdminError extends Error {
+  constructor(mensaje = MENSAJE_USUARIO_YA_ES_ADMIN) {
+    super(mensaje)
+    this.name = 'UsuarioYaEsAdminError'
+  }
+}
+
+export class ActorSinPermisoAdminError extends Error {
+  constructor(mensaje = MENSAJE_ACTOR_SIN_PERMISO_ADMIN) {
+    super(mensaje)
+    this.name = 'ActorSinPermisoAdminError'
   }
 }
 
@@ -97,7 +129,8 @@ interface RespuestaListaUsuariosDto {
 export class UsuariosServiceAdmin {
   constructor(
     private readonly client: HttpClient,
-    private readonly obtenerAdminActualId?: () => string | undefined
+    private readonly obtenerAdminActualId?: () => string | undefined,
+    private readonly obtenerRolActorActual?: () => string | undefined
   ) {}
 
   /**
@@ -155,5 +188,27 @@ export class UsuariosServiceAdmin {
     }
 
     await this.client.delete<void>(apiEndpointsAdmin.eliminarUsuario(usuario.id))
+  }
+
+  /**
+   * T065: Promueve un usuario al rol ADMIN (`POST /usuarios/{id}/promover`, RF-06).
+   * Verifica primero que el actor autenticado tenga rol `ADMIN` (RF-07; regla de negocio crítica
+   * #5 de `spec.md` §6) cuando se provee `obtenerRolActorActual` al constructor; si el actor no es
+   * `ADMIN`, rechaza sin invocar el `HttpClient`. Luego valida `usuario.puedeSerPromovidoAAdmin()`
+   * (delegado a la entidad `UsuarioAdmin`, T017): si el usuario objetivo ya tiene rol `ADMIN`, la
+   * operación es un no-op inválido (RF-08, CB-02) y tampoco invoca el `HttpClient`.
+   */
+  async promover(usuario: UsuarioAdmin): Promise<void> {
+    const rolActorActual = this.obtenerRolActorActual?.()
+
+    if (rolActorActual !== undefined && rolActorActual !== RolUsuario.ADMIN) {
+      throw new ActorSinPermisoAdminError()
+    }
+
+    if (!usuario.puedeSerPromovidoAAdmin()) {
+      throw new UsuarioYaEsAdminError()
+    }
+
+    await this.client.post<void>(apiEndpointsAdmin.promoverUsuario(usuario.id), undefined)
   }
 }
