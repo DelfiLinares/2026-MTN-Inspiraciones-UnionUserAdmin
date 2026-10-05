@@ -16,13 +16,16 @@
  * Además, el puerto abstracto equivalente (misma forma: `get`/`post`/`patch`/`put`/`delete`) ya
  * existe en `Union/frontend/src/application/ports/HttpClient.ts` (T042 de `001-plataforma-unificada`).
  *
- * Por lo tanto, esta interfaz se define aquí, en `HttpClientAdmin.ts`, siguiendo el mismo patrón de
- * sufijo `*Admin` aplicado a los enums de este módulo (`RolUsuarioAdmin`, `EstadoPublicacionAdmin`,
- * `MotivoReporteAdmin`). Es intencionalmente idéntica en forma al puerto existente, ya que ambas
- * representan el mismo contrato de abstracción sobre HTTP (Principio V: la capa de aplicación no
- * depende de `fetch` directamente). La implementación concreta de este módulo (equivalente a
- * `httpClientAdmin.ts`, de `001-plataforma-unificada`) se definirá en una tarea posterior, fuera de
- * T031, que sólo pide la interfaz SIN implementación real.
+ * El nombre original previsto para este archivo era `HttpClientAdmin.ts` (siguiendo el patrón de
+ * sufijo `*Admin` aplicado a los enums de este módulo: `RolUsuarioAdmin`, `EstadoPublicacionAdmin`,
+ * `MotivoReporteAdmin`), pero ese nombre colisiona en sistemas de archivos case-insensitive con
+ * `Union/frontend/src/infrastructure/httpClientAdmin.ts` (preexistente, distinto solo en
+ * capitalización), lo cual TypeScript rechaza como archivos duplicados. Por eso se renombró a
+ * `AdminHttpClientPort.ts`. Es intencionalmente idéntica en forma al puerto existente de
+ * `001-plataforma-unificada`, ya que ambas representan el mismo contrato de abstracción sobre HTTP
+ * (Principio V: la capa de aplicación no depende de `fetch` directamente). La implementación
+ * concreta de este módulo se definirá en una tarea posterior, fuera de T031, que sólo pide la
+ * interfaz SIN implementación real.
  */
 
 export interface HttpRequestOptions {
