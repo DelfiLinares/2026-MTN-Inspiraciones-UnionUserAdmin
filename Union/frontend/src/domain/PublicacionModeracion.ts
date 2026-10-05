@@ -15,6 +15,15 @@ export interface PublicacionModeracionProps {
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/data-model.md
  * - Union/specs/001-plataforma-unificada/tasks.md (T022, T032)
+ *
+ * Trazabilidad adicional (T018, `Union/specs/002-frontend-admin/tasks.md`):
+ * Esta clase hace pasar los tests de T015 (`tests/domain/PublicacionModeracion.test.ts`):
+ * `puedeSerEditada()`, `puedeSerEliminada()` (ya existente, vía `puedeEliminarse()`), `estaActiva()`
+ * y `estaReportada()` (ya existente), implementando RF-09, RF-10, RF-12 de
+ * `Union/specs/002-frontend-admin/spec.md`. Ver el comentario de cabecera de
+ * `PublicacionModeracion.test.ts` para la justificación de por qué esta entidad administrativa vive
+ * bajo `PublicacionModeracion.ts` en lugar de `Publicacion.ts` (colisión de nombres con la entidad
+ * social de `001-plataforma-unificada`).
  */
 export class PublicacionModeracion {
   readonly id: string
@@ -35,7 +44,23 @@ export class PublicacionModeracion {
     return this.estado === EstadoPublicacion.REPORTADA
   }
 
+  /**
+   * RF-11 / data-model.md: indica si la publicación está en estado `ACTIVA`.
+   */
+  estaActiva(): boolean {
+    return this.estado === EstadoPublicacion.ACTIVA
+  }
+
   puedeEliminarse(): boolean {
+    return this.estado !== EstadoPublicacion.ELIMINADA
+  }
+
+  /**
+   * RF-09: el sistema DEBE permitir editar el contenido de una publicación de cualquier usuario,
+   * sin distinción de autor ni de estado previo, salvo que ya esté `ELIMINADA` (una publicación
+   * eliminada deja de ser editable).
+   */
+  puedeSerEditada(): boolean {
     return this.estado !== EstadoPublicacion.ELIMINADA
   }
 
