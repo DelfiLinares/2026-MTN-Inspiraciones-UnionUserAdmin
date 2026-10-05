@@ -19,6 +19,12 @@
  * formulario de filtros con `rol`/`estadoCuenta`, y usa `UsuariosService`/`buscarUsuarios` de ese
  * otro módulo). `UsuariosTable` es solo el componente de TABLA reutilizable de este módulo
  * (`002-frontend-admin`), consumido por `UsuariosPage.tsx` (T030/T038).
+ *
+ * Extensión T038: se agregó la prop opcional `renderAcciones`, que permite a `UsuariosPage.tsx`
+ * inyectar una columna de "Acciones" por fila (con `BanearUsuarioAction`/`EliminarUsuarioAction`,
+ * T036/T037) sin que `UsuariosTable` conozca esos componentes directamente. También recibe
+ * `recargar` para que las acciones puedan refrescar el listado tras banear/eliminar (AC-01.6,
+ * AC-02.5).
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
@@ -33,9 +39,14 @@ const TAMANO_PAGINA = 10
 export interface UsuariosTableProps {
   readonly httpClient: HttpClient
   readonly obtenerAdminActualId?: () => string | undefined
+  readonly renderAcciones?: (usuario: UsuarioAdmin, recargar: () => void) => React.ReactNode
 }
 
-export const UsuariosTable: React.FC<UsuariosTableProps> = ({ httpClient, obtenerAdminActualId }) => {
+export const UsuariosTable: React.FC<UsuariosTableProps> = ({
+  httpClient,
+  obtenerAdminActualId,
+  renderAcciones,
+}) => {
   const [texto, setTexto] = useState('')
   const [pagina, setPagina] = useState(1)
   const [items, setItems] = useState<UsuarioAdmin[]>([])
@@ -103,6 +114,7 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({ httpClient, obtene
               <th>Mail</th>
               <th>Rol</th>
               <th>Estado de cuenta</th>
+              {renderAcciones && <th>Acciones</th>}
             </tr>
           </thead>
           <tbody>
@@ -112,6 +124,7 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({ httpClient, obtene
                 <td>{usuario.mail}</td>
                 <td>{usuario.rol}</td>
                 <td>{usuario.estadoCuenta}</td>
+                {renderAcciones && <td>{renderAcciones(usuario, cargarUsuarios)}</td>}
               </tr>
             ))}
           </tbody>

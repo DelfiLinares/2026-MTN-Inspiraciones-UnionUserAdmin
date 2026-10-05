@@ -22,20 +22,34 @@
  *
  * Nota de integración: las páginas reales (`UsuariosPage`, `PromocionPage`, `PublicacionesPage`,
  * `ReportesPage`) se crearon en T030 (placeholders de contenido; el cableado funcional de cada
- * pantalla con sus servicios/tablas/acciones ocurre en las Fases 4–7, aún pendientes).
+ * pantalla con sus servicios/tablas/acciones ocurre en las Fases 4–7).
+ *
+ * Nota T038: `UsuariosPage` ahora requiere `httpClient` (inyección de dependencias del puerto
+ * `HttpClient`, T031), ya que aún no existe una implementación concreta de ese puerto para este
+ * módulo. Por eso `AppRoutesAdmin` recibe `httpClient`/`obtenerAdminActualId` como props y los
+ * reenvía a `UsuariosPage`, en lugar de instanciar un cliente HTTP concreto aquí mismo.
  */
 
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
+import type { HttpClient } from '../infrastructure/AdminHttpClientPort'
 import { UsuariosPage } from '../presentation/usuarios/UsuariosPage'
 import { PromocionPage } from '../presentation/promocion/PromocionPage'
 import { PublicacionesPage } from '../presentation/publicaciones/PublicacionesPage'
 import { ReportesPage } from '../presentation/reportes/ReportesPage'
 
-export const AppRoutesAdmin: React.FC = () => {
+export interface AppRoutesAdminProps {
+  readonly httpClient: HttpClient
+  readonly obtenerAdminActualId?: () => string | undefined
+}
+
+export const AppRoutesAdmin: React.FC<AppRoutesAdminProps> = ({ httpClient, obtenerAdminActualId }) => {
   return (
     <Routes>
-      <Route path="/usuarios" element={<UsuariosPage />} />
+      <Route
+        path="/usuarios"
+        element={<UsuariosPage httpClient={httpClient} obtenerAdminActualId={obtenerAdminActualId} />}
+      />
       <Route path="/promocion" element={<PromocionPage />} />
       <Route path="/publicaciones" element={<PublicacionesPage />} />
       <Route path="/reportes" element={<ReportesPage />} />
