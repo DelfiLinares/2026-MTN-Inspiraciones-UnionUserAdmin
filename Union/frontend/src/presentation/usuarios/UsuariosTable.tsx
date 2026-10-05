@@ -25,6 +25,10 @@
  * T036/T037) sin que `UsuariosTable` conozca esos componentes directamente. También recibe
  * `recargar` para que las acciones puedan refrescar el listado tras banear/eliminar (AC-01.6,
  * AC-02.5).
+ *
+ * Extensión T067: se agregó la prop opcional `rolFiltro` (`RolUsuario`), que permite a
+ * `PromocionPage.tsx` reutilizar esta misma tabla filtrando server-side únicamente usuarios con
+ * rol `USER` (candidatos a promoción), sin necesidad de una variante de tabla separada.
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
@@ -33,6 +37,7 @@ import type { HttpClient } from '../../infrastructure/AdminHttpClientPort'
 import type { UsuarioAdmin } from '../../domain/UsuarioAdmin'
 import { EstadoVacio } from '../shared/EstadoVacio'
 import { MensajeError } from '../shared/MensajeError'
+import type { RolUsuarioAdmin as RolUsuario } from '../../domain/enums/RolUsuarioAdmin'
 
 const TAMANO_PAGINA = 10
 
@@ -40,12 +45,18 @@ export interface UsuariosTableProps {
   readonly httpClient: HttpClient
   readonly obtenerAdminActualId?: () => string | undefined
   readonly renderAcciones?: (usuario: UsuarioAdmin, recargar: () => void) => React.ReactNode
+  /**
+   * T067: Filtro server-side opcional por rol (`RolUsuario`), reutilizado por `PromocionPage`
+   * para mostrar únicamente usuarios con rol `USER` (candidatos a promoción).
+   */
+  readonly rolFiltro?: RolUsuario
 }
 
 export const UsuariosTable: React.FC<UsuariosTableProps> = ({
   httpClient,
   obtenerAdminActualId,
   renderAcciones,
+  rolFiltro,
 }) => {
   const [texto, setTexto] = useState('')
   const [pagina, setPagina] = useState(1)
@@ -67,6 +78,7 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({
         q: texto.trim() || undefined,
         page: pagina,
         pageSize: TAMANO_PAGINA,
+        rol: rolFiltro,
       })
       setItems(resultado.items)
       setTotal(resultado.total)
@@ -75,7 +87,7 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({
     } finally {
       setCargando(false)
     }
-  }, [servicio, texto, pagina])
+  }, [servicio, texto, pagina, rolFiltro])
 
   useEffect(() => {
     cargarUsuarios()

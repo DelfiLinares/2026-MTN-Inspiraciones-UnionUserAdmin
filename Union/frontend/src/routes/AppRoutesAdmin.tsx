@@ -50,7 +50,7 @@ export const AppRoutesAdmin: React.FC<AppRoutesAdminProps> = ({ httpClient, obte
         path="/usuarios"
         element={<UsuariosPage httpClient={httpClient} obtenerAdminActualId={obtenerAdminActualId} />}
       />
-      <Route path="/promocion" element={<PromocionPage />} />
+      <Route path="/promocion" element={<PromocionPage httpClient={httpClient} />} />
       <Route path="/publicaciones" element={<PublicacionesPage httpClient={httpClient} />} />
       <Route path="/reportes" element={<ReportesPage httpClient={httpClient} />} />
     </Routes>
