@@ -3,12 +3,13 @@
  * publicaciones y reportes).
  *
  * Trazabilidad:
- * - Union/specs/002-frontend-admin/tasks.md (T032; T040, depende de T032; T048, depende de T032)
+ * - Union/specs/002-frontend-admin/tasks.md (T032; T040, depende de T032; T048, depende de T032;
+ *   T063, depende de T032)
  * - Union/specs/002-frontend-admin/contracts/openapi.yaml (`/usuarios`,
- *   `/usuarios/{usuarioId}/banear`, `/usuarios/{usuarioId}/eliminar`, `/publicaciones`,
- *   `/publicaciones/{publicacionId}`, `/publicaciones/{publicacionId}/eliminar`, `/reportes`,
- *   `/reportes/{reporteId}`, `/reportes/{reporteId}/aceptar`, `/reportes/{reporteId}/rechazar`,
- *   `/reportes/exportar`)
+ *   `/usuarios/{usuarioId}/banear`, `/usuarios/{usuarioId}/eliminar`,
+ *   `/usuarios/{usuarioId}/promover`, `/publicaciones`, `/publicaciones/{publicacionId}`,
+ *   `/publicaciones/{publicacionId}/eliminar`, `/reportes`, `/reportes/{reporteId}`,
+ *   `/reportes/{reporteId}/aceptar`, `/reportes/{reporteId}/rechazar`, `/reportes/exportar`)
  *
  * Nota de colisión de nombres (mismo patrón documentado en T012/T014/T015/T020/T022/T030/T031):
  * `tasks.md` indica la ruta `frontend-admin/src/infrastructure/apiEndpoints.ts`, pero ese nombre ya
@@ -26,6 +27,7 @@ export const apiEndpointsAdmin = {
   usuarios: () => '/usuarios',
   banearUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/banear`,
   eliminarUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/eliminar`,
+  promoverUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/promover`,
 
   // Gestión de publicaciones (RF-09 a RF-12, T040)
   publicaciones: () => '/publicaciones',
