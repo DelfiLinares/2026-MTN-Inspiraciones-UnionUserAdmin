@@ -21,23 +21,24 @@
  * `/reportes`) y su propia guardia `GuardiaRolAdmin` (T028, aún no implementada).
  *
  * Nota de integración: las páginas reales (`UsuariosPage`, `PromocionPage`, `PublicacionesPage`,
- * `ReportesPage`) se crean recién en T030. Hasta entonces, se usan elementos placeholder inline
- * para que el enrutador sea válido y testeable de forma aislada, conforme al orden de tareas.
+ * `ReportesPage`) se crearon en T030 (placeholders de contenido; el cableado funcional de cada
+ * pantalla con sus servicios/tablas/acciones ocurre en las Fases 4–7, aún pendientes).
  */
 
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const PlaceholderPantalla: React.FC<{ nombre: string }> = ({ nombre }) => <div>{nombre}</div>
+import { UsuariosPage } from '../presentation/usuarios/UsuariosPage'
+import { PromocionPage } from '../presentation/promocion/PromocionPage'
+import { PublicacionesPage } from '../presentation/publicaciones/PublicacionesPage'
+import { ReportesPage } from '../presentation/reportes/ReportesPage'
 
 export const AppRoutesAdmin: React.FC = () => {
   return (
     <Routes>
-      <Route path="/usuarios" element={<PlaceholderPantalla nombre="Usuarios" />} />
-      <Route path="/promocion" element={<PlaceholderPantalla nombre="Promoción" />} />
-      <Route path="/publicaciones" element={<PlaceholderPantalla nombre="Publicaciones" />} />
-      <Route path="/reportes" element={<PlaceholderPantalla nombre="Reportes" />} />
+      <Route path="/usuarios" element={<UsuariosPage />} />
+      <Route path="/promocion" element={<PromocionPage />} />
+      <Route path="/publicaciones" element={<PublicacionesPage />} />
+      <Route path="/reportes" element={<ReportesPage />} />
     </Routes>
   )
 }
