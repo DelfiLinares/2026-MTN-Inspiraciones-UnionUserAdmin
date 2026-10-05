@@ -3,8 +3,10 @@
  * HTTP simulado (mock), sin backend real.
  *
  * Trazabilidad:
- * - Union/specs/002-frontend-admin/tasks.md (T033, depende de T031, T032)
- * - Union/specs/002-frontend-admin/spec.md RF-01, RF-02, RF-03, CB-01, CB-08
+ * - Union/specs/002-frontend-admin/tasks.md (T033, depende de T031, T032; T064, depende de T063,
+ *   T034a, extiende este archivo)
+ * - Union/specs/002-frontend-admin/spec.md RF-01, RF-02, RF-03, RF-06, RF-07, RF-08, CB-01, CB-02,
+ *   CB-08
  *
  * Nota de colisión de nombres (mismo patrón documentado en T012/T014/T015/T020/T022/T030/T031/T032):
  * ya existe `Union/frontend/src/services/UsuariosService.ts` (clase `UsuariosService`, de
@@ -16,8 +18,14 @@
  * lo tanto, el servicio bajo test se llama `UsuariosServiceAdmin` y este archivo de test
  * `UsuariosServiceAdmin.test.ts`, para no romper ni duplicar el servicio/tests existentes.
  *
+ * Nota adicional (T064): `tasks.md` indica el archivo
+ * `frontend-admin/tests/application/UsuariosService.test.ts`, pero por el mismo motivo de colisión
+ * de nombres documentado arriba, el test de `promover()` se agrega a este mismo archivo
+ * (`UsuariosServiceAdmin.test.ts`), que es "el archivo de T033" al que `tasks.md` hace referencia
+ * como ampliación.
+ *
  * Este test está escrito ANTES de la implementación (TDD, Principio VIII): debe fallar en este
- * momento porque `src/application/UsuariosServiceAdmin.ts` aún no existe (se crea en T034a–T034c).
+ * momento porque `UsuariosServiceAdmin.promover()` aún no existe (se crea en T065).
  *
  * Cobertura:
  * - `banear()`: invoca `HttpClient.post` en la ruta de `apiEndpointsAdmin.banearUsuario()` cuando
@@ -30,6 +38,11 @@
  *   cuando `usuario.puedeSerEliminado()` es true.
  * - `eliminar()`: rechaza sin invocar el `HttpClient` cuando `usuario.puedeSerEliminado()` es false
  *   (CB-01).
+ * - `promover()` (T064): invoca `HttpClient.post` en la ruta de
+ *   `apiEndpointsAdmin.promoverUsuario()` cuando `usuario.puedeSerPromovidoAAdmin()` es true
+ *   (usuario con rol `USER`, RF-06).
+ * - `promover()` (T064): caso no-op cuando el usuario objetivo ya tiene rol `ADMIN` (RF-08, CB-02):
+ *   rechaza sin invocar el `HttpClient`.
  */
 
 import { describe, it, expect, vi } from 'vitest'
@@ -157,6 +170,30 @@ describe('UsuariosServiceAdmin (T033)', () => {
 
       await expect(servicio.eliminar(usuarioAdmin)).rejects.toThrow()
       expect(httpClient.delete).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('promover() (T064)', () => {
+    it('invoca HttpClient.post en la ruta de apiEndpointsAdmin.promoverUsuario() cuando el usuario puede ser promovido', async () => {
+      const httpClient = crearHttpClientMock()
+      const servicio = new UsuariosServiceAdmin(httpClient)
+      const usuario = crearUsuarioComun('usr-5')
+
+      await servicio.promover(usuario)
+
+      expect(httpClient.post).toHaveBeenCalledWith(
+        apiEndpointsAdmin.promoverUsuario('usr-5'),
+        undefined
+      )
+    })
+
+    it('rechaza como no-op sin invocar HttpClient cuando el usuario objetivo ya tiene rol ADMIN (RF-08, CB-02)', async () => {
+      const httpClient = crearHttpClientMock()
+      const servicio = new UsuariosServiceAdmin(httpClient)
+      const usuarioAdmin = crearUsuarioAdmin('admin-3')
+
+      await expect(servicio.promover(usuarioAdmin)).rejects.toThrow()
+      expect(httpClient.post).not.toHaveBeenCalled()
     })
   })
 })
