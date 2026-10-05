@@ -44,3 +44,66 @@ export interface HttpClient {
   put<T>(path: string, body?: unknown, options?: HttpRequestOptions): Promise<T>
   delete<T>(path: string, options?: HttpRequestOptions): Promise<T>
 }
+
+/**
+ * T072: Manejo uniforme de respuestas 401/403 del futuro backend.
+ *
+ * Trazabilidad:
+ * - Union/specs/002-frontend-admin/tasks.md (T072, depende de T031)
+ * - Union/specs/002-frontend-admin/spec.md RNF-05
+ *
+ * Nota de ubicación/colisión de nombres: `tasks.md` indica la ruta
+ * `frontend-admin/src/infrastructure/httpClient.ts` para esta tarea, pero (igual que en T031, ver
+ * cabecera de este archivo) ese nombre ya está ocupado por la implementación real de
+ * `001-plataforma-unificada`. Dado que este módulo (`002-frontend-admin`) todavía no cuenta con una
+ * implementación concreta propia del puerto `HttpClient` (T031 solo definió la interfaz, sin tarea
+ * posterior que la implemente), el manejo uniforme de 401/403 se agrega aquí, en
+ * `AdminHttpClientPort.ts` (el archivo que de hecho cumple el rol de `httpClient.ts` de este
+ * módulo), como una utilidad reutilizable (`interpretarEstadoHttpAdmin`) que cualquier futura
+ * implementación concreta del puerto puede invocar antes de resolver una respuesta exitosa.
+ *
+ * Responsabilidades:
+ * - RNF-05: ninguna acción administrativa se considera autorizada por estar habilitada en el
+ *   frontend; ante un 401 (no autenticado/sesión expirada) o un 403 (sin permisos) del backend, se
+ *   lanza siempre el mismo tipo de error con el mismo mensaje uniforme ("Sesión no válida o sin
+ *   permisos."), sin distinguir el motivo exacto en el mensaje expuesto a la capa de presentación
+ *   (que normalmente lo mostrará vía `MensajeError`, T027), reflejando que la autorización real
+ *   depende exclusivamente del backend.
+ */
+
+export class HttpErrorAdmin extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly body: unknown
+  ) {
+    super(message)
+    this.name = 'HttpErrorAdmin'
+  }
+}
+
+export const MENSAJE_SESION_INVALIDA_O_SIN_PERMISOS = 'Sesión no válida o sin permisos.'
+
+/**
+ * Error uniforme para respuestas 401 (no autenticado/sesión expirada) y 403 (sin permisos) del
+ * backend administrativo. Ambos casos exponen el mismo mensaje (RNF-05): el frontend no distingue
+ * el motivo exacto, ya que en ambos casos la acción no debe considerarse autorizada.
+ */
+export class HttpSesionInvalidaOSinPermisosError extends HttpErrorAdmin {
+  constructor(status: 401 | 403, body: unknown) {
+    super(MENSAJE_SESION_INVALIDA_O_SIN_PERMISOS, status, body)
+    this.name = 'HttpSesionInvalidaOSinPermisosError'
+  }
+}
+
+/**
+ * Inspecciona el código de estado de una respuesta HTTP del backend administrativo y, si
+ * corresponde a 401 o 403, lanza `HttpSesionInvalidaOSinPermisosError` con el mensaje uniforme
+ * (RNF-05). Para cualquier otro estado, no hace nada (no es responsabilidad de esta función
+ * manejar otros códigos de error).
+ */
+export function interpretarEstadoHttpAdmin(status: number, body?: unknown): void {
+  if (status === 401 || status === 403) {
+    throw new HttpSesionInvalidaOSinPermisosError(status, body)
+  }
+}
