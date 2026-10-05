@@ -1,135 +1,204 @@
 <!--
 Sync Impact Report
 ==================
-Version change: [TEMPLATE] → 1.0.0 (initial ratification)
-Modified principles: N/A (first ratified version)
+Version change: 1.0.0 → 2.0.0 (MAJOR — redefinición de alcance y principios)
+Modified principles:
+  - Alcance reducido de "red social completa (2 frontends + backend propio)"
+    a "red social de inspiración artística con 1 frontend React de
+    administración/moderación únicamente"; el backend se consume vía API REST
+    Java ya existente/externa y NO se implementa en este repositorio/speckit.
+  - Reemplazo íntegro de los 18 principios previos por 15 principios nuevos
+    alineados al encargo del administrador (gestión de usuarios,
+    publicaciones y reportes).
 Added sections:
-  - Core Principles (18 principles, I–XVIII)
-  - Alcance del Sistema y Fronteras de Responsabilidad
-  - Arquitectura y Responsabilidades por Capa
+  - Core Principles (15 principios, I–XV)
+  - Módulos del Sistema
+  - Alcance del Frontend de Administración
+  - Enums y Value Objects Obligatorios
+  - Arquitectura y Responsabilidades por Capa (frontend-only)
   - Governance
-Removed sections: none (template placeholders replaced)
+Removed sections:
+  - Stack tecnológico multi-servicio (Spring Boot, Node.js, RabbitMQ,
+    Firebase, Python, MongoDB) — fuera de alcance del speckit actual.
+  - Frontend de usuario y sus historias (módulo no cubierto por este
+    speckit; pertenece a otro proyecto/iteración).
 Templates requiring updates:
-  - .specify/templates/plan-template.md ⚪ no verificado (no existe aún en Union)
-  - .specify/templates/spec-template.md ⚪ no verificado (no existe aún en Union)
-  - .specify/templates/tasks-template.md ⚪ no verificado (no existe aún en Union)
-  - .specify/templates/checklist-template.md ⚪ no verificado (no existe aún en Union)
+  - .specify/templates/plan-template.md ⚪ no verificado
+  - .specify/templates/spec-template.md ⚪ no verificado
+  - .specify/templates/tasks-template.md ⚪ no verificado
+  - .specify/templates/checklist-template.md ⚪ no verificado
 Follow-up TODOs:
-  - Crear templates de SpecKit en Union cuando se inicialice el workflow completo.
+  - Conectar el frontend administrativo a la API REST Java real cuando
+    exista una iteración de integración backend-frontend.
 -->
 
-# Inspiraciones Union Constitution
+# Inspiraciones Union — Admin/Moderación Constitution
+
+## Contexto del Proyecto
+
+Red social de inspiración artística donde usuarios y artistas comparten
+creaciones (dibujos, música, esculturas, etc.) y se inspiran entre sí. Este
+speckit cubre **exclusivamente** la parte de administración: gestión de
+usuarios (eliminar, banear, promover a admin), gestión de publicaciones
+(editar, eliminar) y gestión de reportes (exportar, aceptar, rechazar).
+
+**Stack tecnológico de este speckit**: 1 aplicación **React** para
+administración/moderación. No existe implementación de backend en este
+speckit; el frontend consumirá en una iteración futura una API REST Java ya
+provista externamente.
 
 ## Core Principles
 
 ### I. La especificación manda sobre la implementación
-No se implementará funcionalidad, pantalla, componente, endpoint, flujo ni integración que no esté trazada a historias de usuario o requisitos del documento de alcance vigente.
+No se debe programar funcionalidad, pantalla, componente o flujo que no esté
+trazado a una historia de usuario o requisito del documento de alcance
+correspondiente.
 
 ### II. Dominio orientado a objetos real
-Las reglas de negocio deben vivir en entidades y value objects cuando corresponda; se evitan clases anémicas si existen invariantes, políticas o transiciones de estado del dominio.
+El dominio debe modelarse con orientación a objetos real. Se evitan clases
+anémicas cuando existan reglas de negocio claras: las entidades encapsulan
+las reglas que les corresponden, sin trasladar toda la lógica a
+controladores o componentes de interfaz.
 
-### III. Separación estricta por capas
-Se respetan las capas y responsabilidades:
-- **Dominio**: entidades, value objects, enums, invariantes y reglas.
-- **Aplicación/Servicios**: casos de uso, orquestación y políticas de aplicación.
-- **Infraestructura**: MySQL/Redis, clientes APIs externas, broker, Firebase, adaptadores.
-- **Presentación/API**: controladores REST, DTOs y validación de entrada/salida.
-- **Frontend Usuario**: UI React para usuarios/artistas.
-- **Frontend Administración**: UI React separada para administración/moderación.
+### III. La API Java no se implementa en este speckit
+El frontend va a usar una API REST de Java, pero esta no debe ser
+implementada en el speckit. La única forma de conectarlo será cuando una
+persona lo integre con su backend en una próxima iteración.
 
-### IV. Frontends separados y con límites claros
-El frontend de usuario y el frontend administrativo son aplicaciones distintas, con responsabilidades no superpuestas. Ninguno accede directamente a MySQL ni asume responsabilidades de backend.
+### IV. Prohibido implementar backend, incluso para pruebas
+No se deben crear funciones de backend, ni siquiera a modo de prueba. El
+proyecto debe funcionar únicamente como frontend.
 
-### V. Backend Java limpio y delegación correcta
-En la API Spring Boot se evita lógica duplicada, métodos gigantes, validaciones incrustadas en controladores e `instanceof` innecesario. Los controladores delegan casos de uso a servicios de aplicación.
+### V. Separación de responsabilidades por capa
+- **Dominio**: entidades, value objects, enums y reglas de negocio.
+- **Aplicación/servicios**: casos de uso y lógica de aplicación.
+- **Frontend administración**: interfaz React separada para administradores.
 
-### VI. Frontend en capas, sin llamadas directas desde componentes
-En ambos frontends, la presentación no debe llamar directamente a la API. Toda comunicación externa pasa por servicios de aplicación e infraestructura.
+### VI. Frontend administrativo autónomo y de responsabilidad acotada
+El frontend de administración se mantiene como una aplicación separada, con
+responsabilidades claramente diferenciadas:
+- Implementa exclusivamente funcionalidades de administración: editar y
+  borrar publicaciones de cualquier usuario; banear, eliminar y promover
+  usuarios; y exportar reportes.
+- No accede directamente a MySQL ni implementa responsabilidades propias
+  del backend.
 
 ### VII. Enums y value objects para valores cerrados
-Valores cerrados deben representarse con tipos explícitos (enums/value objects), por ejemplo: `TipoContenido`, `RolUsuario`, `EstadoPublicacion`, `EstadoDesafioPropuesto`, `TipoFiltro`, `MotivoReporte`.
+Se deben usar enums o value objects cuando representen valores cerrados,
+por ejemplo: `EstadoPublicacion`, `RolUsuario`, `EstadoCuentaUsuario`,
+`EstadoModeracion`, `MotivoReporte`, `PrioridadReporte`.
 
 ### VIII. Tests obligatorios de reglas de negocio
-Toda regla de negocio importante debe tener tests automatizados (happy path + casos límite), incluyendo permisos, reportes, promoción de roles y confirmaciones de acciones sensibles.
+Toda regla de negocio importante debe tener tests, por ejemplo:
+- Solo el admin puede eliminar o editar las publicaciones de cualquier
+  usuario.
+- Solo el admin puede banear, eliminar o crear usuarios.
+- Solo el admin puede leer, exportar, aceptar y rechazar reportes.
+- Solo un admin puede promover a otro usuario a admin.
+- Solo usuarios con rol `ADMIN` pueden realizar acciones administrativas.
+- Las acciones administrativas destructivas requieren confirmación
+  explícita en la interfaz.
 
-### IX. Seguridad en backend, reflejo en frontend
-Autorización y permisos se validan en backend. Ocultar acciones en UI no reemplaza controles de seguridad del servidor.
+### IX. Seguridad validada en backend, reflejada en frontend
+La seguridad y los permisos deben validarse en el backend y reflejarse
+correctamente en las interfaces. Ocultar una acción en el frontend no
+reemplaza la autorización del backend.
 
 ### X. Escalabilidad por diseño
-Búsquedas, filtros, rankings y recomendaciones deben resolverse con consultas, índices y cache (Redis) cuando corresponda; se prohíbe depender de recorridos completos en memoria para casos de alta escala.
+El sistema debe poder escalar a una gran cantidad de publicaciones,
+usuarios y reportes. Las búsquedas, filtros y recomendaciones no deben
+depender de recorrer listas completas en memoria; deben apoyarse en
+consultas, índices de base de datos y caché Redis cuando corresponda (del
+lado del backend que consumirá el frontend).
 
-### XI. UX de descubrimiento como prioridad
-La experiencia de descubrimiento artístico debe ser clara y rápida. El buscador debe exponer filtros por estilo, tipo de arte, técnica y demás criterios definidos por alcance.
+### XI. Usabilidad, claridad y rendimiento como prioridad
+La interfaz de admin debe priorizar usabilidad, claridad y rendimiento.
+Gestionar usuarios, reportes y publicaciones debe ser simple, rápido y
+claro.
 
-### XII. Eficiencia operativa del frontend administrativo
-La UI administrativa debe optimizar resolución de reportes y moderación, destacando estado/prioridad y diferenciando visualmente acciones sensibles de las de consulta.
+### XII. Eficiencia operativa del administrador/moderador
+Los reportes pendientes deben poder encontrarse y resolverse de forma
+rápida, mostrando claramente su estado y prioridad. Las acciones sensibles
+(eliminar, banear, promover) deben diferenciarse visualmente de las
+acciones de consulta.
 
 ### XIII. Confirmación explícita en acciones destructivas
-Eliminar publicaciones, eliminar/banear usuarios y promover usuarios a admin requiere confirmación explícita cuando aplique.
+Las acciones destructivas o administrativas sensibles deben requerir
+confirmación explícita antes de ejecutarse cuando corresponda. Esto
+incluye eliminar o editar publicaciones, eliminar o banear usuarios, y
+promover usuarios a administradores.
 
 ### XIV. Analytics y recomendaciones fuera del frontend
-Los cálculos complejos de analytics/rankings/recomendaciones pertenecen a backend y módulos de procesamiento. Los frontends solo consumen resultados expuestos por la API.
+Las funcionalidades de recomendaciones y analytics pertenecen a los
+módulos correspondientes del backend/procesamiento. El frontend debe
+consumir los resultados proporcionados por la API y no recalcular
+rankings, recomendaciones ni estadísticas complejas en el cliente.
 
-### XV. Integraciones externas con cacheo responsable
-Las integraciones (lyrics.ovh, YouTube y afines) se encapsulan en sus módulos. La información de una canción asociada por primera vez debe persistirse para evitar consultas redundantes.
+### XV. Prohibición de código en fases de especificación
+No se debe implementar código durante las fases de especificación,
+aclaración, checklist, planificación y generación de tareas. Durante estas
+etapas solo se crean o actualizan los documentos correspondientes.
 
-### XVI. Eventos y notificaciones desacoplados
-La generación/procesamiento de eventos debe estar separada de la presentación de notificaciones. Se permite event-driven (Observer/colas) solo cuando simplifica realmente la arquitectura.
+## Módulos del Sistema
 
-### XVII. Reportes exportables generados en backend/procesamiento
-La generación de reportes/archivos (p. ej. Python con openpyxl/XlsxWriter) no se implementa en frontend. La UI administrativa solo inicia, visualiza y descarga resultados.
+- **Promoción de usuario a admin**: cambiar el valor del rol `RolUsuario`
+  de un usuario a `ADMIN`.
+- **Gestionar usuarios**: banear por cierta cantidad de tiempo o por
+  siempre a un usuario, y eliminar su cuenta.
+- **Gestionar publicaciones**: editar o eliminar la publicación de
+  cualquier usuario.
+- **Exportar reportes**: exportar y ver los reportes pendientes por
+  revisar, aceptarlos o rechazarlos.
 
-### XVIII. Prohibición de código en fases de especificación
-Durante especificación, clarificación, checklist, planificación y generación de tareas no se implementa código; solo se crean/actualizan artefactos documentales.
+## Alcance del Frontend de Administración
 
-## Alcance del Sistema y Fronteras de Responsabilidad
+Incluye únicamente:
+- Gestión de usuarios y publicaciones.
+- Promoción de usuarios.
+- Revisión de reportes (ver, exportar, aceptar, rechazar).
 
-### Stack tecnológico oficial
-- **Frontend**: React (2 apps separadas: usuario y administración/moderación).
-- **Backend principal**: Java + Spring Boot (API REST).
-- **Persistencia principal**: MySQL.
-- **Caché y datos de alta frecuencia**: Redis.
-- **Sincronización de APIs externas**: Node.js.
-- **Eventos y notificaciones**: Node.js + Firebase Admin SDK + RabbitMQ/Redis.
-- **Preprocesamiento de analytics**: módulo dedicado.
-- **Reportes**: Python.
-- **Logs futuro**: MongoDB.
+Fuera de alcance: cualquier funcionalidad de backend, persistencia directa,
+cálculo de analytics/recomendaciones, y cualquier flujo propio del frontend
+de usuario final (registro, publicación, descubrimiento, etc.), que
+pertenece a otro proyecto/speckit.
 
-### Módulos funcionales del sistema
-Perfil y gestión de usuario, moderación, publicación de contenido, descubrimiento y búsqueda, geolocalización, música e inspiración sonora, desafíos, notificaciones, analytics y recomendaciones, reportes, administración y moderación.
+## Enums y Value Objects Obligatorios
 
-### Alcance del frontend de usuario
-Incluye autenticación/registro, configuración inicial, home y descubrimiento, perfiles, publicaciones, búsqueda/filtros, likes/comentarios/guardado, geolocalización, música, desafíos y notificaciones.
-
-### Alcance del frontend administrativo
-Incluye login administrativo, dashboard, gestión de usuarios, moderación de publicaciones/reportes, gestión de desafíos propuestos y visualización/exportación de analíticas/reportes.
-
-### Fuera de alcance del frontend administrativo
-Registro de usuarios finales, cuestionario, home de descubrimiento de usuario, edición de perfil propio y participación de desafíos como usuario final.
+- `EstadoPublicacion`: `ACTIVA`, `REPORTADA`, `ELIMINADA`.
+- `RolUsuario`: `USER`, `ADMIN`.
+- `EstadoCuentaUsuario`: `ACTIVO`, `BANEADO`, `ELIMINADO`.
+- `EstadoModeracion`: `PENDIENTE`, `EN_REVISION`, `RESUELTO`, `DESESTIMADO`.
+- `MotivoReporte`: `SPAM`, `CONTENIDO_INAPROPIADO`,
+  `PLAGIO_DERECHOS_AUTOR`, `VIOLENCIA`, `OTRO`.
+- `PrioridadReporte`: `ALTA`, `MEDIA`, `BAJA`.
 
 ## Arquitectura y Responsabilidades por Capa
 
-Toda historia, spec, plan y tarea debe mapearse a una capa y respetar estas reglas:
-1. **Dominio** encapsula reglas y estados.
-2. **Aplicación** orquesta casos de uso y políticas.
-3. **Infraestructura** implementa adaptadores técnicos.
-4. **Presentación/API** traduce interacción externa a casos de uso.
-5. **Frontends** no implementan persistencia, analytics complejos, generación de archivos ni lógica de integración externa.
+1. **Dominio** encapsula entidades, value objects, enums y reglas de
+   negocio (p. ej. quién puede banear, promover o resolver reportes).
+2. **Aplicación/servicios** orquesta casos de uso (banear usuario, exportar
+   reporte, promover a admin) sin lógica de negocio propia duplicada.
+3. **Frontend administración** solo presenta datos y dispara casos de uso;
+   no implementa persistencia, analytics complejos, generación de archivos
+   del lado servidor, ni acceso directo a base de datos.
 
 Controles mínimos de revisión:
 - Trazabilidad requisito → tarea → implementación.
-- Validación de permisos en backend para operaciones sensibles.
-- Pruebas de reglas de negocio críticas por módulo.
-- No duplicación de lógica entre capas o frontends.
+- Toda regla de negocio crítica (lista en el Principio VIII) tiene test
+  asociado.
+- No se agrega ninguna llamada o simulación de backend dentro del
+  speckit/frontend.
+- Acciones destructivas siempre pasan por confirmación explícita en la UI.
 
 ## Governance
 
-Esta constitución prevalece sobre prácticas informales y decisiones ad hoc del proyecto `Union`.
+Esta constitución prevalece sobre prácticas informales y decisiones ad hoc
+del frontend de administración del proyecto `Union`.
 
 ### Reglas de enmienda
 1. Toda enmienda debe documentar motivación, impacto y módulos afectados.
 2. Versionado semántico:
-   - **MAJOR**: cambio incompatible en principios.
+   - **MAJOR**: cambio incompatible en principios o en el alcance.
    - **MINOR**: nuevo principio o expansión normativa relevante.
    - **PATCH**: aclaraciones sin cambio semántico.
 3. Toda enmienda actualiza `Last Amended` y el Sync Impact Report.
@@ -137,6 +206,7 @@ Esta constitución prevalece sobre prácticas informales y decisiones ad hoc del
 ### Cumplimiento
 - Todo plan (`/speckit.plan`) debe incluir `Constitution Check`.
 - Toda tarea de regla de negocio debe incluir test asociado.
-- Incumplimientos deben registrarse como deuda técnica explícita con plan de resolución.
+- Incumplimientos deben registrarse como deuda técnica explícita con plan
+  de resolución.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-15 | **Last Amended**: 2026-09-15
+**Version**: 2.0.0 | **Ratified**: 2026-09-15 | **Last Amended**: 2026-10-01
