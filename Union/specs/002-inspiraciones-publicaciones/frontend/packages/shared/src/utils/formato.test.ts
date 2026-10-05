@@ -74,7 +74,7 @@ describe("formatearTamano (RF-02, CB-11)", () => {
   });
 
   it("redondea a un decimal como máximo", () => {
-    expect(formatearTamano(1024 * 1024 + 51_200)).toBe("1,1 MB");
+    expect(formatearTamano(1024 * 1024 + 102_400)).toBe("1,1 MB");
   });
 
   it("trata un valor negativo o no finito como 0 B", () => {
