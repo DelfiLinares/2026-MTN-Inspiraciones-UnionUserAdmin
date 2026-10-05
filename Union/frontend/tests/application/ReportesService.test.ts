@@ -40,9 +40,11 @@ import { ReportesService } from '../../src/application/ReportesService'
 import type { HttpClient } from '../../src/infrastructure/AdminHttpClientPort'
 import { apiEndpointsAdmin } from '../../src/infrastructure/apiEndpointsAdmin'
 import { Reporte } from '../../src/domain/Reporte'
+import { PublicacionModeracion } from '../../src/domain/PublicacionModeracion'
 import { EstadoModeracion } from '../../src/domain/enums/EstadoModeracion'
 import { MotivoReporteAdmin as MotivoReporte } from '../../src/domain/enums/MotivoReporteAdmin'
 import { PrioridadReporte } from '../../src/domain/enums/PrioridadReporte'
+import { EstadoPublicacionAdmin } from '../../src/domain/enums/EstadoPublicacionAdmin'
 
 function crearHttpClientMock(): HttpClient {
   return {
@@ -174,6 +176,70 @@ describe('ReportesService (T049)', () => {
 
       await expect(servicio.rechazar(reporte)).rejects.toThrow()
       expect(httpClient.post).not.toHaveBeenCalled()
+    })
+
+    it('reactiva la publicación asociada a ACTIVA cuando no quedan otros reportes pendientes (AC-08.6)', async () => {
+      const httpClient = crearHttpClientMock()
+      ;(httpClient.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+        id: 'rep-42',
+        publicacionId: 'pub-42',
+        motivo: MotivoReporte.SPAM,
+        reportanteId: 'usr-reportante-42',
+        fecha: '2026-09-23T10:00:00.000Z',
+        estado: EstadoModeracion.DESESTIMADO,
+        publicacion: {
+          id: 'pub-42',
+          autorId: 'usr-autor-42',
+          estado: 'ACTIVA',
+          cantidadReportes: 0,
+          motivosReporte: [],
+        },
+      })
+      const servicio = new ReportesService(httpClient)
+      const reporte = crearReportePendiente('rep-42')
+      const publicacion = new PublicacionModeracion({
+        id: 'pub-42',
+        autorId: 'usr-autor-42',
+        estado: EstadoPublicacionAdmin.REPORTADA,
+        cantidadReportes: 1,
+        motivosReporte: [MotivoReporte.SPAM],
+      })
+
+      await servicio.rechazar(reporte, publicacion)
+
+      expect(publicacion.estado).toBe(EstadoPublicacionAdmin.ACTIVA)
+    })
+
+    it('no reactiva la publicación asociada cuando aún quedan otros reportes pendientes (AC-08.6)', async () => {
+      const httpClient = crearHttpClientMock()
+      ;(httpClient.post as ReturnType<typeof vi.fn>).mockResolvedValue({
+        id: 'rep-43',
+        publicacionId: 'pub-43',
+        motivo: MotivoReporte.SPAM,
+        reportanteId: 'usr-reportante-43',
+        fecha: '2026-09-23T10:00:00.000Z',
+        estado: EstadoModeracion.DESESTIMADO,
+        publicacion: {
+          id: 'pub-43',
+          autorId: 'usr-autor-43',
+          estado: 'REPORTADA',
+          cantidadReportes: 1,
+          motivosReporte: [MotivoReporte.SPAM],
+        },
+      })
+      const servicio = new ReportesService(httpClient)
+      const reporte = crearReportePendiente('rep-43')
+      const publicacion = new PublicacionModeracion({
+        id: 'pub-43',
+        autorId: 'usr-autor-43',
+        estado: EstadoPublicacionAdmin.REPORTADA,
+        cantidadReportes: 2,
+        motivosReporte: [MotivoReporte.SPAM],
+      })
+
+      await servicio.rechazar(reporte, publicacion)
+
+      expect(publicacion.estado).toBe(EstadoPublicacionAdmin.REPORTADA)
     })
   })
 })

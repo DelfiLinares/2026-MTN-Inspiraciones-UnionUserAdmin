@@ -28,7 +28,7 @@ export interface PublicacionModeracionProps {
 export class PublicacionModeracion {
   readonly id: string
   readonly autorId: string
-  readonly estado: EstadoPublicacion
+  estado: EstadoPublicacion
   readonly cantidadReportes: number
   readonly motivosReporte: MotivoReporte[]
 
@@ -67,5 +67,18 @@ export class PublicacionModeracion {
   // Alias para interoperabilidad de nomenclatura con la base de admin
   puedeSerEliminada(): boolean {
     return this.puedeEliminarse()
+  }
+
+  /**
+   * T050d (`Union/specs/002-frontend-admin/tasks.md`, depende de T018): si `estado === REPORTADA`
+   * y no existen otros reportes `PENDIENTE`/`EN_REVISION` asociados, reactiva la publicación
+   * (`estado` pasa a `ACTIVA`). Si `hayOtrosReportesPendientesOEnRevision` es `true`, no modifica
+   * el estado. Invocado por `ReportesService.rechazar()` (resuelto, Clarifications Session
+   * 2026-10-01, AC-08.6). Ref: `data-model.md` → Publicacion.reactivarSiNoQuedanReportesPendientes.
+   */
+  reactivarSiNoQuedanReportesPendientes(hayOtrosReportesPendientesOEnRevision: boolean): void {
+    if (this.estado === EstadoPublicacion.REPORTADA && !hayOtrosReportesPendientesOEnRevision) {
+      this.estado = EstadoPublicacion.ACTIVA
+    }
   }
 }
