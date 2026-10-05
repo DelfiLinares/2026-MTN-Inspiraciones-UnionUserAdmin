@@ -1,0 +1,10 @@
+{
+  "name": "inspiraciones-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Workspace raíz del frontend 002 Inspiraciones (apps/usuario, apps/admin, packages/shared).",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
