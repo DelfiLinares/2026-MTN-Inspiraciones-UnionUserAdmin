@@ -190,3 +190,56 @@
   color: #991b1b;
   margin: 0.75rem 0;
 }
+
+/* ---- Insignias de reportes (PrioridadBadge, EstadoModeracionBadge, T055) ---- */
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* PrioridadBadge: colores según PrioridadReporte (ALTA/MEDIA/BAJA) */
+.badge--prioridad-alta {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge--prioridad-media {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge--prioridad-baja {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+/* EstadoModeracionBadge: estado PENDIENTE se destaca visualmente frente a los demás (AC-06.3) */
+.badge--estado-pendiente {
+  background-color: #fde68a;
+  color: #78350f;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px #f59e0b;
+}
+
+.badge--estado-en-revision {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+}
+
+.badge--estado-resuelto {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge--estado-desestimado {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
