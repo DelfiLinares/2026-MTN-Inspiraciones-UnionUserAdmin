@@ -1,12 +1,14 @@
 /**
- * Catálogo de rutas relativas de la API para el módulo `002-frontend-admin` (gestión de usuarios y
- * publicaciones).
+ * Catálogo de rutas relativas de la API para el módulo `002-frontend-admin` (gestión de usuarios,
+ * publicaciones y reportes).
  *
  * Trazabilidad:
- * - Union/specs/002-frontend-admin/tasks.md (T032; T040, depende de T032)
+ * - Union/specs/002-frontend-admin/tasks.md (T032; T040, depende de T032; T048, depende de T032)
  * - Union/specs/002-frontend-admin/contracts/openapi.yaml (`/usuarios`,
  *   `/usuarios/{usuarioId}/banear`, `/usuarios/{usuarioId}/eliminar`, `/publicaciones`,
- *   `/publicaciones/{publicacionId}`, `/publicaciones/{publicacionId}/eliminar`)
+ *   `/publicaciones/{publicacionId}`, `/publicaciones/{publicacionId}/eliminar`, `/reportes`,
+ *   `/reportes/{reporteId}`, `/reportes/{reporteId}/aceptar`, `/reportes/{reporteId}/rechazar`,
+ *   `/reportes/exportar`)
  *
  * Nota de colisión de nombres (mismo patrón documentado en T012/T014/T015/T020/T022/T030/T031):
  * `tasks.md` indica la ruta `frontend-admin/src/infrastructure/apiEndpoints.ts`, pero ese nombre ya
@@ -29,4 +31,11 @@ export const apiEndpointsAdmin = {
   publicaciones: () => '/publicaciones',
   publicacion: (publicacionId: string) => `/publicaciones/${publicacionId}`,
   eliminarPublicacion: (publicacionId: string) => `/publicaciones/${publicacionId}/eliminar`,
+
+  // Gestión de reportes (RF-13 a RF-20, T048)
+  reportes: () => '/reportes',
+  reporte: (reporteId: string) => `/reportes/${reporteId}`,
+  aceptarReporte: (reporteId: string) => `/reportes/${reporteId}/aceptar`,
+  rechazarReporte: (reporteId: string) => `/reportes/${reporteId}/rechazar`,
+  exportarReportes: () => '/reportes/exportar',
 } as const
