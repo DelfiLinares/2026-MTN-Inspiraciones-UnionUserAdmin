@@ -32,3 +32,20 @@ código; únicamente referencia los tests de `tests/integration/` que ejecutan c
 **Conclusión del Escenario 1**: todos los pasos y resultados esperados se verifican correctamente
 contra la implementación actual de `UsuariosPage`/`BanearUsuarioAction`. Sin observaciones ni
 desviaciones respecto de lo descripto en `quickstart.md`.
+
+## Escenario 2 — Eliminar la cuenta de un usuario (HU-02)
+
+- **Test de ejecución**: `tests/integration/Escenario2EliminarUsuario.test.tsx` (T075)
+- **Resultado**: ✅ **Verificado**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | En Gestión de Usuarios, buscar un usuario con rol `USER` | ✅ El usuario fixture `USUARIO_USER_ACTIVO_FIXTURE` aparece en el listado de `UsuariosPage`. |
+| 2 | Iniciar la acción "Eliminar" y confirmar explícitamente (RF-23) | ✅ Se hace clic en "Eliminar" y luego en "Confirmar" del `ConfirmDialog`. |
+| 3 | **Resultado esperado**: el estado de cuenta pasa a `ELIMINADO` (AC-02.3) | ✅ Se invoca `UsuariosServiceAdmin.eliminar()`; el diálogo se cierra y el listado se recarga, reflejando el cambio sin bloquear la interfaz. |
+| 4 | Repetir sobre un usuario con rol `ADMIN` o sobre el propio administrador autenticado | ✅ Se usa el fixture `USUARIO_ADMIN_EXISTENTE_FIXTURE`. |
+| 5 | **Resultado esperado**: la acción "Eliminar" aparece deshabilitada (AC-02.4, CB-01) | ✅ El botón está deshabilitado (`disabled`) y un clic sobre él no invoca `httpClient.delete`. |
+
+**Conclusión del Escenario 2**: todos los pasos y resultados esperados se verifican correctamente
+contra la implementación actual de `UsuariosPage`/`EliminarUsuarioAction`. Sin observaciones ni
+desviaciones respecto de lo descripto en `quickstart.md`.
