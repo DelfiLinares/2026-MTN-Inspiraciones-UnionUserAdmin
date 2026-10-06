@@ -2,6 +2,7 @@
 export * from "./domain";
 export * from "./components/ConfirmDialog";
 export * from "./components/Estados";
+export * from "./components/EstadosGlobales";
 export * from "./components/Notificaciones";
 export * from "./components/Medio";
 export * from "./utils/formato";
