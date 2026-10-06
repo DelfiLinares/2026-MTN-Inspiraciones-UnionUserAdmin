@@ -163,3 +163,23 @@ aplicación dedicados.
 **Conclusión del Escenario 9**: todos los pasos y resultados esperados se verifican correctamente
 contra la implementación actual de `ReportesPage`/`ExportarReportesBoton`/`ExportacionService`. Sin
 observaciones ni desviaciones respecto de lo descripto en `quickstart.md`.
+
+## Escenario 10 — Acceso restringido al frontend administrativo (HU-10)
+
+- **Test de ejecución**: `tests/integration/Escenario10AccesoRestringido.test.tsx` (T081)
+- **Resultado**: ✅ **Verificado, con 1 observación documentada**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | Acceder a pantallas administrativas (`/reportes`, `/usuarios`) con una sesión simulada de rol `USER` | ✅ Se simula pasando `rolActual = USER` a `GuardiaRolAdmin`. |
+| 2 | **Resultado esperado**: el acceso se rechaza o redirige (AC-10.1) | ✅ Se redirige a `/login-admin`; la pantalla protegida nunca se monta y no se realiza ninguna consulta (`httpClient.get` sin invocar). |
+| 2 (contraste) | Con rol `ADMIN` se permite el acceso | ✅ `ReportesPage` se renderiza normalmente. |
+| 3 | Documentar que la restricción es solo una verificación de interfaz (AC-10.3, RNF-05) | ✅ **La autorización definitiva depende del backend que se integrará en una iteración futura**; esta guardia solo restringe la navegación en el frontend y no reemplaza la validación del servidor. |
+
+**Observación**: `AppRoutesAdmin.tsx` todavía no envuelve sus rutas con `GuardiaRolAdmin` (su cabecera
+la describe como "aún no implementada"), por lo que el test compone la guardia con las pantallas
+reales. La guardia en sí funciona correctamente; su integración en el enrutador queda como
+pendiente fuera del alcance de T081 (tarea de validación, sin cambios a código de producción).
+
+**Conclusión del Escenario 10**: el comportamiento de `GuardiaRolAdmin` cumple AC-10.1; se deja
+constancia de la limitación de seguridad (AC-10.3) y de la observación de integración.
