@@ -4,9 +4,14 @@
 // (usePublicacionMutaciones, T037).
 // Spec: HU-01, HU-02, RF-02, CB-11. Res.: A-11, S-2.
 
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import type { ConfiguracionArchivos, Publicacion } from "@inspiraciones/shared";
-import { MENSAJES_ERROR, formatearTamano, validarPublicacion } from "@inspiraciones/shared";
+import {
+  MENSAJES_ERROR,
+  formatearTamano,
+  useBorradorFormulario,
+  validarPublicacion,
+} from "@inspiraciones/shared";
 import styles from "./FormularioPublicacion.module.css";
 
 export interface DatosFormularioPublicacion {
@@ -33,6 +38,14 @@ export interface FormularioPublicacionProps {
   readonly onCancelar?: () => void;
   readonly enviando?: boolean;
   readonly errorServidor?: ErrorServidorFormulario | null;
+}
+
+/** Texto del formulario conservado como borrador (CB-09); el archivo no se conserva. */
+interface BorradorPublicacion {
+  readonly titulo: string;
+  readonly descripcion: string;
+  readonly categoria: string;
+  readonly etiquetas: string;
 }
 
 const CAMPOS_CONOCIDOS = ["titulo", "descripcion", "archivo", "etiquetas"] as const;
@@ -83,13 +96,31 @@ export const FormularioPublicacion: React.FC<FormularioPublicacionProps> = ({
 }) => {
   const esEdicion = publicacionInicial !== undefined;
   const idBase = useId();
+  const {
+    borradorInicial,
+    guardar: guardarBorrador,
+    limpiar: limpiarBorrador,
+  } = useBorradorFormulario<BorradorPublicacion>(
+    esEdicion ? `publicacion-${publicacionInicial.id}` : "publicacion-nueva",
+  );
 
-  const [titulo, setTitulo] = useState(publicacionInicial?.titulo ?? "");
-  const [descripcion, setDescripcion] = useState(publicacionInicial?.descripcion ?? "");
-  const [categoria, setCategoria] = useState(publicacionInicial?.categoria ?? "");
-  const [etiquetas, setEtiquetas] = useState((publicacionInicial?.etiquetas ?? []).join(", "));
+  const [titulo, setTitulo] = useState(borradorInicial?.titulo ?? publicacionInicial?.titulo ?? "");
+  const [descripcion, setDescripcion] = useState(
+    borradorInicial?.descripcion ?? publicacionInicial?.descripcion ?? "",
+  );
+  const [categoria, setCategoria] = useState(
+    borradorInicial?.categoria ?? publicacionInicial?.categoria ?? "",
+  );
+  const [etiquetas, setEtiquetas] = useState(
+    borradorInicial?.etiquetas ?? (publicacionInicial?.etiquetas ?? []).join(", "),
+  );
   const [archivo, setArchivo] = useState<File | null>(null);
   const [erroresLocales, setErroresLocales] = useState<Record<string, string>>({});
+
+  // Conserva el texto ante sesión expirada (CB-09). El archivo no se puede conservar.
+  useEffect(() => {
+    guardarBorrador({ titulo, descripcion, categoria, etiquetas });
+  }, [titulo, descripcion, categoria, etiquetas, guardarBorrador]);
 
   const delServidor = erroresDeServidor(errorServidor);
   const errores: Record<string, string> = { ...delServidor.porCampo, ...erroresLocales };
@@ -123,13 +154,18 @@ export const FormularioPublicacion: React.FC<FormularioPublicacionProps> = ({
     }
 
     setErroresLocales({});
-    void onEnviar({
-      titulo: titulo.trim(),
-      descripcion: descripcion.trim(),
-      categoria: categoria.trim(),
-      etiquetas: lista,
-      archivo,
-    });
+    void Promise.resolve(
+      onEnviar({
+        titulo: titulo.trim(),
+        descripcion: descripcion.trim(),
+        categoria: categoria.trim(),
+        etiquetas: lista,
+        archivo,
+      }),
+    ).then(
+      () => limpiarBorrador(),
+      () => undefined, // El error lo muestra el padre; el borrador se conserva.
+    );
   };
 
   const campoError = (campo: string) => (errores[campo] ? `${idBase}-${campo}-error` : undefined);

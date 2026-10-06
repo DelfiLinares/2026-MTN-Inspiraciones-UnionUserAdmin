@@ -5,6 +5,8 @@ export * from "./components/Estados";
 export * from "./components/EstadosGlobales";
 export * from "./components/LimiteDeErrores";
 export * from "./hooks/manejadorErrores";
+export { useBorradorFormulario } from "./hooks/useBorradorFormulario";
+export type { UseBorradorFormularioResultado } from "./hooks/useBorradorFormulario";
 export * from "./components/Notificaciones";
 export * from "./components/Medio";
 export * from "./utils/formato";
