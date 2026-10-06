@@ -5,7 +5,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { VisibilidadCarpeta } from "../domain/enums";
+import { VisibilidadCarpeta, type FormatoArchivo, type TipoContenido } from "../domain/enums";
 import type { Carpeta, ItemCarpeta, Paginacion } from "../domain/tipos";
 import { ErrorHttp } from "../services/errores";
 import type { CarpetasService } from "../services/carpetasService";
@@ -238,8 +238,10 @@ describe("useCarpetaContenido", () => {
         titulo: "Post 1",
         descripcion: "",
         contenido: "https://ejemplo.test/1.png",
-        formato: "PNG" as any,
-        tipoContenido: "IMAGEN" as any,
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Mock de test, valores aceptados por validación anterior
+        formato: "PNG" as unknown as FormatoArchivo,
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Mock de test
+        tipoContenido: "IMAGEN" as unknown as TipoContenido,
         categoria: "General",
         etiquetas: [],
         autor: { id: "u-1", nombre: "Autor 1" },

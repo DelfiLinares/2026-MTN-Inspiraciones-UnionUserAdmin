@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Los handlers MSW requieren casting para manipular datos de respuesta. */
 // Handlers MSW para carpetas y guardado (T025).
 // Contrato: contracts/api-client.md (Carpetas). Spec: RF-16 a RF-20, CB-02, CB-05. Decisiones: A-5, A-7, A-9.
 

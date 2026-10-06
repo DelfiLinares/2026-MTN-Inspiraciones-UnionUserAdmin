@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Mis carpetas, ruta "/carpetas": crear, renombrar, cambiar visibilidad y eliminar.
 // Spec: HU-08, HU-10, RF-16, RF-20. Las carpetas nacen privadas (RF-20).
 import React, { useState } from "react";

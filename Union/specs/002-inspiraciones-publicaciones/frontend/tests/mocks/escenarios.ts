@@ -10,7 +10,7 @@
 // Spec: CB-05, CB-09. Res.: D-06.
 
 import { http, HttpResponse } from "msw";
-import { administrador, otroUsuario, usuario } from "./datos";
+import { administrador, usuario } from "./datos";
 import { server } from "./server";
 
 const API_BASE = "/api/v1";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Detalle de publicación, ruta "/publicaciones/:id".
 // Like, guardar, reportar, editar y borrar según permisos.
 // Spec: HU-05, HU-03, HU-07, HU-09, HU-11, RF-26, CB-01.

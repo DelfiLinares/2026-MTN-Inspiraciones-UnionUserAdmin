@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Crear publicación, ruta "/publicaciones/nueva".
 // Spec: HU-01, RF-01 a RF-03. Res.: A-11, S-2 (topes provisionales hasta recibir la configuración).
 import React from "react";

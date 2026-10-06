@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Los handlers MSW requieren casting para manipular datos de respuesta. */
 // Handlers MSW para reportes y moderación (T026).
 // Contrato: contracts/api-client.md (Reportes y moderación). Spec: RF-21 a RF-24, RF-07.
 

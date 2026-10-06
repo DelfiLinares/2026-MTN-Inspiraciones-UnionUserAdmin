@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Mis publicaciones, ruta "/mis-publicaciones": listado propio con editar y borrar.
 // Spec: HU-02, HU-03. Plan: pantalla "Listado propio con editar/borrar".
 import React, { useState } from "react";

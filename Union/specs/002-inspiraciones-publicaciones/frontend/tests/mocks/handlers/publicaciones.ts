@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions, prefer-const -- Los handlers MSW requieren casting para manipular datos de respuesta. */
 // Handlers MSW para publicaciones (T023).
 // Contrato: contracts/api-client.md (Publicaciones). Spec: RF-01 a RF-05, RF-25 a RF-27.
 

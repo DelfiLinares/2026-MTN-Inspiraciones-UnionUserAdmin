@@ -2,6 +2,7 @@
 // Gestiona el envío de reportes, validación previa, mutación con TanStack Query,
 // actualización de caché (reportadaPorMi = true) y manejo de errores (409 = "ya reportada").
 // Spec: HU-11, RF-21 a RF-23. Res.: A-13. Plan sección 6.
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Las aserciones son necesarias para manipular datos de TanStack Query (InfiniteData, setQueriesData) donde TypeScript no puede inferir tipos específicos sin ellas. */
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

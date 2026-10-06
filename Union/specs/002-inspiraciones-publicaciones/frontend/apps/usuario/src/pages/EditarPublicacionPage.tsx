@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Editar publicación propia, ruta "/publicaciones/:id/editar" (403 si es ajena).
 // Spec: HU-02, RF-04, RF-06, RF-08. Res.: A-11, S-2 (topes provisionales hasta recibir la configuración).
 import React from "react";

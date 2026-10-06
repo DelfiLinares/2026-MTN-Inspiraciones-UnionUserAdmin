@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- import.meta.glob devuelve un registro genérico que requiere casting para obtener el tipo específico Cargador. */
 // Rutas de la app de usuario con React.lazy por ruta (T058, D-05).
 // Las páginas se cargan de forma diferida desde `../pages/*Page.tsx`; si una página aún no existe
 // (se agregan en T059–T067) se muestra "no encontrada" en lugar de romper la app.

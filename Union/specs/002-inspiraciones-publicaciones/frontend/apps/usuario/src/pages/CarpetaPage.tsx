@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams de react-router devuelve tipos desconocidos que requieren casting. */
 // Contenido de carpeta, ruta "/carpetas/:id": vacía y "publicación no disponible".
 // Spec: HU-09, RF-18, RF-19, CB-02, CB-05, CB-06.
 import React, { useState } from "react";

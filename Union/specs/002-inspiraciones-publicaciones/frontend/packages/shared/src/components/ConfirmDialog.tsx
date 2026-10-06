@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Necesario castear HTMLElement al capturar document.activeElement para interactuar con su API. */
+
 import React, { useEffect, useRef, useId } from "react";
 import styles from "./ConfirmDialog.module.css";
 

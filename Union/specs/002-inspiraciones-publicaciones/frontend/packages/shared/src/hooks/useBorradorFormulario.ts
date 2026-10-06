@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- JSON.parse devuelve unknown; castear a T es seguro si el JSON es válido. */
+
 // Conserva el borrador de un formulario ante sesión expirada o recarga (T071).
 // Guarda en sessionStorage solo valores serializables (los archivos no se pueden conservar).
 // Spec: CB-09.

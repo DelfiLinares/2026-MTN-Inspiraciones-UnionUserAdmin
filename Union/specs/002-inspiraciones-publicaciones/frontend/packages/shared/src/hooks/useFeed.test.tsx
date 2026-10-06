@@ -68,9 +68,9 @@ describe("useFeed", () => {
         };
       },
       listarPropias: async () => ({ items: [] }),
-      obtenerPorId: async () => publicacionesPagina1[0]!,
-      crear: async () => publicacionesPagina1[0]!,
-      editar: async () => publicacionesPagina1[0]!,
+      obtenerPorId: async () => Promise.resolve(publicacionesPagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
+      crear: async () => Promise.resolve(publicacionesPagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
+      editar: async () => Promise.resolve(publicacionesPagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
       borrar: async () => {},
     };
 
@@ -104,9 +104,9 @@ describe("useFeed", () => {
         return { items: pagina1, siguienteCursor: "1" };
       },
       listarPropias: async () => ({ items: [] }),
-      obtenerPorId: async () => pagina1[0]!,
-      crear: async () => pagina1[0]!,
-      editar: async () => pagina1[0]!,
+      obtenerPorId: async () => Promise.resolve(pagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
+      crear: async () => Promise.resolve(pagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
+      editar: async () => Promise.resolve(pagina1[0] ?? crearPublicacionMock("fallback", "fallback")),
       borrar: async () => {},
     };
 

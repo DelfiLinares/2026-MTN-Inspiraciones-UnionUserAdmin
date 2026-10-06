@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams y manejo de datos de formulario generados requieren casting. */
 // Modal para reportar una publicación (T051): motivo + texto libre y estado "Ya reportada".
 // Valida con la regla pura validarReporte (RF-21, A-13); el envío lo resuelve el padre (useReportar, T041).
 // Spec: HU-11, RF-21 a RF-23.

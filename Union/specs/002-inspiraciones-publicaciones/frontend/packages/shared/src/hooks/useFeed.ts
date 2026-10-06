@@ -67,6 +67,7 @@ export function useFeed({
         limite: LIMITE_PAGINA_FEED,
       });
     },
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- TanStack Query generics requieren aserción de tipo para initialPageParam
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (ultimaPagina) => ultimaPagina.siguienteCursor,
     enabled: habilitado,

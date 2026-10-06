@@ -3,6 +3,7 @@
 // sincronización con la caché (detalle, listados de publicaciones, pertenencia a carpetas y conteos de carpetas)
 // y reversión automática en caso de error.
 // Spec: HU-09, RF-17, RF-18, CB-02. Res.: D-10, A-9. Plan sección 6.
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Las aserciones son necesarias para manipular datos de TanStack Query (InfiniteData, setQueriesData) donde TypeScript no puede inferir tipos específicos sin ellas. */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InfiniteData } from "@tanstack/react-query";

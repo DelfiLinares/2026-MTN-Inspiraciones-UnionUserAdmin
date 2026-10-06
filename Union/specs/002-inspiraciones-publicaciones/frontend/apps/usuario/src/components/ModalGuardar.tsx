@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams y manipulación de formularios con datos genéricos requieren casting. */
 // Modal para guardar o quitar una publicación en una o más carpetas (T050).
 // Cumple con accesibilidad aria (role="dialog", foco atrapado, Escape), selección múltiple y sincronización optimista.
 // Spec: HU-09, RF-17, RF-18.

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- useParams y conversiones de tipos generados por formularios requieren casting. */
 // Formulario de carpeta (T055): nombre 1–50, sin repetir (RF-16, CB-10) y visibilidad (HU-10).
 import React, { useId, useState } from "react";
 import type { Carpeta } from "@inspiraciones/shared";

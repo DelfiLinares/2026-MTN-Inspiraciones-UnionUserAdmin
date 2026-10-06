@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions -- Las aserciones son necesarias para manipular datos de TanStack Query (InfiniteData, setQueriesData) donde TypeScript no puede inferir tipos específicos sin ellas. */
+
 // Hook de like con actualización optimista, reversión en caso de error y protección anti doble clic (T038).
 // Actualiza inmediatamente la caché local (detalle y listados) y revierte en error.
 // Spec: HU-07, RF-11 a RF-15, CB-07. Res.: D-10, S-3. Plan sección 6.
