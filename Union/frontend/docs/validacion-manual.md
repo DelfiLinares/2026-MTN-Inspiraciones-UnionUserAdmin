@@ -85,3 +85,19 @@ desviaciones respecto de lo descripto en `quickstart.md`.
 **Conclusión del Escenario 4**: todos los pasos y resultados esperados se verifican correctamente
 contra la implementación actual de `PublicacionesPage`/`EditarPublicacionForm`. Sin observaciones ni
 desviaciones respecto de lo descripto en `quickstart.md`.
+
+## Escenario 5 — Eliminar una publicación (HU-05)
+
+- **Test de ejecución**: `tests/integration/Escenario5EliminarPublicacion.test.tsx` (T078)
+- **Resultado**: ✅ **Verificado**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | En Gestión de Publicaciones, seleccionar una publicación en estado `REPORTADA` | ✅ Se usa el fixture `PUBLICACION_REPORTADA_FIXTURE`. |
+| 2 | Verificar que la acción "Eliminar" está visualmente diferenciada como sensible (RF-22) | ✅ El botón aplica la clase `accion-sensible-boton--sensible`. |
+| 3 | Iniciar "Eliminar" y confirmar explícitamente (RF-23) | ✅ Se hace clic en "Eliminar" y luego en "Confirmar" del `ConfirmDialog`. |
+| 4 | **Resultado esperado**: el estado de la publicación pasa a `ELIMINADA` (AC-05.3) | ✅ Se invoca `PublicacionesServiceAdmin.eliminar()`; el diálogo se cierra y el listado se recarga, reflejando el cambio sin bloquear la interfaz. |
+
+**Conclusión del Escenario 5**: todos los pasos y resultados esperados se verifican correctamente
+contra la implementación actual de `PublicacionesPage`/`EliminarPublicacionAction`. Sin observaciones
+ni desviaciones respecto de lo descripto en `quickstart.md`.
