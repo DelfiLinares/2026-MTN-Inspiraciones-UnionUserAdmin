@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { LimiteDeErrores } from "@inspiraciones/shared";
 import { App } from "./App";
 
 const contenedor = document.getElementById("root");
@@ -9,6 +10,8 @@ if (contenedor === null) {
 
 createRoot(contenedor).render(
   <StrictMode>
-    <App />
+    <LimiteDeErrores accion={<a href="/">Volver al inicio</a>}>
+      <App />
+    </LimiteDeErrores>
   </StrictMode>,
 );
