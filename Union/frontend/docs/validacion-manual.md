@@ -67,3 +67,21 @@ desviaciones respecto de lo descripto en `quickstart.md`.
 **Conclusión del Escenario 3**: todos los pasos y resultados esperados se verifican correctamente
 contra la implementación actual de `PromocionPage`/`PromoverUsuarioAction`. Sin observaciones ni
 desviaciones respecto de lo descripto en `quickstart.md`.
+
+## Escenario 4 — Editar una publicación de cualquier usuario (HU-04)
+
+- **Test de ejecución**: `tests/integration/Escenario4EditarPublicacion.test.tsx` (T077)
+- **Resultado**: ✅ **Verificado**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | Ir a la pantalla de Gestión de Publicaciones | ✅ `PublicacionesPage` renderiza el listado vía `PublicacionesTable`. |
+| 2 | Abrir una publicación `ACTIVA` cuyo autor no sea el administrador autenticado | ✅ Se usa el fixture `PUBLICACION_ACTIVA_FIXTURE` (`autorId` distinto de `ADMIN_ACTOR_FIXTURE.id`). |
+| 3 | Editar el contenido y confirmar explícitamente el guardado (AC-04.2) | ✅ Se edita el `textarea` y se confirma vía `ConfirmDialog`. |
+| 4 | **Resultado esperado**: los cambios se reflejan sin recargar la página (AC-04.3) | ✅ Se invoca `PublicacionesServiceAdmin.editar()`; el formulario se cierra en el mismo árbol de React, sin navegación. |
+| 5 | Simular un fallo de guardado | ✅ Se simula rechazando la llamada `httpClient.patch`. |
+| 6 | **Resultado esperado**: se muestra un mensaje de error y el formulario conserva los datos editados (AC-04.4) | ✅ Se muestra el mensaje de error vía `MensajeError` y el `textarea` conserva el contenido editado. |
+
+**Conclusión del Escenario 4**: todos los pasos y resultados esperados se verifican correctamente
+contra la implementación actual de `PublicacionesPage`/`EditarPublicacionForm`. Sin observaciones ni
+desviaciones respecto de lo descripto en `quickstart.md`.
