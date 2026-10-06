@@ -18,7 +18,7 @@ export { usePublicacion } from "./hooks/usePublicacion";
 export { clavesConsulta } from "./hooks/claves";
 export { useLike } from "./hooks/useLike";
 export { useGuardarEnCarpetas } from "./hooks/useGuardarEnCarpetas";
-export { useCarpetas } from "./hooks/useCarpetas";
+export { useCarpetas, useCarpetaContenido } from "./hooks/useCarpetas";
 export { useReportar } from "./hooks/useReportar";
 export { usePublicacionMutaciones } from "./hooks/usePublicacionMutaciones";
 export { crearLikesService } from "./services/likesService";
