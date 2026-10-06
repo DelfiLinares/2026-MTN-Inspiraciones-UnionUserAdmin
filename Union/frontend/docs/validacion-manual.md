@@ -49,3 +49,21 @@ desviaciones respecto de lo descripto en `quickstart.md`.
 **Conclusión del Escenario 2**: todos los pasos y resultados esperados se verifican correctamente
 contra la implementación actual de `UsuariosPage`/`EliminarUsuarioAction`. Sin observaciones ni
 desviaciones respecto de lo descripto en `quickstart.md`.
+
+## Escenario 3 — Promover un usuario a administrador (HU-03)
+
+- **Test de ejecución**: `tests/integration/Escenario3PromoverUsuario.test.tsx` (T076)
+- **Resultado**: ✅ **Verificado**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | Ir a la pantalla de Promoción de Usuarios | ✅ `PromocionPage` renderiza el listado de candidatos vía `UsuariosTable`. |
+| 2 | Seleccionar un usuario con rol `USER` e iniciar "Promover a administrador" | ✅ Se usa el fixture `USUARIO_USER_ACTIVO_FIXTURE`; el botón está habilitado. |
+| 3 | Confirmar explícitamente (RF-23) | ✅ Se hace clic en "Confirmar" del `ConfirmDialog`. |
+| 4 | **Resultado esperado**: el rol del usuario pasa a `ADMIN` (AC-03.3) | ✅ Se invoca `UsuariosServiceAdmin.promover()`; el diálogo se cierra y el listado se recarga, reflejando el cambio sin bloquear la interfaz. |
+| 5 | Intentar promover a un usuario que ya tiene rol `ADMIN` | ✅ Se usa el fixture `USUARIO_ADMIN_EXISTENTE_FIXTURE`. |
+| 6 | **Resultado esperado**: la operación se rechaza como no-op sin llamar a la API (AC-03.4, CB-02) | ✅ El botón está deshabilitado (`disabled`) y un clic sobre él no invoca `httpClient.post`. |
+
+**Conclusión del Escenario 3**: todos los pasos y resultados esperados se verifican correctamente
+contra la implementación actual de `PromocionPage`/`PromoverUsuarioAction`. Sin observaciones ni
+desviaciones respecto de lo descripto en `quickstart.md`.
