@@ -145,3 +145,21 @@ wireado en el listado de reportes, solo en el detalle; (b) la reactivación auto
 publicación tras rechazar su último reporte pendiente no se refleja entre pantallas en este frontend
 sin backend real, aunque la regla de negocio subyacente ya está cubierta por tests unitarios/de
 aplicación dedicados.
+
+## Escenario 9 — Exportar reportes (HU-09)
+
+- **Test de ejecución**: `tests/integration/Escenario9ExportarReportes.test.tsx` (T080)
+- **Resultado**: ✅ **Verificado**
+
+| Paso | Descripción | Resultado |
+| --- | --- | --- |
+| 1 | En `/reportes`, aplicar un filtro (por ejemplo, prioridad `ALTA`) | ✅ Se cambia el filtro de prioridad mediante `FiltrosReportes` antes de exportar. |
+| 2 | Hacer clic en "Exportar" dentro de la misma pantalla, respetando el filtro activo (AC-09.1) | ✅ No existe pantalla ni ruta separadas; `ExportarReportesBoton` invoca `POST /reportes/exportar` con el `FiltroReportes` activo (`{ prioridad: 'ALTA' }`) como cuerpo de la solicitud. |
+| 3 | **Resultado esperado**: se muestra un estado de carga sin bloquear el resto de la interfaz (AC-09.2) | ✅ El botón cambia a "Exportando…" mientras la promesa está pendiente; el resto de la pantalla (filtros, tabla) permanece presente y operable. |
+| 3 (cont.) | **Resultado esperado**: al finalizar, se ofrece una acción de descarga (AC-09.3) | ✅ Al resolver la exportación, aparece un enlace "Descargar archivo exportado" apuntando a la `urlDescarga` recibida, y el botón vuelve a su estado habilitado "Exportar". |
+| 4 | Simular un fallo en la generación del archivo | ✅ Se simula un rechazo del `HttpClient.post` hacia `/reportes/exportar`. |
+| 5 | **Resultado esperado**: se muestra un mensaje de error claro (AC-09.4, CB-05) | ✅ `ExportacionService.exportar()` captura el error y devuelve `exitoso: false` con `mensajeError`; `ReportesPage` lo muestra vía `MensajeError` de forma no bloqueante (la pantalla permanece montada y operable, sin enlace de descarga). |
+
+**Conclusión del Escenario 9**: todos los pasos y resultados esperados se verifican correctamente
+contra la implementación actual de `ReportesPage`/`ExportarReportesBoton`/`ExportacionService`. Sin
+observaciones ni desviaciones respecto de lo descripto en `quickstart.md`.
