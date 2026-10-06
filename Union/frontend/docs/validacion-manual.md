@@ -183,3 +183,28 @@ pendiente fuera del alcance de T081 (tarea de validación, sin cambios a código
 
 **Conclusión del Escenario 10**: el comportamiento de `GuardiaRolAdmin` cumple AC-10.1; se deja
 constancia de la limitación de seguridad (AC-10.3) y de la observación de integración.
+
+## Checklist final de reglas de negocio críticas (sección 6 de `spec.md`) — T082
+
+Todos los ítems se marcan como verificados a nivel de interfaz, con la evidencia de los escenarios
+indicados (tests de `tests/integration/`). Las observaciones previas se mantienen, y la
+autorización definitiva depende del backend (AC-10.3, RNF-05).
+
+- [x] Solo el administrador edita/elimina publicaciones de cualquier usuario (Escenarios 4 y 5).
+  Evidencia: `Escenario4EditarPublicacion.test.tsx`, `Escenario5EliminarPublicacion.test.tsx` (T077, T078).
+- [x] Solo el administrador banea/elimina/promueve usuarios (Escenarios 1, 2 y 3).
+  Evidencia: `Escenario1BanearUsuario.test.tsx`, `Escenario2EliminarUsuario.test.tsx`,
+  `Escenario3PromoverUsuario.test.tsx` (T074–T076). Las acciones sobre un `ADMIN` quedan deshabilitadas.
+- [x] Solo el administrador lee/exporta/acepta/rechaza reportes (Escenarios 6 a 9).
+  Evidencia: `Escenarios678Reportes.test.tsx` (T079), `Escenario9ExportarReportes.test.tsx` (T080).
+  Observaciones vigentes: resaltado `PENDIENTE` ausente en el listado (AC-06.3) y reactivación de
+  publicación (AC-08.6) no reflejada entre pantallas.
+- [x] Solo un administrador puede promover a otro usuario a administrador (Escenario 3).
+  Evidencia: `Escenario3PromoverUsuario.test.tsx` (T076); promover a un `ADMIN` ya existente es no-op (CB-02).
+- [x] Solo rol `ADMIN` accede al frontend administrativo (Escenario 10).
+  Evidencia: `Escenario10AccesoRestringido.test.tsx` (T081). Observación vigente: `AppRoutesAdmin.tsx`
+  aún no integra `GuardiaRolAdmin`; la guardia en sí funciona y es solo una verificación de interfaz.
+
+**Conclusión general de la Fase 9**: los 10 escenarios de `quickstart.md` fueron ejecutados (como
+tests repetibles, al no existir backend real) y documentados; el checklist está completo. Las 3
+observaciones registradas no son defectos de los tests y quedan para su revisión.
