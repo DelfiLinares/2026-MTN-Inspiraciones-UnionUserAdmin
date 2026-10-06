@@ -24,6 +24,8 @@ export { usePublicacionMutaciones } from "./hooks/usePublicacionMutaciones";
 export { crearLikesService } from "./services/likesService";
 export { crearCarpetasService } from "./services/carpetasService";
 export { crearReportesService } from "./services/reportesService";
+export { useModeracionReportadas } from "./hooks/useModeracion";
+export { crearModeracionService } from "./services/moderacionService";
 export { ErrorHttp } from "./services/errores";
 export { crearHttpClient } from "./services/httpClient";
 export { crearSesionService } from "./services/sesionService";
