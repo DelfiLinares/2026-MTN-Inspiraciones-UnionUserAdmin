@@ -15,6 +15,7 @@ export type { FiltrosFeed } from "./hooks/useFeed";
 export { crearPublicacionesService } from "./services/publicacionesService";
 export type { PublicacionesService } from "./services/publicacionesService";
 export { usePublicacion } from "./hooks/usePublicacion";
+export { clavesConsulta } from "./hooks/claves";
 export { useLike } from "./hooks/useLike";
 export { useGuardarEnCarpetas } from "./hooks/useGuardarEnCarpetas";
 export { useCarpetas } from "./hooks/useCarpetas";
