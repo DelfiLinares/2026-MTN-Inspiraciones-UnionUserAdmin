@@ -73,20 +73,9 @@ export const TarjetaPublicacion: React.FC<TarjetaPublicacionProps> = ({
         </div>
       </header>
 
-      {/* Medio multimedia */}
-      <div
-        className={styles.medioWrapper}
-        onClick={handleVerDetalle}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleVerDetalle();
-          }
-        }}
-        aria-label={`Ver detalle de ${publicacion.titulo}`}
-      >
+      {/* Medio multimedia. El clic con mouse abre el detalle; para teclado y lectores de pantalla
+          el acceso es el botón del título (evita un botón que contenga controles de video/audio). */}
+      <div className={styles.medioWrapper} onClick={handleVerDetalle}>
         <Medio
           tipo={publicacion.tipoContenido}
           src={publicacion.contenido}
@@ -116,7 +105,7 @@ export const TarjetaPublicacion: React.FC<TarjetaPublicacionProps> = ({
         )}
 
         {publicacion.etiquetas.length > 0 && (
-          <div className={styles.etiquetas} aria-label="Etiquetas">
+          <div className={styles.etiquetas} role="group" aria-label="Etiquetas">
             {publicacion.etiquetas.map((etiqueta) => (
               <span key={etiqueta} className={styles.etiqueta}>
                 #{etiqueta}

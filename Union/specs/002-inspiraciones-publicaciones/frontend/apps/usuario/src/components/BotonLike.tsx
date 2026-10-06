@@ -32,7 +32,8 @@ export const BotonLike: React.FC<BotonLikeProps> = ({
       <span
         className={`${styles.botonLike} ${styles.soloLectura} ${className}`.trim()}
         data-testid={`boton-like-estatico-${publicacion.id}`}
-        aria-label={`${publicacion.cantidadLikes} likes`}
+        role="img"
+        aria-label={`${publicacion.cantidadLikes} me gusta`}
       >
         <span className={styles.icono} aria-hidden="true">
           ❤️
