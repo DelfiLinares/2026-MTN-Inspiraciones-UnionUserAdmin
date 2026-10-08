@@ -78,7 +78,7 @@ export interface CarpetaListProps {
   esPerfilPropio: boolean
   paginacion?: ResultadoCarpetasPaginado
   cargando?: boolean
-  onCargarMas?: () => Promise<void>
+  onCargarMas?: (limit: number, offset: number) => Promise<void>
   onCreate?: () => void
   onRename?: (carpeta: CarpetaPost) => void
   onDelete?: (carpeta: CarpetaPost) => void
@@ -105,6 +105,8 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   // T044: Estado para mostrar/ocultar ConfirmDeleteCarpetaDialog
   const [mostrarDialogoEliminar, setMostrarDialogoEliminar] = useState(false)
   const [carpetaAEliminar, setCarpetaAEliminar] = useState<CarpetaPost | null>(null)
+  // T045: Estado para paginación server-side (limit y offset)
+  const [offsetActual, setOffsetActual] = useState(0)
 
   /**
    * Determinar si el botón "crear" debe estar deshabilitado.
@@ -114,14 +116,22 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
 
   /**
    * Manejo de "cargar más" con spinner (A6).
+   * T045: Paginación server-side con parámetros limit y offset.
    */
   const handleCargarMas = async () => {
     if (!onCargarMas || cargandoMas) {
       return
     }
+
+    // T045: Calcular siguiente offset basado en paginación actual
+    const proximoOffset = offsetActual + (paginacion?.limit || 20)
+    const limit = paginacion?.limit || 20
+
     setCargandoMas(true)
     try {
-      await onCargarMas()
+      await onCargarMas(limit, proximoOffset)
+      // Actualizar offset si la carga fue exitosa
+      setOffsetActual(proximoOffset)
     } catch (err) {
       console.error('Error cargando más carpetas:', err)
     } finally {
@@ -141,10 +151,14 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   /**
    * T042: Manejo de creación de carpeta exitosa.
    * Cierra diálogo y notifica al padre si hay callback onCreate.
+   * T045: Resetea offset para recargar desde el principio.
    */
   const handleCarpetaCreada = (carpetaCreada: CarpetaPost) => {
     // Cerrar diálogo
     setMostrarDialogoCrear(false)
+
+    // T045: Resetear offset al crear, ya que la lista cambia
+    setOffsetActual(0)
 
     // Notificar al padre (PerfilPropio) para recargar lista
     if (onCreate) {
@@ -162,11 +176,15 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   /**
    * T043: Manejo de renombrado de carpeta exitoso.
    * Cierra diálogo y notifica al padre si hay callback onRename.
+   * T045: Resetea offset para refrescar la lista ordenada.
    */
   const handleCarpetaRenombrada = (carpetaRenombrada: CarpetaPost) => {
     // Cerrar diálogo
     setMostrarDialogoRenombrar(false)
     setCarpetaARenombrar(null)
+
+    // T045: Resetear offset al renombrar
+    setOffsetActual(0)
 
     // Notificar al padre (PerfilPropio) para recargar lista con nombres actualizados
     if (onRename) {
@@ -194,6 +212,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
    * T044: Manejo de eliminación de carpeta exitosa.
    * Cierra diálogo y notifica al padre si hay callback onDelete.
    * Actualiza visualmente el cupo (paginación.total disminuye).
+   * T045: Resetea offset para refrescar la lista.
    */
   const handleCarpetaEliminada = () => {
     // Guardar referencia a la carpeta eliminada antes de limpiar estado
@@ -202,6 +221,9 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
     // Cerrar diálogo
     setMostrarDialogoEliminar(false)
     setCarpetaAEliminar(null)
+
+    // T045: Resetear offset al eliminar
+    setOffsetActual(0)
 
     // Notificar al padre (PerfilPropio) para recargar lista y actualizar cupo
     if (onDelete && carpetaEliminada) {
