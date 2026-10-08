@@ -175,7 +175,7 @@ Se escriben junto a las fases 5 y 6 (TDD) aunque aquí se agrupen.
 - [x] **T090** [P] `US/pages/AccionesOptimistas.test.tsx`: doble clic en like y error de red durante una acción optimista (reversión y mensaje). **Spec**: CB-07, RF-28. **Res.**: D-10, D-11. **Depende de**: T060
 - [x] **T091** [P] `US/pages/ReporteDuplicado.test.tsx`: 409 y estado "Ya reportada". **Spec**: RF-23. **Depende de**: T060
 - [x] **T092** [P] `US/pages/ErroresGlobales.test.tsx`: 401 (sesión expirada con borrador), 403, 404 y error de red. **Spec**: RF-09, CB-09. **Depende de**: T070, T071
-- [ ] **T093** [P] `AD/routes/RequireAdmin.test.tsx`: un `USER` es rechazado. **Spec**: RF-10b. **Res.**: A-15. **Depende de**: T066
+- [x] **T093** [P] `AD/routes/RequireAdmin.test.tsx`: un `USER` es rechazado. **Spec**: RF-10b. **Res.**: A-15. **Depende de**: T066
 - [ ] **T094** [P] `frontend/tests/a11y.test.tsx`: chequeo automático de accesibilidad de modales y páginas clave. **Spec**: RNF-01. **Depende de**: T072
 
 **Checkpoint F8**: toda la suite pasa con cobertura de las reglas de `data-model.md` §6, incluidos los casos borde.
