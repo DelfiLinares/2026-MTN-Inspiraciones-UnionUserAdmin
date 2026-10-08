@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../services/AuthContext'
 import { Usuario } from '../../domain/Usuario'
 import { EstadoCuentaUsuario } from '../../domain/enums/EstadoCuentaUsuario'
+import { PerfilPropio } from './PerfilPropio'
+import { PerfilAjeno } from './PerfilAjeno'
+import { ProfileNotFoundView } from './ProfileNotFoundView'
 
 /**
  * `PerfilPage`: Contenedor root que decide entre perfil propio y ajeno.
@@ -149,45 +152,42 @@ export const PerfilPage: React.FC = () => {
   const usuarioIdParam_ = usuarioIdParam
   const esPerfilPropio = !usuarioIdParam_
   if (!esPerfilPropio && !state.usuario.estaDisponible()) {
-    // TODO (T027): Reemplazar con ProfileNotFoundView
-    const razon =
-      state.usuario.estado === EstadoCuentaUsuario.BANEADO
-        ? 'Usuario baneado'
-        : state.usuario.estado === EstadoCuentaUsuario.ELIMINADO
-          ? 'Usuario eliminado'
-          : 'Perfil no disponible'
+    // T027: ProfileNotFoundView maneja BANEADO/ELIMINADO
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-        <h2>Perfil No Disponible</h2>
-        <p>{razon}</p>
-      </div>
+      <ProfileNotFoundView
+        usuario={state.usuario}
+        onVolver={() => navigate(-1)}
+      />
     )
   }
 
   // Renderizar perfil propio o ajeno
   if (esPerfilPropio) {
-    // TODO (T020): Importar y renderizar <PerfilPropio usuario={state.usuario} />
+    // T020: PerfilPropio con acciones de edición y datos del usuario
     return (
-      <div style={{ padding: '2rem' }}>
-        <h1>Perfil Propio: {state.usuario.username}</h1>
-        <p>Foto: {state.usuario.foto || 'Sin foto'}</p>
-        <p>Sobre mí: {state.usuario.sobreMi}</p>
-        <p>Descripción: {state.usuario.descripcion}</p>
-        <p>Seguidores: {state.usuario.cantidadSeguidores}</p>
-        {/* TODO (T020): Componente PerfilPropio */}
-      </div>
+      <PerfilPropio
+        usuario={state.usuario}
+        onEditarPerfil={() => {
+          // TODO (T032): Integrar edición de perfil
+          console.log('Abrir formulario de edición')
+        }}
+        onCambiarFoto={() => {
+          // TODO (T032): Integrar cambio de foto
+          console.log('Abrir diálogo de cambio de foto')
+        }}
+      />
     )
   } else {
-    // TODO (T021): Importar y renderizar <PerfilAjeno usuario={state.usuario} usuarioActual={usuarioActual} />
+    // T021: PerfilAjeno con opción de seguimiento
     return (
-      <div style={{ padding: '2rem' }}>
-        <h1>Perfil Ajeno: {state.usuario.username}</h1>
-        <p>Foto: {state.usuario.foto || 'Sin foto'}</p>
-        <p>Sobre mí: {state.usuario.sobreMi}</p>
-        <p>Descripción: {state.usuario.descripcion}</p>
-        <p>Seguidores: {state.usuario.cantidadSeguidores}</p>
-        {/* TODO (T021): Componente PerfilAjeno */}
-      </div>
+      <PerfilAjeno
+        usuario={state.usuario}
+        usuarioActual={usuarioActual!}
+        onSeguimiento={async (seguimiento) => {
+          // TODO (T030): Integrar servicio de seguimiento
+          console.log('Toggling seguimiento:', seguimiento)
+        }}
+      />
     )
   }
 }
