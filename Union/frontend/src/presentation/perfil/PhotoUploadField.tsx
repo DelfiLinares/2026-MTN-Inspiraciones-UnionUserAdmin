@@ -4,6 +4,7 @@ import {
   validarArchivo,
   crearFormDataFoto,
 } from '../../application/dto/SubirFotoPayload'
+import { usuarioPerfilService } from '../../services/perfilService'
 
 /**
  * `PhotoUploadField`: Componente de subida de foto de perfil.
@@ -11,7 +12,7 @@ import {
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-02, AC-02.1, A2)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T023)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T023, T033)
  *
  * Responsabilidades:
  * 1. Input file con restricciones A2:
@@ -31,16 +32,14 @@ import {
  *    - Mostrar nombre del archivo
  *    - Opción de cambiar foto
  *
- * 4. Integración con servicios:
- *    - Callback onFotoSeleccionada: (archivo: File, preview: string) => Promise<void>
- *    - Envío a endpoint POST /perfil/foto (T029)
+ * 4. Integración con servicios (T033: UsuarioPerfilService):
+ *    - Invoca usuarioPerfilService.cambiarFotoPerfil() directamente
+ *    - Maneja errores 400/413/415 (A2)
+ *    - Callback onFotoActualizada: (usuario: Usuario) => void — Opcional
  *
  * Props:
  * - `fotoActual?: string` — URL de foto actual (para preview)
- * - `onFotoSeleccionada: (archivo: File) => Promise<void>` — Callback con archivo validado
- * - `enviando?: boolean` — true si se está subiendo
- * - `error?: string` — Mensaje de error del servidor
- * - `exito?: boolean` — true si foto se subió correctamente
+ * - `onFotoActualizada?: (usuario: Usuario) => void` — Callback después de subir (T033)
  *
  * Historias de usuario:
  * - HU-02: Editar perfil propio (incluye cambio de foto)
@@ -58,22 +57,19 @@ import {
  * - Validaciones client-side antes de envío al servidor
  * - Backend puede rechazar si no cumple especificaciones
  * - Preview se muestra con FileReader API (lectura local, no enviado)
+ * - T033: Integración con UsuarioPerfilService
  */
+
+import { Usuario } from '../../domain/Usuario'
 
 export interface PhotoUploadFieldProps {
   fotoActual?: string
-  onFotoSeleccionada: (archivo: File) => Promise<void>
-  enviando?: boolean
-  error?: string
-  exito?: boolean
+  onFotoActualizada?: (usuario: Usuario) => void
 }
 
 export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
   fotoActual,
-  onFotoSeleccionada,
-  enviando = false,
-  error,
-  exito,
+  onFotoActualizada,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | undefined>(fotoActual)
@@ -81,13 +77,19 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
   const [errorLocal, setErrorLocal] = useState<string | undefined>()
   const [exitoLocal, setExitoLocal] = useState<boolean>(false)
 
+  // T033: Estado para manejo de envío (integración con UsuarioPerfilService)
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState<string | undefined>()
+
   /**
    * Manejo de selección de archivo.
    * A2: Validar archivo antes de procesar.
+   * T033: Invocar UsuarioPerfilService.cambiarFotoPerfil() directamente.
    */
   const handleArchivoSeleccionado = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0]
     setErrorLocal(undefined)
+    setError(undefined)
     setExitoLocal(false)
 
     if (!archivo) {
@@ -109,13 +111,28 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
     }
     reader.readAsDataURL(archivo)
 
+    // T033: Enviar archivo al servidor usando UsuarioPerfilService
+    setEnviando(true)
+
     try {
-      // Enviar archivo al servidor
-      await onFotoSeleccionada(archivo)
+      // T033: Enviar archivo al servidor usando UsuarioPerfilService
+      // El servicio convierte el File a FormData internamente
+      const usuarioActualizado = await usuarioPerfilService.cambiarFotoPerfil(archivo)
+
+      // Éxito
       setExitoLocal(true)
+
+      // Invocar callback opcional
+      if (onFotoActualizada) {
+        onFotoActualizada(usuarioActualizado)
+      }
     } catch (err) {
+      // A2: Manejo de errores 400/413/415
       const mensajeError = err instanceof Error ? err.message : 'Error al subir foto'
-      setErrorLocal(mensajeError)
+      setError(mensajeError)
+      setExitoLocal(false)
+    } finally {
+      setEnviando(false)
     }
   }
 
@@ -220,7 +237,7 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
       )}
 
       {/* Mostrar éxito */}
-      {(exitoLocal || exito) && (
+      {exitoLocal && (
         <div
           style={{
             backgroundColor: '#dcfce7',
