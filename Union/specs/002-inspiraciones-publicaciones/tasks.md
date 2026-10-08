@@ -173,7 +173,7 @@ Se escriben junto a las fases 5 y 6 (TDD) aunque aquí se agrupen.
 - [ ] **T088** [P] `US/pages/CarpetaBordes.test.tsx`: carpeta vacía; publicación eliminada dentro de una carpeta ("no disponible" con opción de quitarla). **Spec**: CB-02, CB-05, CB-06. **Res.**: A-2. **Depende de**: T065
 - [ ] **T089** [P] `US/pages/DetalleEliminada.test.tsx`: publicación eliminada mientras se la mira (404 al revalidar, mensaje claro, likes sin contar). **Spec**: CB-01, CB-03, CB-08. **Res.**: A-1, A-2. **Depende de**: T060
 - [ ] **T090** [P] `US/pages/AccionesOptimistas.test.tsx`: doble clic en like y error de red durante una acción optimista (reversión y mensaje). **Spec**: CB-07, RF-28. **Res.**: D-10, D-11. **Depende de**: T060
-- [ ] **T091** [P] `US/pages/ReporteDuplicado.test.tsx`: 409 y estado "Ya reportada". **Spec**: RF-23. **Depende de**: T060
+- [x] **T091** [P] `US/pages/ReporteDuplicado.test.tsx`: 409 y estado "Ya reportada". **Spec**: RF-23. **Depende de**: T060
 - [ ] **T092** [P] `US/pages/ErroresGlobales.test.tsx`: 401 (sesión expirada con borrador), 403, 404 y error de red. **Spec**: RF-09, CB-09. **Depende de**: T070, T071
 - [ ] **T093** [P] `AD/routes/RequireAdmin.test.tsx`: un `USER` es rechazado. **Spec**: RF-10b. **Res.**: A-15. **Depende de**: T066
 - [ ] **T094** [P] `frontend/tests/a11y.test.tsx`: chequeo automático de accesibilidad de modales y páginas clave. **Spec**: RNF-01. **Depende de**: T072
