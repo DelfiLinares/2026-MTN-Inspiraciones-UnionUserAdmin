@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
+import CreateCarpetaDialog from './CreateCarpetaDialog'
 
 /**
  * `CarpetaList`: Componente de listado de carpetas de posts guardados.
@@ -94,6 +95,8 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   onSelectCarpeta,
 }) => {
   const [cargandoMas, setCargandoMas] = useState(false)
+  // T042: Estado para mostrar/ocultar CreateCarpetaDialog
+  const [mostrarDialogoCrear, setMostrarDialogoCrear] = useState(false)
 
   /**
    * Determinar si el botón "crear" debe estar deshabilitado.
@@ -127,6 +130,27 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
     }
   }
 
+  /**
+   * T042: Manejo de creación de carpeta exitosa.
+   * Cierra diálogo y notifica al padre si hay callback onCreate.
+   */
+  const handleCarpetaCreada = (carpetaCreada: CarpetaPost) => {
+    // Cerrar diálogo
+    setMostrarDialogoCrear(false)
+
+    // Notificar al padre (PerfilPropio) para recargar lista
+    if (onCreate) {
+      onCreate()
+    }
+  }
+
+  /**
+   * T042: Manejo de cancelación de diálogo de crear.
+   */
+  const handleCancelarDialogo = () => {
+    setMostrarDialogoCrear(false)
+  }
+
   return (
     <div style={{ padding: '0 0 2rem 0' }}>
       {/* Encabezado + botón crear (solo perfil propio) */}
@@ -145,7 +169,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
         {/* AC-05.4: Botón crear disponible solo si < 50 carpetas y es perfil propio */}
         {esPerfilPropio && onCreate && (
           <button
-            onClick={onCreate}
+            onClick={() => setMostrarDialogoCrear(true)}
             disabled={alcanzoBtnCrear || cargando}
             title={alcanzoBtnCrear ? 'Has alcanzado el límite de 50 carpetas' : ''}
             style={{
@@ -309,6 +333,15 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             {cargandoMas ? 'Cargando...' : 'Cargar más carpetas'}
           </button>
         </div>
+      )}
+
+      {/* T042: Diálogo de crear carpeta (integración con CreateCarpetaDialog) */}
+      {mostrarDialogoCrear && esPerfilPropio && (
+        <CreateCarpetaDialog
+          carpetasActuales={carpetas}
+          onSuccess={handleCarpetaCreada}
+          onCancel={handleCancelarDialogo}
+        />
       )}
     </div>
   )
