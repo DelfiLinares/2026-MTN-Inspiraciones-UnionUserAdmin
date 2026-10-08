@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Usuario } from '../../domain/Usuario'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { Publicacion } from '../../domain/Publicacion'
+import { EditarPerfilForm } from './EditarPerfilForm'
+import { PhotoUploadField } from './PhotoUploadField'
 
 /**
  * `PerfilPropio`: Vista de perfil propio con acciones de edición.
@@ -10,7 +12,7 @@ import { Publicacion } from '../../domain/Publicacion'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, AC-01, AC-02)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T020)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T020, T034)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-01.1):
@@ -20,9 +22,9 @@ import { Publicacion } from '../../domain/Publicacion'
  *    - Descripción (≤200 chars)
  *    - Cantidad de seguidores
  *
- * 2. Ofrece acciones del perfil propio (AC-01.4):
- *    - Botón "Editar perfil" (navega a `/editar-perfil` o abre modal, T022)
- *    - Botón "Cambiar foto" (abre modal de subida, T023)
+ * 2. Ofrece acciones del perfil propio (AC-01.4, T034):
+ *    - Botón "Editar perfil" (abre modal con EditarPerfilForm, T032)
+ *    - Botón "Cambiar foto" (abre modal con PhotoUploadField, T033)
  *
  * 3. Muestra carpetas públicas del usuario (AC-01.2):
  *    - Lista de carpetas (CarpetaPost[])
@@ -42,8 +44,7 @@ import { Publicacion } from '../../domain/Publicacion'
  * - `carpetas?: CarpetaPost[]` — Carpetas públicas del usuario (opcional, para T020)
  * - `publicaciones?: Publicacion[]` — Publicaciones propias (opcional, para T020)
  * - `cargando?: boolean` — true si se están cargando datos (opcional, para skeleton)
- * - `onEditarPerfil?: () => void` — Callback para abrir modal de edición (T022)
- * - `onCambiarFoto?: () => void` — Callback para abrir modal de cambio de foto (T023)
+ * - `onPerfilActualizado?: (usuario: Usuario) => void` — Callback después de actualizar (T034)
  *
  * Historias de usuario:
  * - HU-01: Visualizar perfil propio (estructura base)
@@ -58,6 +59,7 @@ import { Publicacion } from '../../domain/Publicacion'
  * - La gestión de carpetas y publicaciones depende de T024–T026, T032–T033
  * - El formulario de edición es T022 (EditarPerfilForm.tsx)
  * - La subida de foto es T023 (PhotoUploadField.tsx)
+ * - T034: Integración de modal de edición con EditarPerfilForm y PhotoUploadField
  */
 
 export interface PerfilPropioProps {
@@ -65,8 +67,7 @@ export interface PerfilPropioProps {
   carpetas?: CarpetaPost[]
   publicaciones?: Publicacion[]
   cargando?: boolean
-  onEditarPerfil?: () => void
-  onCambiarFoto?: () => void
+  onPerfilActualizado?: (usuario: Usuario) => void
 }
 
 export const PerfilPropio: React.FC<PerfilPropioProps> = ({
@@ -74,26 +75,45 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   carpetas = [],
   publicaciones = [],
   cargando = false,
-  onEditarPerfil,
-  onCambiarFoto,
+  onPerfilActualizado,
 }) => {
   const navigate = useNavigate()
   const [mostrarAcciones, setMostrarAcciones] = useState(false)
 
+  // T034: Estado para modal de edición
+  const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
+  const [mostrarModalFoto, setMostrarModalFoto] = useState(false)
+  const [usuarioActualizado, setUsuarioActualizado] = useState(usuario)
+
   const handleEditarPerfil = () => {
-    if (onEditarPerfil) {
-      onEditarPerfil()
-    } else {
-      // Fallback: navegar a página de edición
-      navigate('/editar-perfil')
-    }
+    setMostrarModalEditar(true)
   }
 
   const handleCambiarFoto = () => {
-    if (onCambiarFoto) {
-      onCambiarFoto()
+    setMostrarModalFoto(true)
+  }
+
+  const handleCerrarModal = () => {
+    setMostrarModalEditar(false)
+    setMostrarModalFoto(false)
+  }
+
+  // T034: Callback cuando se actualiza el perfil
+  const handlePerfilActualizado = (usuarioActual: Usuario) => {
+    setUsuarioActualizado(usuarioActual)
+    setMostrarModalEditar(false)
+    if (onPerfilActualizado) {
+      onPerfilActualizado(usuarioActual)
     }
-    // TODO (T023): Abrir modal de PhotoUploadField
+  }
+
+  // T033: Callback cuando se actualiza la foto
+  const handleFotoActualizada = (usuarioActual: Usuario) => {
+    setUsuarioActualizado(usuarioActual)
+    setMostrarModalFoto(false)
+    if (onPerfilActualizado) {
+      onPerfilActualizado(usuarioActual)
+    }
   }
 
   if (cargando) {
@@ -300,6 +320,89 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           </div>
         )}
       </section>
+
+      {/* T034: Modal de edición de perfil con EditarPerfilForm integrado */}
+      {mostrarModalEditar && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+              maxWidth: '600px',
+              width: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              margin: 'auto',
+            }}
+          >
+            <EditarPerfilForm
+              usuario={usuarioActualizado}
+              onCancel={handleCerrarModal}
+              onPerfilActualizado={handlePerfilActualizado}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* T033: Modal de cambio de foto con PhotoUploadField integrado */}
+      {mostrarModalFoto && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+              maxWidth: '500px',
+              width: '90%',
+              padding: '2rem',
+            }}
+          >
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
+              Cambiar foto de perfil
+            </h2>
+            <PhotoUploadField fotoActual={usuarioActualizado.foto} onFotoActualizada={handleFotoActualizada} />
+            <button
+              onClick={handleCerrarModal}
+              style={{
+                width: '100%',
+                marginTop: '1rem',
+                padding: '0.5rem',
+                backgroundColor: '#e5e7eb',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

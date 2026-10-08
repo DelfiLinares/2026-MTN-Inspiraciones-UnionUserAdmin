@@ -164,16 +164,16 @@ export const PerfilPage: React.FC = () => {
   // Renderizar perfil propio o ajeno
   if (esPerfilPropio) {
     // T020: PerfilPropio con acciones de edición y datos del usuario
+    // T034: Modales integrados de edición y cambio de foto
     return (
       <PerfilPropio
         usuario={state.usuario}
-        onEditarPerfil={() => {
-          // TODO (T032): Integrar edición de perfil
-          console.log('Abrir formulario de edición')
-        }}
-        onCambiarFoto={() => {
-          // TODO (T032): Integrar cambio de foto
-          console.log('Abrir diálogo de cambio de foto')
+        onPerfilActualizado={(usuarioActualizado) => {
+          // T034: Actualizar usuario en estado
+          setState((prev) => ({
+            ...prev,
+            usuario: usuarioActualizado,
+          }))
         }}
       />
     )
