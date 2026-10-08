@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import CreateCarpetaDialog from './CreateCarpetaDialog'
+import RenameCarpetaDialog from './RenameCarpetaDialog'
 
 /**
  * `CarpetaList`: Componente de listado de carpetas de posts guardados.
@@ -97,6 +98,9 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   const [cargandoMas, setCargandoMas] = useState(false)
   // T042: Estado para mostrar/ocultar CreateCarpetaDialog
   const [mostrarDialogoCrear, setMostrarDialogoCrear] = useState(false)
+  // T043: Estado para mostrar/ocultar RenameCarpetaDialog
+  const [mostrarDialogoRenombrar, setMostrarDialogoRenombrar] = useState(false)
+  const [carpetaARenombrar, setCarpetaARenombrar] = useState<CarpetaPost | null>(null)
 
   /**
    * Determinar si el botón "crear" debe estar deshabilitado.
@@ -149,6 +153,37 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
    */
   const handleCancelarDialogo = () => {
     setMostrarDialogoCrear(false)
+  }
+
+  /**
+   * T043: Manejo de renombrado de carpeta exitoso.
+   * Cierra diálogo y notifica al padre si hay callback onRename.
+   */
+  const handleCarpetaRenombrada = (carpetaRenombrada: CarpetaPost) => {
+    // Cerrar diálogo
+    setMostrarDialogoRenombrar(false)
+    setCarpetaARenombrar(null)
+
+    // Notificar al padre (PerfilPropio) para recargar lista con nombres actualizados
+    if (onRename) {
+      onRename(carpetaRenombrada)
+    }
+  }
+
+  /**
+   * T043: Manejo de cancelación de diálogo de renombrar.
+   */
+  const handleCancelarRenombrar = () => {
+    setMostrarDialogoRenombrar(false)
+    setCarpetaARenombrar(null)
+  }
+
+  /**
+   * T043: Abre el diálogo de renombrar con la carpeta seleccionada.
+   */
+  const handleAbrirRenombrar = (carpeta: CarpetaPost) => {
+    setCarpetaARenombrar(carpeta)
+    setMostrarDialogoRenombrar(true)
   }
 
   return (
@@ -246,7 +281,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      onRename(carpeta)
+                      handleAbrirRenombrar(carpeta)
                     }}
                     style={{
                       flex: 1,
@@ -341,6 +376,15 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
           carpetasActuales={carpetas}
           onSuccess={handleCarpetaCreada}
           onCancel={handleCancelarDialogo}
+        />
+      )}
+
+      {/* T043: Diálogo de renombrar carpeta (integración con RenameCarpetaDialog) */}
+      {mostrarDialogoRenombrar && esPerfilPropio && carpetaARenombrar && (
+        <RenameCarpetaDialog
+          carpeta={carpetaARenombrar}
+          onSuccess={handleCarpetaRenombrada}
+          onCancel={handleCancelarRenombrar}
         />
       )}
     </div>
