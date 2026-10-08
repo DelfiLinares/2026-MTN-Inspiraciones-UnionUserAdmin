@@ -369,7 +369,7 @@ describe("GuardarEnCarpeta - Flujos principales (HU-09, RF-17 a RF-19)", () => {
     });
 
     it("cambios en selección se reflejan inmediatamente", () => {
-      let seleccion: string[] = [];
+      const seleccion: string[] = [];
 
       seleccion.push(carpetaConContenido.id);
       expect(seleccion).toContain(carpetaConContenido.id);

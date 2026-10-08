@@ -134,10 +134,13 @@ describe("T100 — S-2: Resolución de topes de tamaño", () => {
 
         // Determinar tipo
         let tipo: "imagen" | "video" | "audio" | null = null;
-        for (const [t, exts] of Object.entries(formatosValidos)) {
-          if (exts.includes(extension || "")) {
-            tipo = t as "imagen" | "video" | "audio";
-            break;
+        for (const [t] of Object.entries(formatosValidos)) {
+          if (t === "imagen" || t === "video" || t === "audio") {
+            const exts = formatosValidos[t];
+            if (exts.includes(extension || "")) {
+              tipo = t;
+              break;
+            }
           }
         }
 

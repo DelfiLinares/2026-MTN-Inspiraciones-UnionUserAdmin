@@ -170,6 +170,13 @@ export const publicacionesHandlers = [
     }
 
     const actual = publicacionesSimuladas[index];
+    if (!actual) {
+      return HttpResponse.json(
+        { codigo: 404, mensaje: "Publicación no encontrada." },
+        { status: 404 },
+      );
+    }
+
     if (actual.autor.id !== usuario.id) {
       return HttpResponse.json(
         { codigo: 403, mensaje: "No tenés permiso para editar esta publicación." },
@@ -209,6 +216,13 @@ export const publicacionesHandlers = [
     }
 
     const actual = publicacionesSimuladas[index];
+    if (!actual) {
+      return HttpResponse.json(
+        { codigo: 404, mensaje: "Publicación no encontrada." },
+        { status: 404 },
+      );
+    }
+
     // Borrado lógico (A-2)
     publicacionesSimuladas[index] = {
       ...actual,

@@ -99,6 +99,13 @@ export const carpetasHandlers = [
     }
 
     const actual = carpetasSimuladas[index];
+    if (!actual) {
+      return HttpResponse.json(
+        { codigo: 404, mensaje: "Carpeta no encontrada." },
+        { status: 404 },
+      );
+    }
+
     const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 
     let nombre = actual.nombre;
@@ -219,10 +226,12 @@ export const carpetasHandlers = [
       itemsPorCarpetaSimulados.set(carpetaId, nuevosItems);
 
       const actualCarpeta = carpetasSimuladas[carpetaIndex];
-      carpetasSimuladas[carpetaIndex] = {
-        ...actualCarpeta,
-        cantidadPublicaciones: nuevosItems.length,
-      };
+      if (actualCarpeta) {
+        carpetasSimuladas[carpetaIndex] = {
+          ...actualCarpeta,
+          cantidadPublicaciones: nuevosItems.length,
+        };
+      }
     }
 
     return new HttpResponse(null, { status: 204 });
@@ -253,10 +262,12 @@ export const carpetasHandlers = [
     itemsPorCarpetaSimulados.set(carpetaId, filtrados);
 
     const actualCarpeta = carpetasSimuladas[carpetaIndex];
-    carpetasSimuladas[carpetaIndex] = {
-      ...actualCarpeta,
-      cantidadPublicaciones: filtrados.length,
-    };
+    if (actualCarpeta) {
+      carpetasSimuladas[carpetaIndex] = {
+        ...actualCarpeta,
+        cantidadPublicaciones: filtrados.length,
+      };
+    }
 
     return new HttpResponse(null, { status: 204 });
   }),

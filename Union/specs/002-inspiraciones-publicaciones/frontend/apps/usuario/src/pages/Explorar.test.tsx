@@ -150,7 +150,10 @@ describe("Explorar - Búsqueda y filtros (HU-06, RF-27)", () => {
 
     it("múltiples tipos de contenido pueden ser seleccionados (OR)", () => {
       const tipos = [TipoContenido.IMAGEN, TipoContenido.VIDEO];
-      const resultados = publicaciones.filter((p) => tipos.includes(p.tipoContenido as any));
+      const resultados = publicaciones.filter((p) => {
+        // Safe check that tipoContenido is one of the filtered types
+        return tipos.some((tipo) => tipo === p.tipoContenido);
+      });
 
       expect(resultados.length).toBeGreaterThan(0);
       for (const pub of resultados) {

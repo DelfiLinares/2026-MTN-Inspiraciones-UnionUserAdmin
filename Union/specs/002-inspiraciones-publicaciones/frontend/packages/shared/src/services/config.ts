@@ -24,7 +24,8 @@ export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== "false";
  * Valores: "USER", "ADMIN"
  * Permite testing de diferentes roles sin cambiar backend
  */
-export const MOCK_ROL = (import.meta.env.VITE_MOCK_ROL || "USER") as "USER" | "ADMIN";
+const mockRolValue = import.meta.env.VITE_MOCK_ROL || "USER";
+export const MOCK_ROL: "USER" | "ADMIN" = mockRolValue === "ADMIN" ? "ADMIN" : "USER";
 
 /**
  * Timeout de solicitudes HTTP en ms.

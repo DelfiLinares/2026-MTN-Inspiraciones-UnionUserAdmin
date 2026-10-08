@@ -178,7 +178,7 @@ describe("T100 — A-5, A-12, A-13: Resolución de ambigüedades", () => {
       const motivosValidos = Object.values(MotivoReporte);
       const motivoDelUsuario = "SPAM";
 
-      const esValido = motivosValidos.includes(motivoDelUsuario as MotivoReporte);
+      const esValido = motivosValidos.some((m) => m === motivoDelUsuario);
       expect(esValido).toBe(true);
     });
 
