@@ -8,7 +8,8 @@
  */
 
 export const config = {
-  apiBaseUrl: import.meta.env?.VITE_API_BASE_URL ?? '/api',
+  apiBaseUrl: import.meta.env?.VITE_API_URL ?? import.meta.env?.VITE_API_BASE_URL ?? '/api',
+  useMocks: import.meta.env?.VITE_USE_MOCKS === 'true',
   authGoogleRedirectUrl: import.meta.env?.VITE_AUTH_GOOGLE_REDIRECT_URL ?? '',
   authGithubRedirectUrl: import.meta.env?.VITE_AUTH_GITHUB_REDIRECT_URL ?? '',
   geolocationEnabledDefault: import.meta.env?.VITE_GEOLOCATION_ENABLED_DEFAULT === 'true',
