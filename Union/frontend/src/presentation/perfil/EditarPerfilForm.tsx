@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import { Usuario } from '../../domain/Usuario'
 import { ResultadoValidacion, validacionOk, validacionError } from '../../application/dto/ResultadoValidacion'
 import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../application/dto/ActualizarPerfilPayload'
+import { usuarioPerfilService } from '../../services/perfilService'
 
 /**
  * `EditarPerfilForm`: Formulario de edición de datos personales.
@@ -9,7 +10,7 @@ import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../applic
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-02, AC-02.1–AC-02.8, A1)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T022)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T022, T032)
  *
  * Responsabilidades:
  * 1. Formulario de edición de 4 campos (AC-02.1):
@@ -31,18 +32,17 @@ import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../applic
  *    - AC-02.7: Validación falla → mostrar error específico por campo
  *    - AC-02.8: Error servidor → mostrar mensaje, preservar datos en form
  *
- * 5. Integración con servicios (T029: PerfilService):
- *    - Callback onGuardar: (payload: ActualizarPerfilPayload) => Promise<void>
- *    - Callback onCancel: () => void
- *    - Callback onFotoChanged: (fotoUrl: string) => void
+ * 5. Integración con servicios (T032: UsuarioPerfilService):
+ *    - Invoca usuarioPerfilService.actualizarPerfil() directamente
+ *    - Callback onCancel: () => void — Opcional
+ *    - Callback onFotoChanged: (fotoUrl: string) => void — Opcional (T023)
+ *    - Callback onPerfilActualizado: (usuario: Usuario) => void — Opcional
  *
  * Props:
  * - `usuario: Usuario` — Usuario actual cuyos datos se editan
- * - `onGuardar: (payload: ActualizarPerfilPayload) => Promise<void>` — Callback de guardado
  * - `onCancel?: () => void` — Callback de cancelación
  * - `onFotoChanged?: (fotoUrl: string) => void` — Callback cuando foto cambia (T023)
- * - `enviando?: boolean` — true si se está enviando al servidor
- * - `errorServidor?: string` — Mensaje de error del servidor (AC-02.8)
+ * - `onPerfilActualizado?: (usuario: Usuario) => void` — Callback después de guardar (T032)
  *
  * Historias de usuario:
  * - HU-02: Editar perfil propio
@@ -62,24 +62,21 @@ import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../applic
  * - Rol-agnóstico: USER y ADMIN ven el mismo formulario (Principio VI)
  * - No hay guardado automático; requiere click en botón
  * - Los datos se preservan localmente si falla servidor (AC-02.8)
+ * - T032: Integración con UsuarioPerfilService
  */
 
 export interface EditarPerfilFormProps {
   usuario: Usuario
-  onGuardar: (payload: ActualizarPerfilPayload) => Promise<void>
   onCancel?: () => void
   onFotoChanged?: (fotoUrl: string) => void
-  enviando?: boolean
-  errorServidor?: string
+  onPerfilActualizado?: (usuario: Usuario) => void
 }
 
 export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
   usuario,
-  onGuardar,
   onCancel,
   onFotoChanged,
-  enviando = false,
-  errorServidor,
+  onPerfilActualizado,
 }) => {
   // Form state
   const [nombreUsuario, setNombreUsuario] = useState(usuario.username)
@@ -88,6 +85,10 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
 
   // Validation state
   const [errores, setErrores] = useState<Record<string, string>>({})
+
+  // Server state (T032: Integración con UsuarioPerfilService)
+  const [enviando, setEnviando] = useState(false)
+  const [errorServidor, setErrorServidor] = useState<string>('')
 
   // Confirmation state for username change (AC-02.6)
   const [mostrarConfirmacionUsername, setMostrarConfirmacionUsername] = useState(false)
@@ -218,16 +219,34 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
   }
 
   /**
-   * AC-02.8: Enviar cambios al servidor.
-   * Si falla, preservar datos en formulario.
+   * AC-02.8: Enviar cambios al servidor usando UsuarioPerfilService.
+   * Si falla, preservar datos en formulario y mostrar error (AC-02.8).
+   * Si éxito, invocar callback opcional onPerfilActualizado.
+   * T032: Integración con UsuarioPerfilService.
    */
   const guardarPerfil = async (payload: ActualizarPerfilPayload) => {
+    setEnviando(true)
+    setErrorServidor('')
+
     try {
-      await onGuardar(payload)
-      // Success: datos se actualizarán en padre
+      // T032: Invocar UsuarioPerfilService.actualizarPerfil()
+      const usuarioActualizado = await usuarioPerfilService.actualizarPerfil(payload)
+
+      // Éxito: invocar callback opcional
+      if (onPerfilActualizado) {
+        onPerfilActualizado(usuarioActualizado)
+      }
+
+      // Opcional: cerrar formulario o hacer algo más
+      if (onCancel) {
+        onCancel()
+      }
     } catch (err) {
-      // Error servidor: AC-02.8 dice que datos no se pierden
-      // El errorServidor ya viene como prop y se muestra abajo
+      // AC-02.8: Error servidor → mostrar mensaje, preservar datos en form
+      const mensaje = err instanceof Error ? err.message : 'Error al guardar perfil'
+      setErrorServidor(mensaje)
+    } finally {
+      setEnviando(false)
     }
   }
 

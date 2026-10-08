@@ -3,6 +3,7 @@ import { EstadoCuentaUsuario } from '../domain/enums/EstadoCuentaUsuario'
 import { RolUsuario } from '../domain/enums/RolUsuario'
 import { ActualizarPerfilPayload } from '../application/dto/ActualizarPerfilPayload'
 import { UsuarioPerfilRepository } from '../application/ports/UsuarioPerfilRepository'
+import { UsuarioPerfilService } from '../application/UsuarioPerfilService'
 import { httpClient } from '../infrastructure/httpClient'
 import { apiEndpoints } from '../infrastructure/apiEndpoints'
 
@@ -216,3 +217,11 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
  * Se inyecta en UsuarioPerfilService (T030).
  */
 export const usuarioPerfilRepository = new HttpUsuarioPerfilRepository()
+
+/**
+ * Singleton: instancia única del servicio de aplicación.
+ * Se inyecta el repositorio HTTP como dependencia.
+ * Usado en componentes de presentación (T032).
+ */
+export const usuarioPerfilService = new UsuarioPerfilService(usuarioPerfilRepository)
+
