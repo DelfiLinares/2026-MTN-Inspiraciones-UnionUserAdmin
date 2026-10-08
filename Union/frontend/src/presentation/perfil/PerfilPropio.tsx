@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { Usuario } from '../../domain/Usuario'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { Publicacion } from '../../domain/Publicacion'
+import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
+import { CarpetaList } from '../carpetas/CarpetaList'
 
 /**
  * `PerfilPropio`: Vista de perfil propio con acciones de edición.
@@ -84,6 +86,17 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
   const [mostrarModalFoto, setMostrarModalFoto] = useState(false)
   const [usuarioActualizado, setUsuarioActualizado] = useState(usuario)
+  
+  // T046: Estado para paginación de carpetas
+  const [carpetasPaginadas, setCarpetasPaginadas] = useState<CarpetaPost[]>(carpetas)
+  const [paginacionCarpetas, setPaginacionCarpetas] = useState<ResultadoCarpetasPaginado>({
+    items: carpetas,
+    total: carpetas.length,
+    limit: 20,
+    offset: 0,
+    hasMore: false,
+  })
+  const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
 
   const handleEditarPerfil = () => {
     setMostrarModalEditar(true)
@@ -114,6 +127,79 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     if (onPerfilActualizado) {
       onPerfilActualizado(usuarioActual)
     }
+  }
+
+  // T046: Callback para crear carpeta (recarga la lista completa)
+  const handleCrearCarpeta = () => {
+    // Resetear paginación y recargar lista desde el inicio
+    setPaginacionCarpetas({
+      items: carpetas,
+      total: carpetas.length,
+      limit: 20,
+      offset: 0,
+      hasMore: false,
+    })
+    setCarpetasPaginadas(carpetas)
+  }
+
+  // T046: Callback para renombrar carpeta (recarga la lista completa)
+  const handleRenombrarCarpeta = (carpetaRenombrada: CarpetaPost) => {
+    // Resetear paginación y recargar lista desde el inicio
+    setPaginacionCarpetas({
+      items: carpetas,
+      total: carpetas.length,
+      limit: 20,
+      offset: 0,
+      hasMore: false,
+    })
+    setCarpetasPaginadas(carpetas)
+  }
+
+  // T046: Callback para eliminar carpeta (recarga la lista completa)
+  const handleEliminarCarpeta = (carpetaEliminada: CarpetaPost) => {
+    // Resetear paginación y recargar lista desde el inicio
+    setPaginacionCarpetas({
+      items: carpetas,
+      total: carpetas.length,
+      limit: 20,
+      offset: 0,
+      hasMore: false,
+    })
+    setCarpetasPaginadas(carpetas)
+  }
+
+  // T046: Callback para cargar más carpetas (paginación server-side, T045)
+  const handleCargarMasCarpetas = async (limit: number, offset: number) => {
+    setCargandoCarpetas(true)
+    try {
+      // T046: En esta iteración, se simula que todos los datos están ya cargados
+      // En T046 futuro, aquí se haría la llamada al API con limit/offset
+      // Por ahora, simplemente retornamos los datos actuales
+      // TODO: Implementar llamada real al carpetaService.listarCarpetas(usuarioId, limit, offset)
+      
+      // Simulación: los datos están todos en carpetas[]
+      const proximasPagina = carpetas.slice(offset, offset + limit)
+      setCarpetasPaginadas([...carpetasPaginadas, ...proximasPagina])
+      
+      const nuevoOffset = offset + limit
+      setPaginacionCarpetas({
+        items: [...carpetasPaginadas, ...proximasPagina],
+        total: carpetas.length,
+        limit,
+        offset: nuevoOffset,
+        hasMore: nuevoOffset < carpetas.length,
+      })
+    } catch (err) {
+      console.error('Error cargando más carpetas:', err)
+    } finally {
+      setCargandoCarpetas(false)
+    }
+  }
+
+  // T046: Callback para seleccionar una carpeta (navegar a vista de posts de carpeta)
+  const handleSeleccionarCarpeta = (carpeta: CarpetaPost) => {
+    // TODO: Implementar navegación a vista de carpeta con sus posts
+    console.log('Carpeta seleccionada:', carpeta.nombre)
   }
 
   if (cargando) {
@@ -234,45 +320,18 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
       </section>
 
       {/* AC-01.2: Carpetas públicas del usuario */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-          Carpetas ({carpetas.length})
-        </h2>
-        {carpetas.length === 0 ? (
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>
-            Aún no tienes carpetas. Crea una para organizar tus publicaciones.
-          </p>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-              gap: '1rem',
-            }}
-          >
-            {carpetas.map((carpeta) => (
-              <div
-                key={carpeta.id}
-                style={{
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  padding: '1rem',
-                  cursor: 'pointer',
-                }}
-              >
-                <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
-                  {carpeta.nombre}
-                </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#6b7280' }}>
-                  {carpeta.postCount} post{carpeta.postCount !== 1 ? 's' : ''}
-                </p>
-                {/* TODO (T024–T026): Acciones de gestión de carpetas */}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* T046: Integración de CarpetaList en perfil propio con acciones */}
+      <CarpetaList
+        carpetas={carpetasPaginadas}
+        esPerfilPropio={true}
+        paginacion={paginacionCarpetas}
+        cargando={cargandoCarpetas}
+        onCargarMas={handleCargarMasCarpetas}
+        onCreate={handleCrearCarpeta}
+        onRename={handleRenombrarCarpeta}
+        onDelete={handleEliminarCarpeta}
+        onSelectCarpeta={handleSeleccionarCarpeta}
+      />
 
       {/* AC-01.3: Publicaciones propias del usuario */}
       <section>

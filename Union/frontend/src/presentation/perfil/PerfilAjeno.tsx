@@ -3,6 +3,8 @@ import { Usuario } from '../../domain/Usuario'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { Publicacion } from '../../domain/Publicacion'
 import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
+import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
+import { CarpetaList } from '../carpetas/CarpetaList'
 
 /**
  * `PerfilAjeno`: Vista de perfil ajeno con opción de seguimiento (modo consulta).
@@ -88,6 +90,17 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   const [seguimientoLocal, setSeguimientoLocal] = useState<SeguimientoRelacion | undefined>(seguimiento)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | undefined>()
+  
+  // T046: Estado para paginación de carpetas (modo consulta sin acciones)
+  const [carpetasPaginadas, setCarpetasPaginadas] = useState<CarpetaPost[]>(carpetas)
+  const [paginacionCarpetas, setPaginacionCarpetas] = useState<ResultadoCarpetasPaginado>({
+    items: carpetas,
+    total: carpetas.length,
+    limit: 20,
+    offset: 0,
+    hasMore: false,
+  })
+  const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
 
   /**
    * AC-04: Handle follow/unfollow toggle (A4).
@@ -119,6 +132,41 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
     } finally {
       setEnviando(false)
     }
+  }
+
+  // T046: Callback para cargar más carpetas en perfil ajeno (paginación server-side, T045)
+  // En modo consulta: sin acciones de crear, renombrar o eliminar
+  const handleCargarMasCarpetasAjenas = async (limit: number, offset: number) => {
+    setCargandoCarpetas(true)
+    try {
+      // T046: En esta iteración, se simula que todos los datos están ya cargados
+      // En T046 futuro, aquí se haría la llamada al API con limit/offset
+      // Por ahora, simplemente retornamos los datos actuales
+      // TODO: Implementar llamada real al carpetaService.listarCarpetas(usuarioId, limit, offset)
+      
+      // Simulación: los datos están todos en carpetas[]
+      const proximasPagina = carpetas.slice(offset, offset + limit)
+      setCarpetasPaginadas([...carpetasPaginadas, ...proximasPagina])
+      
+      const nuevoOffset = offset + limit
+      setPaginacionCarpetas({
+        items: [...carpetasPaginadas, ...proximasPagina],
+        total: carpetas.length,
+        limit,
+        offset: nuevoOffset,
+        hasMore: nuevoOffset < carpetas.length,
+      })
+    } catch (err) {
+      console.error('Error cargando más carpetas:', err)
+    } finally {
+      setCargandoCarpetas(false)
+    }
+  }
+
+  // T046: Callback para seleccionar una carpeta (navegar a vista de posts de carpeta)
+  const handleSeleccionarCarpetaAjena = (carpeta: CarpetaPost) => {
+    // TODO: Implementar navegación a vista de carpeta con sus posts
+    console.log('Carpeta seleccionada:', carpeta.nombre)
   }
 
   if (cargando) {
@@ -232,45 +280,15 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
       </section>
 
       {/* AC-03.5: Carpetas ajenas en modo consulta */}
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-          Carpetas ({carpetas.length})
-        </h2>
-        {carpetas.length === 0 ? (
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>
-            Este usuario aún no tiene carpetas públicas.
-          </p>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-              gap: '1rem',
-            }}
-          >
-            {carpetas.map((carpeta) => (
-              <div
-                key={carpeta.id}
-                style={{
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  padding: '1rem',
-                  cursor: 'pointer',
-                }}
-              >
-                <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
-                  {carpeta.nombre}
-                </p>
-                <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#6b7280' }}>
-                  {carpeta.postCount} post{carpeta.postCount !== 1 ? 's' : ''}
-                </p>
-                {/* AC-03.4: SIN acciones de gestión */}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* T046: Integración de CarpetaList en perfil ajeno SIN acciones */}
+      <CarpetaList
+        carpetas={carpetasPaginadas}
+        esPerfilPropio={false}
+        paginacion={paginacionCarpetas}
+        cargando={cargandoCarpetas}
+        onCargarMas={handleCargarMasCarpetasAjenas}
+        onSelectCarpeta={handleSeleccionarCarpetaAjena}
+      />
 
       {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura */}
       <section>
