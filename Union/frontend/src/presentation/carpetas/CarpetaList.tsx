@@ -3,6 +3,7 @@ import { CarpetaPost } from '../../domain/CarpetaPost'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import CreateCarpetaDialog from './CreateCarpetaDialog'
 import RenameCarpetaDialog from './RenameCarpetaDialog'
+import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
 
 /**
  * `CarpetaList`: Componente de listado de carpetas de posts guardados.
@@ -101,6 +102,9 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   // T043: Estado para mostrar/ocultar RenameCarpetaDialog
   const [mostrarDialogoRenombrar, setMostrarDialogoRenombrar] = useState(false)
   const [carpetaARenombrar, setCarpetaARenombrar] = useState<CarpetaPost | null>(null)
+  // T044: Estado para mostrar/ocultar ConfirmDeleteCarpetaDialog
+  const [mostrarDialogoEliminar, setMostrarDialogoEliminar] = useState(false)
+  const [carpetaAEliminar, setCarpetaAEliminar] = useState<CarpetaPost | null>(null)
 
   /**
    * Determinar si el botón "crear" debe estar deshabilitado.
@@ -184,6 +188,41 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   const handleAbrirRenombrar = (carpeta: CarpetaPost) => {
     setCarpetaARenombrar(carpeta)
     setMostrarDialogoRenombrar(true)
+  }
+
+  /**
+   * T044: Manejo de eliminación de carpeta exitosa.
+   * Cierra diálogo y notifica al padre si hay callback onDelete.
+   * Actualiza visualmente el cupo (paginación.total disminuye).
+   */
+  const handleCarpetaEliminada = () => {
+    // Guardar referencia a la carpeta eliminada antes de limpiar estado
+    const carpetaEliminada = carpetaAEliminar
+
+    // Cerrar diálogo
+    setMostrarDialogoEliminar(false)
+    setCarpetaAEliminar(null)
+
+    // Notificar al padre (PerfilPropio) para recargar lista y actualizar cupo
+    if (onDelete && carpetaEliminada) {
+      onDelete(carpetaEliminada)
+    }
+  }
+
+  /**
+   * T044: Manejo de cancelación de diálogo de eliminar.
+   */
+  const handleCancelarEliminar = () => {
+    setMostrarDialogoEliminar(false)
+    setCarpetaAEliminar(null)
+  }
+
+  /**
+   * T044: Abre el diálogo de confirmación de eliminación con la carpeta seleccionada.
+   */
+  const handleAbrirEliminar = (carpeta: CarpetaPost) => {
+    setCarpetaAEliminar(carpeta)
+    setMostrarDialogoEliminar(true)
   }
 
   return (
@@ -311,7 +350,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      onDelete(carpeta)
+                      handleAbrirEliminar(carpeta)
                     }}
                     style={{
                       flex: 1,
@@ -385,6 +424,15 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
           carpeta={carpetaARenombrar}
           onSuccess={handleCarpetaRenombrada}
           onCancel={handleCancelarRenombrar}
+        />
+      )}
+
+      {/* T044: Diálogo de confirmación de eliminación (integración con ConfirmDeleteCarpetaDialog) */}
+      {mostrarDialogoEliminar && esPerfilPropio && carpetaAEliminar && (
+        <ConfirmDeleteCarpetaDialog
+          carpeta={carpetaAEliminar}
+          onSuccess={handleCarpetaEliminada}
+          onCancel={handleCancelarEliminar}
         />
       )}
     </div>
