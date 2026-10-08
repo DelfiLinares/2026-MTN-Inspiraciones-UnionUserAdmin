@@ -76,3 +76,21 @@ Al borrar, el backend marca los reportes como `resuelto` y los retiene 4 años (
 ## Abiertos
 
 Autenticación y emisión de la sesión; topes de tamaño; criterio de orden del feed; lista de motivos; visibilidad de carpetas públicas a terceros.
+
+## Contraste con el cliente existente (T097)
+
+No hay API real accesible (no existe código de backend en el repo y `http://localhost:8080/api` no responde). El contraste se hizo contra los endpoints que ya consume `frontend/src/services/` (definidos en la spec 001). Las diferencias siguen pendientes de validar contra el backend real.
+
+| Tema | Este contrato | Cliente actual | Estado |
+|---|---|---|---|
+| Base de la API | `/api/v1` | `/api` (`VITE_API_BASE_URL`); `VITE_API_URL` tiene prioridad | Pendiente |
+| Sesión | `GET /sesion` | `GET /auth/me` | Pendiente |
+| Like | `PUT /publicaciones/{id}/like` → `{ likeadaPorMi, cantidadLikes }` | `POST` → `{ likeDelUsuarioActual, cantidadLikes }` | Pendiente |
+| Reportar | `{ motivo, textoLibre? }` | `{ motivoCodigo }` | Pendiente |
+| Estado de reporte propio | no existe | `GET /publicaciones/{id}/reportes/mio` | Pendiente |
+| Motivos de reporte | lista abierta | `GET /motivos-reporte` | Pendiente |
+| Carpetas de un usuario | `GET /carpetas` | `GET /usuarios/{id}/carpetas` | Pendiente |
+| Guardar en carpeta | `PUT/DELETE /carpetas/{id}/publicaciones/{pubId}` | `POST /carpetas/{id}/posts`, `DELETE /carpetas/{id}/posts/{pubId}` | Pendiente |
+| Feed | `GET /publicaciones` con cursor | `GET /publicaciones/feed`, `GET /publicaciones/opciones-filtro` | Pendiente |
+| Moderación | `/moderacion/reportadas` | `/admin/publicaciones/reportadas`, `/admin/reportes/{id}`, `DELETE /admin/publicaciones/{id}` | Pendiente |
+| Estados de error | 401, 403, 404, 409 | 401 y 403 con clases propias; el resto como `ApiError` | Sin diferencia |
