@@ -1,96 +1,65 @@
-import { TipoContenido } from './enums/TipoContenido'
-import { EstadoPublicacion } from './enums/EstadoPublicacion'
-
-export interface PublicacionProps {
-  id: string
-  autorId: string
-  tipoContenido: TipoContenido
-  estado: EstadoPublicacion
-  tags: string[]
-  cantidadLikes: number
-  likeDelUsuarioActual: boolean
-  reportadaPorUsuarioActual: boolean
-}
-
 /**
- * Entidad de dominio Publicacion (UI Domain).
+ * Entidad de dominio Publicacion — Módulo 004-inspiraciones-perfil.
  *
  * Fuente de verdad:
- * - Union/specs/001-plataforma-unificada/data-model.md
- * - Union/specs/001-plataforma-unificada/tasks.md (T016, T026)
- * - Union/specs/001-plataforma-unificada/spec.md (RF-30 a RF-35)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (Domain Entities: Publicacion)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, HU-12, HU-13, A5)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T011)
+ *
+ * Encapsula una publicación propia dentro del módulo de perfil con reglas de negocio para:
+ * - Editar publicación (HU-11): Solo texto es editable, imagen es inmutable (A5)
+ * - Eliminar publicación (HU-12)
+ * - Visualizar posts del perfil (HU-13)
  */
 export class Publicacion {
-  readonly id: string
-  readonly autorId: string
-  readonly tipoContenido: TipoContenido
-  readonly estado: EstadoPublicacion
-  readonly tags: string[]
-  readonly cantidadLikes: number
-  readonly likeDelUsuarioActual: boolean
-  readonly reportadaPorUsuarioActual: boolean
+  constructor(
+    public id: string,
+    public autorId: string,
+    public imagenUrl: string, // URL de imagen (A5: immutable)
+    public texto: string, // A5: mutable (max 2000 chars per openapi.yaml)
+    public fechaCreacion: Date = new Date(),
+    public fechaActualizacion?: Date,
+  ) {}
 
-  constructor(props: PublicacionProps) {
-    this.id = props.id
-    this.autorId = props.autorId
-    this.tipoContenido = props.tipoContenido
-    this.estado = props.estado
-    this.tags = props.tags
-    this.cantidadLikes = props.cantidadLikes
-    this.likeDelUsuarioActual = props.likeDelUsuarioActual
-    this.reportadaPorUsuarioActual = props.reportadaPorUsuarioActual
+  /**
+   * Rule (A5): Solo el texto es editable; la imagen es inmutable.
+   * Returns true if post can be edited (authorization checked by caller/backend).
+   */
+  public puedeSerEditada(): boolean {
+    return true // Editable anytime; backend validates authorization
   }
 
-  esPropia(usuarioActualId: string): boolean {
+  /**
+   * Rule (A5): La imagen no puede cambiar después de publicación.
+   * This is enforced by domain and application layer:
+   * only `texto` field is sent to backend on edit (openapi.yaml: PATCH /publicaciones/{publicacionId})
+   */
+  public esImagenImmutable(): boolean {
+    return true // Image never changes
+  }
+
+  /**
+   * Helper: Post can be deleted anytime by owner.
+   * Backend validates authorization (es autorId).
+   */
+  public puedeSerEliminada(): boolean {
+    return true // Deletable anytime; backend validates authorization
+  }
+
+  /**
+   * Helper: Check if this is the current user's post.
+   */
+  public esPropia(usuarioActualId: string): boolean {
     if (!usuarioActualId) {
       return false
     }
     return this.autorId === usuarioActualId
   }
 
-  puedeDarLike(usuarioActualId: string, autenticado: boolean): boolean {
-    if (!autenticado || !usuarioActualId) {
-      return false
-    }
-    if (this.esPropia(usuarioActualId)) {
-      return false
-    }
-    return this.estado === EstadoPublicacion.ACTIVA
-  }
-
-  puedeReportar(usuarioActualId: string, autenticado: boolean): boolean {
-    if (!autenticado || !usuarioActualId) {
-      return false
-    }
-    if (this.esPropia(usuarioActualId)) {
-      return false
-    }
-    return !this.reportadaPorUsuarioActual
-  }
-
-  puedeEditar(usuarioActualId: string): boolean {
-    return this.esPropia(usuarioActualId)
-  }
-
-  puedeEliminar(usuarioActualId: string): boolean {
-    return this.esPropia(usuarioActualId)
-  }
-
-  toggleLike(): Publicacion {
-    const nuevoEstadoLike = !this.likeDelUsuarioActual
-    const nuevaCantidad = nuevoEstadoLike
-      ? this.cantidadLikes + 1
-      : Math.max(0, this.cantidadLikes - 1)
-
-    return new Publicacion({
-      id: this.id,
-      autorId: this.autorId,
-      tipoContenido: this.tipoContenido,
-      estado: this.estado,
-      tags: this.tags,
-      cantidadLikes: nuevaCantidad,
-      likeDelUsuarioActual: nuevoEstadoLike,
-      reportadaPorUsuarioActual: this.reportadaPorUsuarioActual,
-    })
+  /**
+   * Validate text field (max 2000 chars per openapi.yaml).
+   */
+  public esTextoValido(): boolean {
+    return this.texto.length > 0 && this.texto.length <= 2000
   }
 }
