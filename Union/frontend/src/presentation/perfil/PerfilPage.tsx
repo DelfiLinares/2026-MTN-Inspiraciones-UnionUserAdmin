@@ -6,6 +6,7 @@ import { EstadoCuentaUsuario } from '../../domain/enums/EstadoCuentaUsuario'
 import { PerfilPropio } from './PerfilPropio'
 import { PerfilAjeno } from './PerfilAjeno'
 import { ProfileNotFoundView } from './ProfileNotFoundView'
+import { usuarioPerfilService } from '../../services/perfilService'
 
 /**
  * `PerfilPage`: Contenedor root que decide entre perfil propio y ajeno.
@@ -13,23 +14,24 @@ import { ProfileNotFoundView } from './ProfileNotFoundView'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-03, A10)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T019)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T019, T035)
  *
  * Responsabilidades:
  * 1. Extrae parámetro `:id` de la ruta (React Router).
  *    - Si no existe: Perfil propio del usuario autenticado (ruta `/perfil`)
  *    - Si existe: Perfil ajeno del usuario con ese ID (ruta `/perfil/:id`)
  *
- * 2. Gestiona el estado de carga y errores:
- *    - Obtiene datos del usuario desde PerfilService (T029).
+ * 2. Gestiona el estado de carga y errores (T035):
+ *    - Obtiene datos del usuario desde PerfilService (T029, T030, T031).
  *    - Valida disponibilidad de cuenta (A10: solo ACTIVO visible para terceros).
  *    - Si BANEADO/ELIMINADO: Muestra vista de no disponible (ProfileNotFoundView, T027).
+ *    - Si error 404/403 en backend: Trata como perfil no disponible (A10, T035).
  *    - Si error de carga: Muestra mensaje de error genérico.
  *
  * 3. Renderiza subcomponentes según contexto:
  *    - PerfilPropio.tsx (T020): Perfil propio con acciones de edición.
  *    - PerfilAjeno.tsx (T021): Perfil ajeno con opción de seguir.
- *    - ProfileNotFoundView.tsx (T027): Perfil no disponible.
+ *    - ProfileNotFoundView.tsx (T027): Perfil no disponible (A10, T035).
  *
  * Rutas:
  * - GET `/perfil` → Perfil propio (usuarioActualId se obtiene de AuthContext)
@@ -42,14 +44,16 @@ import { ProfileNotFoundView } from './ProfileNotFoundView'
  *
  * Reglas:
  * - A10 (Clarificación): Perfil BANEADO/ELIMINADO no es visible a terceros.
- *       Respuesta backend: 404/403 en obtenerPerfil; el frontend lo trata como ProfileNotFoundView.
+ *       Respuesta backend: 404/403 en obtenerPerfil; el frontend lo trata como ProfileNotFoundView (T035).
  * - Rol-agnóstico: Ambos USER y ADMIN ven el mismo contenido (Principio VI).
+ * - T035: Guardas de visualización por estado de cuenta (404/403 → ProfileNotFoundView)
  */
 
 interface PerfilPageState {
   cargando: boolean
   error?: string
   usuario?: Usuario
+  es403O404?: boolean // T035: Indicador de error 404/403 (perfil no disponible)
 }
 
 export const PerfilPage: React.FC = () => {
@@ -63,6 +67,7 @@ export const PerfilPage: React.FC = () => {
    * Efecto: Determina si es perfil propio o ajeno y carga datos.
    * - Si `usuarioIdParam` no existe: Perfil propio (id = usuarioActual.id)
    * - Si `usuarioIdParam` existe: Perfil ajeno (id = usuarioIdParam)
+   * T035: Maneja errores 404/403 derivando a ProfileNotFoundView
    */
   useEffect(() => {
     if (cargandoAuth) {
@@ -78,42 +83,47 @@ export const PerfilPage: React.FC = () => {
     const usuarioIdACargar = usuarioIdParam || usuarioActual.id
     const esPerfilPropio = !usuarioIdParam
 
-    // TODO (T029): Implementar PerfilService.obtenerPerfil(usuarioIdACargar)
-    // Por ahora, placeholder que simula la carga.
     setState({
       cargando: true,
       error: undefined,
       usuario: undefined,
+      es403O404: false,
     })
 
-    // Simulación de carga de usuario
     const cargarUsuario = async () => {
       try {
-        // await perfilService.obtenerPerfil(usuarioIdACargar)
-        // Para esta iteración (T019), usamos el usuario actual si es perfil propio
+        // T035: Usar UsuarioPerfilService para cargar el perfil
+        // Maneja tanto perfil propio como ajeno, con validaciones de A10
+        let usuario: Usuario
+
         if (esPerfilPropio) {
-          // El usuario actual viene del AuthContext (T029 lo refinará con PerfilService)
-          setState({
-            cargando: false,
-            error: undefined,
-            usuario: usuarioActual,
-          })
+          // HU-01: Obtener perfil propio
+          usuario = await usuarioPerfilService.obtenerPerfilPropio()
         } else {
-          // Perfil ajeno: Requiere PerfilService (T029)
-          // Por ahora, mostrar placeholder
-          setState({
-            cargando: false,
-            error: 'Perfil ajeno requiere T029 (PerfilService)',
-            usuario: undefined,
-          })
+          // HU-03: Obtener perfil ajeno (con validación A10)
+          usuario = await usuarioPerfilService.obtenerPerfilAjeno(usuarioIdACargar)
         }
+
+        setState({
+          cargando: false,
+          error: undefined,
+          usuario,
+          es403O404: false,
+        })
       } catch (err) {
-        // Manejo de errores HTTP (404/403 para A10)
+        // T035: Manejo de errores HTTP (404/403 para A10)
         const errorMsg = err instanceof Error ? err.message : 'Error al cargar perfil'
+
+        // Detectar si es error 404/403 por estado de cuenta (A10)
+        const es403O404 = errorMsg.includes('no disponible') || 
+                         errorMsg.includes('no existe') ||
+                         errorMsg.includes('no está disponible')
+
         setState({
           cargando: false,
           error: errorMsg,
           usuario: undefined,
+          es403O404,
         })
       }
     }
@@ -130,8 +140,18 @@ export const PerfilPage: React.FC = () => {
     )
   }
 
-  // Mostrar error si ocurrió durante la carga
-  if (state.error) {
+  // T035: Si error 404/403, mostrar ProfileNotFoundView
+  if (state.es403O404 && !state.usuario) {
+    return (
+      <ProfileNotFoundView
+        usuario={undefined} // No tenemos datos del usuario, pero es por estar no disponible
+        onVolver={() => navigate(-1)}
+      />
+    )
+  }
+
+  // Mostrar error si ocurrió durante la carga (y no es 404/403)
+  if (state.error && !state.es403O404) {
     return (
       <div style={{ padding: '2rem', color: 'red' }}>
         <p>Error: {state.error}</p>
@@ -148,7 +168,8 @@ export const PerfilPage: React.FC = () => {
     )
   }
 
-  // A10: Si perfil ajeno y no está disponible, mostrar ProfileNotFoundView
+  // A10: Validación adicional client-side (respaldo de T035)
+  // Si perfil ajeno y no está disponible, mostrar ProfileNotFoundView
   const usuarioIdParam_ = usuarioIdParam
   const esPerfilPropio = !usuarioIdParam_
   if (!esPerfilPropio && !state.usuario.estaDisponible()) {
