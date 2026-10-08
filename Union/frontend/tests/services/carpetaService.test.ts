@@ -40,6 +40,7 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
       get: vi.fn(),
       post: vi.fn(),
       patch: vi.fn(),
+      put: vi.fn(),
       delete: vi.fn(),
     },
   }
@@ -203,13 +204,13 @@ describe('carpetaService (T073)', () => {
 
   describe('guardarPostEnCarpeta / quitarPostDeCarpeta (RF-49, RF-51)', () => {
     it('guarda una publicación en la carpeta indicada', async () => {
-      vi.mocked(httpClient.post).mockResolvedValueOnce(undefined)
+      vi.mocked(httpClient.put).mockResolvedValueOnce(undefined)
 
       await guardarPostEnCarpeta('carp-1', 'pub-9')
 
-      expect(httpClient.post).toHaveBeenCalledWith(
-        '/carpetas/carp-1/posts',
-        { publicacionId: 'pub-9' },
+      expect(httpClient.put).toHaveBeenCalledWith(
+        '/carpetas/carp-1/publicaciones/pub-9',
+        undefined,
         undefined
       )
     })
@@ -220,7 +221,7 @@ describe('carpetaService (T073)', () => {
       await quitarPostDeCarpeta('carp-1', 'pub-9')
 
       expect(httpClient.delete).toHaveBeenCalledWith(
-        '/carpetas/carp-1/posts/pub-9',
+        '/carpetas/carp-1/publicaciones/pub-9',
         undefined
       )
     })

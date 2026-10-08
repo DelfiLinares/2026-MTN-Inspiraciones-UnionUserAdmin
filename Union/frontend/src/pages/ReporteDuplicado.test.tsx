@@ -70,7 +70,7 @@ describe("ReporteDuplicado - 409 y estado 'Ya reportada' (RF-23)", () => {
     expect(error).toBeInstanceOf(ApiError);
     expect((error as ApiError).status).toBe(409);
     expect(httpClient.post).toHaveBeenCalledWith("/publicaciones/pub-1/reportes", {
-      motivoCodigo: "SPAM",
+      motivo: "SPAM",
     });
   });
 

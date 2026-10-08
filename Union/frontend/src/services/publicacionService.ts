@@ -10,7 +10,7 @@
  * Responsabilidades:
  * - Crear publicación (`POST /publicaciones`, multipart/form-data) soportando reintento manual
  *   ante error de red sin perder los datos ya adjuntados (CB-01).
- * - Like/Unlike (`POST`/`DELETE /publicaciones/{id}/like`) con reversión ante error y
+ * - Like/Unlike (`PUT`/`DELETE /publicaciones/{id}/like`) con reversión ante error y
  *   serialización/debounce de clics consecutivos rápidos para evitar inconsistencias (CB-02).
  * - Reportar publicación (`POST /publicaciones/{id}/reportes`).
  * - Consultar estado de reporte del usuario actual (`GET /publicaciones/{id}/reportes/mio`).
@@ -24,7 +24,8 @@ import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 
 export interface LikeResponseDto {
   cantidadLikes: number
-  likeDelUsuarioActual: boolean
+  likeadaPorMi?: boolean
+  likeDelUsuarioActual?: boolean
 }
 
 export interface ReporteResponseDto {
@@ -116,7 +117,7 @@ export async function alternarLike(
       let resultadoDto: LikeResponseDto
 
       if (dioLike) {
-        resultadoDto = await httpClient.post<LikeResponseDto>(endpoint, undefined, {
+        resultadoDto = await httpClient.put<LikeResponseDto>(endpoint, undefined, {
           signal: controller.signal,
         })
       } else {
@@ -129,7 +130,7 @@ export async function alternarLike(
       return new Publicacion({
         ...publicacionOptimista,
         cantidadLikes: resultadoDto.cantidadLikes ?? publicacionOptimista.cantidadLikes,
-        likeDelUsuarioActual: resultadoDto.likeDelUsuarioActual ?? dioLike,
+        likeDelUsuarioActual: resultadoDto.likeadaPorMi ?? resultadoDto.likeDelUsuarioActual ?? dioLike,
       })
     } catch (error) {
       if (controller.signal.aborted) {
@@ -166,7 +167,7 @@ export async function reportarPublicacion(
 
   const respuesta = await httpClient.post<ReporteResponseDto>(
     `/publicaciones/${publicacion.id}/reportes`,
-    { motivoCodigo },
+    { motivo: motivoCodigo },
   )
 
   return respuesta

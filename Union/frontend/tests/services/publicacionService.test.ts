@@ -16,6 +16,7 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
     ...actual,
     httpClient: {
       post: vi.fn(),
+      put: vi.fn(),
       get: vi.fn(),
       delete: vi.fn(),
     },
@@ -46,15 +47,15 @@ describe('publicacionService (T070)', () => {
   })
 
   describe('alternarLike & Reversión (AC-01.3, CB-02)', () => {
-    it('incrementa optimistamente los likes y llama a POST /publicaciones/{id}/like', async () => {
-      vi.mocked(httpClient.post).mockResolvedValueOnce({
+    it('incrementa optimistamente los likes y llama a PUT /publicaciones/{id}/like', async () => {
+      vi.mocked(httpClient.put).mockResolvedValueOnce({
         cantidadLikes: 11,
-        likeDelUsuarioActual: true,
+        likeadaPorMi: true,
       })
 
       const res = await alternarLike(publicacionBase, usuarioActualId, true)
 
-      expect(httpClient.post).toHaveBeenCalledWith(
+      expect(httpClient.put).toHaveBeenCalledWith(
         '/publicaciones/pub-100/like',
         undefined,
         expect.objectContaining({ signal: expect.any(AbortSignal) })
@@ -94,19 +95,19 @@ describe('publicacionService (T070)', () => {
       await expect(alternarLike(publicacionPropia, usuarioActualId, true)).rejects.toThrow(
         'No se puede dar like a una publicación propia o con sesión no autorizada.'
       )
-      expect(httpClient.post).not.toHaveBeenCalled()
+      expect(httpClient.put).not.toHaveBeenCalled()
     })
 
     it('restringe dar like a un usuario no autenticado', async () => {
       await expect(alternarLike(publicacionBase, usuarioActualId, false)).rejects.toThrow(
         'No se puede dar like a una publicación propia o con sesión no autorizada.'
       )
-      expect(httpClient.post).not.toHaveBeenCalled()
+      expect(httpClient.put).not.toHaveBeenCalled()
     })
 
     it('reverte la acción lanzando error cuando la API responde con fallo (AC-01.3)', async () => {
       const apiError = new ApiError('Error de servidor', 500, {})
-      vi.mocked(httpClient.post).mockRejectedValueOnce(apiError)
+      vi.mocked(httpClient.put).mockRejectedValueOnce(apiError)
 
       await expect(alternarLike(publicacionBase, usuarioActualId, true)).rejects.toThrow(apiError)
     })
@@ -119,7 +120,7 @@ describe('publicacionService (T070)', () => {
 
       let signalPeticion1: AbortSignal | undefined
 
-      vi.mocked(httpClient.post).mockImplementationOnce((_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
+      vi.mocked(httpClient.put).mockImplementationOnce((_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
         signalPeticion1 = options?.signal
         return promesaLenta as Promise<unknown>
       })
@@ -176,7 +177,7 @@ describe('publicacionService (T070)', () => {
         let signalClic2: AbortSignal | undefined
 
         // Clic 1 (like): la petición nunca resuelve por sí sola, solo se cancela vía AbortSignal
-        vi.mocked(httpClient.post).mockImplementationOnce(
+        vi.mocked(httpClient.put).mockImplementationOnce(
           (_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
             signalClic1 = options?.signal
             return new Promise(() => {
@@ -232,7 +233,7 @@ describe('publicacionService (T070)', () => {
       const res = await reportarPublicacion(publicacionBase, usuarioActualId, 'MOTIVO_CONTENIDO_INAPROPIADO')
 
       expect(httpClient.post).toHaveBeenCalledWith('/publicaciones/pub-100/reportes', {
-        motivoCodigo: 'MOTIVO_CONTENIDO_INAPROPIADO',
+        motivo: 'MOTIVO_CONTENIDO_INAPROPIADO',
       })
       expect(res.id).toBe('rep-1')
     })

@@ -147,22 +147,22 @@ export async function eliminarCarpeta(
 }
 
 /**
- * Guarda una publicación dentro de una carpeta (`POST /carpetas/{id}/posts`, RF-49).
+ * Guarda una publicación dentro de una carpeta (`PUT /carpetas/{id}/publicaciones/{pubId}`, RF-49).
  */
 export async function guardarPostEnCarpeta(
   carpetaId: string,
   publicacionId: string,
   options?: HttpRequestOptions
 ): Promise<void> {
-  await httpClient.post<void>(
-    `/carpetas/${encodeURIComponent(carpetaId)}/posts`,
-    { publicacionId },
+  await httpClient.put<void>(
+    `/carpetas/${encodeURIComponent(carpetaId)}/publicaciones/${encodeURIComponent(publicacionId)}`,
+    undefined,
     options
   )
 }
 
 /**
- * Quita una publicación de una carpeta (`DELETE /carpetas/{id}/posts/{publicacionId}`, RF-51).
+ * Quita una publicación de una carpeta (`DELETE /carpetas/{id}/publicaciones/{pubId}`, RF-51).
  */
 export async function quitarPostDeCarpeta(
   carpetaId: string,
@@ -170,7 +170,7 @@ export async function quitarPostDeCarpeta(
   options?: HttpRequestOptions
 ): Promise<void> {
   await httpClient.delete<void>(
-    `/carpetas/${encodeURIComponent(carpetaId)}/posts/${encodeURIComponent(publicacionId)}`,
+    `/carpetas/${encodeURIComponent(carpetaId)}/publicaciones/${encodeURIComponent(publicacionId)}`,
     options
   )
 }
