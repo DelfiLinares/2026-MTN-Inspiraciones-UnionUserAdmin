@@ -5,14 +5,15 @@ import { Publicacion } from '../../domain/Publicacion'
 import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import { CarpetaList } from '../carpetas/CarpetaList'
+import { PublicacionList } from '../publicaciones/PublicacionList'
 
 /**
  * `PerfilAjeno`: Vista de perfil ajeno con opción de seguimiento (modo consulta).
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-03, HU-04, AC-03, AC-04, A4, A10)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-03, HU-04, HU-13, AC-03, AC-04, A4, A10)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T021)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T021, T057)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-03.1):
@@ -40,9 +41,11 @@ import { CarpetaList } from '../carpetas/CarpetaList'
  *    - Nombre y cantidad de posts
  *    - SIN acciones de gestión
  *
- * 5. Muestra publicaciones ajenas (AC-03.1):
+ * 5. Muestra publicaciones ajenas en modo consulta (AC-03.1, HU-13, T057):
  *    - En modo lectura (AC-13.3)
  *    - SIN opciones de editar/eliminar
+ *    - SIN callbacks de acción
+ *    - PublicacionList con esPerfilPropio=false
  *
  * Props:
  * - `usuario: Usuario` — Usuario ajeno cuyo perfil se visualiza
@@ -56,6 +59,7 @@ import { CarpetaList } from '../carpetas/CarpetaList'
  * Historias de usuario:
  * - HU-03: Visualizar perfil de otra persona
  * - HU-04: Seguir a otra persona (con A4: bidireccional toggle)
+ * - HU-13: Visualizar publicaciones del perfil (integración con PublicacionList, T057)
  *
  * Clarificaciones:
  * - A4: Botón alterna entre "Seguir" / "Dejar de seguir" (bidireccional)
@@ -66,6 +70,7 @@ import { CarpetaList } from '../carpetas/CarpetaList'
  * - Optimistic update: Toggle local inmediato, revert si error (AC-04.3, AC-04.4)
  * - La lógica de servicios depende de T029 (PerfilService)
  * - No hay confirmación explícita para seguir (AC-04.5)
+ * - T057: Integración de lista de publicaciones en modo lectura (sin callbacks de acción)
  */
 
 export interface PerfilAjenoProps {
@@ -105,6 +110,10 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
       : undefined
   )
   const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
+
+  // T057: Estado para publicaciones ajenas (modo consulta, sin acciones)
+  const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
+  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
 
   /**
    * AC-04: Handle follow/unfollow toggle (A4).
@@ -284,52 +293,13 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         />
       </section>
 
-      {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura */}
+      {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura (T057: Integración con PublicacionList sin callbacks) */}
       <section>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-          Publicaciones ({publicaciones.length})
-        </h2>
-        {publicaciones.length === 0 ? (
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>
-            Este usuario aún no tiene publicaciones.
-          </p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-            {publicaciones.map((publicacion) => (
-              <div
-                key={publicacion.id}
-                style={{
-                  backgroundColor: '#f9fafb',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                }}
-              >
-                {publicacion.imagenUrl && (
-                  <img
-                    src={publicacion.imagenUrl}
-                    alt="publicación"
-                    style={{ width: '100%', height: '150px', objectFit: 'cover' }}
-                  />
-                )}
-                <div style={{ padding: '0.75rem' }}>
-                  {publicacion.texto && (
-                    <p style={{ margin: 0, fontSize: '12px', color: '#374151', lineHeight: '1.4' }}>
-                      {publicacion.texto.substring(0, 60)}
-                      {publicacion.texto.length > 60 ? '...' : ''}
-                    </p>
-                  )}
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '11px', color: '#9ca3af' }}>
-                    {new Date(publicacion.fechaCreacion).toLocaleDateString()}
-                  </p>
-                  {/* AC-03.4: SIN acciones de edición/eliminación */}
-                  {/* AC-13.3: Modo consulta */}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <PublicacionList
+          publicaciones={publicacionesActuales}
+          esPerfilPropio={false}
+          cargando={cargandoPublicaciones}
+        />
       </section>
     </div>
   )

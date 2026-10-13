@@ -7,14 +7,15 @@ import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpet
 import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
 import { CarpetaList } from '../carpetas/CarpetaList'
+import { PublicacionList } from '../publicaciones/PublicacionList'
 
 /**
  * `PerfilPropio`: Vista de perfil propio con acciones de edición.
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, AC-01, AC-02)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-11, HU-12, HU-13, AC-01, AC-02, A5, A8)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T020, T034)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T020, T034, T057)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-01.1):
@@ -30,13 +31,14 @@ import { CarpetaList } from '../carpetas/CarpetaList'
  *
  * 3. Muestra carpetas públicas del usuario (AC-01.2):
  *    - Lista de carpetas (CarpetaPost[])
- *    - Placeholder para component CarpetaCard (T030)
  *    - Acciones de gestión: crear, renombrar, eliminar (T024–T026)
  *
- * 4. Muestra publicaciones propias del usuario (AC-01.3):
+ * 4. Muestra publicaciones propias del usuario (AC-01.3, HU-11/12/13, T057):
  *    - Lista de publicaciones (Publicacion[])
- *    - Placeholder para component PublicacionCard (T031)
- *    - Acciones de gestión: editar, eliminar (T032–T033)
+ *    - Componente PublicacionList con acciones de edición/eliminación (T053/T054)
+ *    - Opción para guardar en carpeta (T055)
+ *    - Callbacks para notificar cambios: onEditarExitosamente, onEliminarExitosamente, onGuardarEnCarpeta
+ *    - Manejo de errores (A5: solo texto editable, A8: idempotencia)
  *
  * 5. No ofrece botón de seguir (AC-01.5):
  *    - Regla explícita: debeeMostrarBotonSeguir() siempre false para perfil propio
@@ -51,17 +53,23 @@ import { CarpetaList } from '../carpetas/CarpetaList'
  * Historias de usuario:
  * - HU-01: Visualizar perfil propio (estructura base)
  * - HU-02: Editar perfil propio (botones y acciones)
+ * - HU-11: Editar publicación propia (integración con EditPostForm, T053)
+ * - HU-12: Eliminar publicación propia (integración con ConfirmDeletePostDialog, T054)
+ * - HU-13: Visualizar publicaciones del perfil (integración con PublicacionList, T057)
  *
  * Clarificaciones:
  * - A1: Username validación
  * - A2: Foto de perfil restricciones
+ * - A5: Solo texto editable en publicaciones (imagen inmutable)
+ * - A8: Idempotencia en guardado a carpeta (200 vs 201)
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo contenido (Principio VI)
- * - La gestión de carpetas y publicaciones depende de T024–T026, T032–T033
+ * - La gestión de carpetas y publicaciones depende de T024–T026, T053–T055
  * - El formulario de edición es T022 (EditarPerfilForm.tsx)
  * - La subida de foto es T023 (PhotoUploadField.tsx)
  * - T034: Integración de modal de edición con EditarPerfilForm y PhotoUploadField
+ * - T057: Integración de lista de publicaciones con acciones (editar, eliminar, guardar en carpeta)
  */
 
 export interface PerfilPropioProps {
@@ -101,6 +109,10 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
       : undefined
   )
   const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
+
+  // T057: Estado para publicaciones propias
+  const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
+  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
 
   const handleEditarPerfil = () => {
     setMostrarModalEditar(true)
@@ -184,6 +196,26 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   const handleSeleccionarCarpeta = (carpeta: CarpetaPost) => {
     // HU-10: Navegar a la lista de posts de la carpeta
     navigate(`/carpeta/${carpeta.id}`)
+  }
+
+  // T057: Handlers para gestión de publicaciones propias
+  const handleEditarPublicacionExitosamente = (publicacionEditada: Publicacion) => {
+    // HU-11: Actualizar publicación en la lista tras edición exitosa
+    setPublicacionesActuales((prev) =>
+      prev.map((p) => (p.id === publicacionEditada.id ? publicacionEditada : p))
+    )
+  }
+
+  const handleEliminarPublicacionExitosamente = (publicacionId: string) => {
+    // HU-12: Remover publicación de la lista tras eliminación exitosa
+    setPublicacionesActuales((prev) => prev.filter((p) => p.id !== publicacionId))
+  }
+
+  const handleGuardarPublicacionEnCarpeta = (publicacionGuardada: Publicacion) => {
+    // HU-09: Notificar que la publicación se guardó en carpeta
+    // No modificamos la lista de publicaciones propias (la publicación sigue siendo propia)
+    // Solo notificamos el evento; el padre podría actualizar carpetas si lo desea
+    console.log('Publicación guardada en carpeta:', publicacionGuardada.id)
   }
 
   if (cargando) {
@@ -318,51 +350,16 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         />
       </section>
 
-      {/* AC-01.3: Publicaciones propias del usuario */}
+      {/* AC-01.3: Publicaciones propias del usuario (T057: Integración con PublicacionList y callbacks) */}
       <section>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-          Mis publicaciones ({publicaciones.length})
-        </h2>
-        {publicaciones.length === 0 ? (
-          <p style={{ color: '#9ca3af', fontSize: '14px' }}>
-            Aún no tienes publicaciones. Crea una para compartir con la comunidad.
-          </p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-            {publicaciones.map((publicacion) => (
-              <div
-                key={publicacion.id}
-                style={{
-                  backgroundColor: '#f9fafb',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                }}
-              >
-                {publicacion.imagenUrl && (
-                  <img
-                    src={publicacion.imagenUrl}
-                    alt="publicación"
-                    style={{ width: '100%', height: '150px', objectFit: 'cover' }}
-                  />
-                )}
-                <div style={{ padding: '0.75rem' }}>
-                  {publicacion.texto && (
-                    <p style={{ margin: 0, fontSize: '12px', color: '#374151', lineHeight: '1.4' }}>
-                      {publicacion.texto.substring(0, 60)}
-                      {publicacion.texto.length > 60 ? '...' : ''}
-                    </p>
-                  )}
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '11px', color: '#9ca3af' }}>
-                    {new Date(publicacion.fechaCreacion).toLocaleDateString()}
-                  </p>
-                  {/* TODO (T032–T033): Acciones de gestión de publicaciones */}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <PublicacionList
+          publicaciones={publicacionesActuales}
+          esPerfilPropio={true}
+          cargando={cargandoPublicaciones}
+          onEditarExitosamente={handleEditarPublicacionExitosamente}
+          onEliminarExitosamente={handleEliminarPublicacionExitosamente}
+          onGuardarEnCarpeta={handleGuardarPublicacionEnCarpeta}
+        />
       </section>
 
       {/* T034: Modal de edición de perfil con EditarPerfilForm integrado */}
