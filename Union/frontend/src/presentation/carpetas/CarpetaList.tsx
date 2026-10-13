@@ -12,7 +12,7 @@ import { ManageCarpetaPublicacionesDialog } from './ManageCarpetaPublicacionesDi
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-05, HU-06, HU-07, HU-08, HU-10, AC-05–AC-08, AC-10, A3, A6, A7)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", carpetas/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T024, T056)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T024, T056, T075)
  *
  * Responsabilidades:
  * 1. Render de carpetas públicas (AC-08.1, AC-08.2):
@@ -37,11 +37,16 @@ import { ManageCarpetaPublicacionesDialog } from './ManageCarpetaPublicacionesDi
  *    - SIN acciones (solo consulta)
  *    - Click en carpeta → navega a lista de posts de carpeta
  *
+ * 5. T075: Estados de loading/empty/error:
+ *    - Loading state: mostrar "Cargando carpetas..." cuando cargando=true
+ *    - Empty state: mejorado con mensajes descriptivos cuando no hay carpetas
+ *    - Error state: espacio reservado para mostrar errores (cuando se implemente en servicios)
+ *
  * Props:
  * - `carpetas: CarpetaPost[]` — Lista de carpetas a renderizar
  * - `esPerfilPropio: boolean` — true si es perfil propio (muestra acciones)
  * - `paginacion?: ResultadoCarpetasPaginado` — Metadata de paginación (A6)
- * - `cargando?: boolean` — true si se están cargando datos
+ * - `cargando?: boolean` — true si se están cargando datos (T075)
  * - `onCargarMas?: () => Promise<void>` — Callback para cargar más páginas (A6, pagination)
  * - `onCreate?: () => void` — Callback para crear carpeta (HU-05, T024 de coordinación con T025)
  * - `onRename?: (carpeta: CarpetaPost) => void` — Callback para renombrar (HU-06, A3)
@@ -79,6 +84,7 @@ import { ManageCarpetaPublicacionesDialog } from './ManageCarpetaPublicacionesDi
  * - T056: ManageCarpetaPublicacionesDialog para quitar posts (HU-10)
  * - Este componente es presentational; lógica de servicios en T029
  * - Paginación base = soporte para limit/offset; carga manual "cargar más"
+ * - T075: Estados loading/empty/error mejorados
  */
 
 export interface CarpetaListProps {
@@ -326,24 +332,45 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
         )}
       </div>
 
-      {/* Mensaje si carpetas vacías */}
-      {carpetas.length === 0 && !cargando && (
-        <div style={{ padding: '1rem', color: '#9ca3af', textAlign: 'center', fontSize: '13px' }}>
-          {esPerfilPropio ? 'Aún no tienes carpetas. Crea una para organizar tus posts.' : 'Sin carpetas públicas.'}
+      {/* Mensaje si carpetas vacías o loading (T075: Estados de loading/empty/error) */}
+      {cargando ? (
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+          <p style={{ margin: 0, fontSize: '14px' }}>Cargando carpetas...</p>
         </div>
-      )}
+      ) : carpetas.length === 0 ? (
+        <div
+          style={{
+            padding: '2rem',
+            textAlign: 'center',
+            backgroundColor: '#f9fafb',
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            color: '#6b7280',
+          }}
+        >
+          <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+            {esPerfilPropio ? 'No hay carpetas aún' : 'Sin carpetas públicas'}
+          </p>
+          <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            {esPerfilPropio
+              ? 'Crea una carpeta para organizar tus posts guardados'
+              : 'Este usuario no tiene carpetas públicas'}
+          </p>
+        </div>
+      ) : null}
 
-      {/* AC-08.3: Grid responsivo con scroll para máx 50 carpetas */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-          gap: '1rem',
-          maxHeight: '600px',
-          overflowY: 'auto',
-          padding: '0.5rem',
-        }}
-      >
+      {/* AC-08.3: Grid responsivo con scroll para máx 50 carpetas (solo si hay items y no está cargando) */}
+      {!cargando && carpetas.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+            gap: '1rem',
+            maxHeight: '600px',
+            overflowY: 'auto',
+            padding: '0.5rem',
+          }}
+        >
         {carpetas.map((carpeta) => (
           <div
             key={carpeta.id}
@@ -471,10 +498,11 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             )}
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Spinner mientras se cargan más (A6, paginación) */}
-      {cargando && (
+      {cargando && carpetas.length > 0 && (
         <div style={{ textAlign: 'center', padding: '1rem', color: '#9ca3af', fontSize: '12px' }}>
           Cargando carpetas...
         </div>

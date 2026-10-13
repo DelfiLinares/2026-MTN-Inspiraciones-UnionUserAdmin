@@ -13,7 +13,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055, T063)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055, T063, T075)
  *
  * Renderiza la lista de publicaciones de un perfil (propio o ajeno) con paginación.
  *
@@ -24,6 +24,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - HU-09.1–HU-09.5: Guardar publicación en carpeta con idempotencia (A8) [T055]
  * - A6 (paginación server-side): Botón "Cargar más" cuando hasMore = true
  * - AC-03.2, AC-03.3: Navegación a perfil ajeno desde foto/nombre de autor (T063)
+ * - T075: Estados de loading/empty/error mejorados
  *
  * Integraciones:
  * - T050: EditPostForm — Componente de edición
@@ -33,6 +34,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - T054: Integración de ConfirmDeletePostDialog en overlay modal
  * - T055: Integración de SavePostToCarpetaDialog en overlay modal
  * - T063: Navegación a `/perfil/:id` al clickear foto o nombre del autor
+ * - T075: Estados loading/empty/error mejorados
  *
  * Props:
  * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
@@ -42,7 +44,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2) [T053]
  * - onEliminar?: (publicacion: Publicacion) => void — Callback para eliminar (AC-12.2) [T054]
  * - onCargarMas?: () => void — Callback para cargar siguiente página (A6)
- * - cargando?: boolean — Indica si se está cargando la página actual
+ * - cargando?: boolean — Indica si se está cargando la página actual (T075)
  * - cargandoMas?: boolean — Indica si se está cargando la siguiente página
  * - onEditarExitosamente?: (publicacion: Publicacion) => void — Callback tras edición exitosa [T053]
  * - onEliminarExitosamente?: (publicacionId: string) => void — Callback tras eliminación exitosa [T054]
@@ -243,10 +245,17 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   }
 
   // Estado de carga general (mientras se obtienen publicaciones)
+  // T075: Loading state
   if (cargando) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <p>Cargando publicaciones...</p>
+      <div
+        style={{
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#666',
+        }}
+      >
+        <p style={{ margin: 0, fontSize: '14px' }}>Cargando publicaciones...</p>
       </div>
     )
   }
@@ -300,14 +309,26 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
     )
   }
 
-  // Sin publicaciones
+  // T075: Sin publicaciones (empty state)
   if (publicaciones.length === 0 && !paginacion?.hasMore) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-        <p>
+      <div
+        style={{
+          padding: '2rem',
+          textAlign: 'center',
+          backgroundColor: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '6px',
+          color: '#6b7280',
+        }}
+      >
+        <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+          {esPerfilPropio ? 'No hay publicaciones aún' : 'No hay publicaciones'}
+        </p>
+        <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
           {esPerfilPropio
-            ? 'No tienes publicaciones aún. Comparte tu primer post.'
-            : 'Sin publicaciones en este perfil.'}
+            ? 'Comparte tu primer post para que otros puedan verlo'
+            : 'Este usuario no ha compartido publicaciones aún'}
         </p>
       </div>
     )
