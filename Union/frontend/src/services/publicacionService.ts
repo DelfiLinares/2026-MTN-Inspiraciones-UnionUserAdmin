@@ -275,3 +275,9 @@ export const publicacionService = {
   consultarEstadoReporteMio,
   crearPublicacion,
 }
+
+/**
+ * T049: Re-exportar adaptadores HTTP del módulo 004-inspiraciones-perfil
+ * desde perfilPublicacionService.ts para mantener compatibilidad con tasks.md.
+ */
+export { publicacionRepository, publicacionService as publicacionServicePerfil } from './perfilPublicacionService'
