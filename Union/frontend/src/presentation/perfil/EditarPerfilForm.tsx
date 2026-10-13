@@ -3,6 +3,7 @@ import { Usuario } from '../../domain/Usuario'
 import { ResultadoValidacion, validacionOk, validacionError } from '../../application/dto/ResultadoValidacion'
 import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../application/dto/ActualizarPerfilPayload'
 import { usuarioPerfilService } from '../../services/perfilService'
+import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**
  * `EditarPerfilForm`: Formulario de edición de datos personales.
@@ -10,7 +11,7 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-02, AC-02.1–AC-02.8, A1)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T022, T032)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T022, T032, T069)
  *
  * Responsabilidades:
  * 1. Formulario de edición de 4 campos (AC-02.1):
@@ -24,9 +25,10 @@ import { usuarioPerfilService } from '../../services/perfilService'
  *    - Sobre mí: ≤80 chars, espacios permitidos (AC-02.4)
  *    - Descripción: ≤200 chars, espacios permitidos (AC-02.5)
  *
- * 3. Confirmación explícita de cambio de username (AC-02.6):
- *    - Si username cambió, mostrar modal de confirmación
+ * 3. Confirmación explícita de cambio de username (AC-02.6, T069):
+ *    - Si username cambió, mostrar modal de confirmación (ConfirmacionAccionSensibleModal)
  *    - Backend valida uniqueness (A1, authoritative)
+ *    - Variante: 'informativa' (cambio de nombre es importante pero no destructivo)
  *
  * 4. Manejo de errores (AC-02.7, AC-02.8):
  *    - AC-02.7: Validación falla → mostrar error específico por campo
@@ -50,7 +52,7 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * Criterios de aceptación:
  * - AC-02.1: Editar 4 campos
  * - AC-02.2–AC-02.5: Validaciones de formato
- * - AC-02.6: Confirmación de cambio de username
+ * - AC-02.6: Confirmación de cambio de username (T069: ConfirmacionAccionSensibleModal)
  * - AC-02.7: Mostrar errores de validación
  * - AC-02.8: Preservar datos si falla servidor
  *
@@ -63,6 +65,7 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * - No hay guardado automático; requiere click en botón
  * - Los datos se preservan localmente si falla servidor (AC-02.8)
  * - T032: Integración con UsuarioPerfilService
+ * - T069: Integración con ConfirmacionAccionSensibleModal para confirmación de username
  */
 
 export interface EditarPerfilFormProps {
@@ -499,78 +502,21 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
         )}
       </div>
 
-      {/* AC-02.6: Modal de confirmación de cambio de username */}
-      {mostrarConfirmacionUsername && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              padding: '2rem',
-              maxWidth: '400px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '16px', fontWeight: '700', color: '#1f2937' }}>
-              Confirmar cambio de nombre de usuario
-            </h3>
-            <p style={{ margin: '0 0 1rem 0', fontSize: '13px', color: '#6b7280' }}>
-              ¿Cambiar tu nombre de usuario de <strong>@{usuario.username}</strong> a <strong>@{nombreUsuario}</strong>?
-            </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                type="button"
-                onClick={handleConfirmarUsername}
-                disabled={enviando}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: '#4f46e5',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: enviando ? 'not-allowed' : 'pointer',
-                }}
-              >
-                Sí, cambiar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMostrarConfirmacionUsername(false)
-                  setPayloadPendiente(null)
-                }}
-                disabled={enviando}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: '#e5e7eb',
-                  color: '#374151',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: enviando ? 'not-allowed' : 'pointer',
-                }}
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* AC-02.6: Modal de confirmación de cambio de username (T069) */}
+      <ConfirmacionAccionSensibleModal
+        abierto={mostrarConfirmacionUsername}
+        titulo="Confirmar cambio de nombre de usuario"
+        mensaje={`¿Cambiar tu nombre de usuario de @${usuario.username} a @${nombreUsuario}?`}
+        variante="informativa"
+        textoConfirmar="Sí, cambiar"
+        textoCancelar="Cancelar"
+        confirmando={enviando}
+        onConfirmar={handleConfirmarUsername}
+        onCancelar={() => {
+          setMostrarConfirmacionUsername(false)
+          setPayloadPendiente(null)
+        }}
+      />
     </form>
   )
 }
