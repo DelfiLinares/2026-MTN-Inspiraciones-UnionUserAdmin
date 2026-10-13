@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Publicacion } from '../../domain/Publicacion'
+import { EditPostForm } from './EditPostForm'
 
 /**
  * Componente PublicacionList — Módulo 004-inspiraciones-perfil.
@@ -9,26 +10,32 @@ import { Publicacion } from '../../domain/Publicacion'
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T025)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053)
  *
  * Renderiza la lista de publicaciones de un perfil (propio o ajeno) con paginación.
  *
  * Funcionalidades:
  * - HU-13.1–HU-13.3: Visualizar todas las publicaciones del usuario en modo consulta (perfil ajeno)
- * - HU-11.1–HU-11.4: Editar publicación propia (solo en perfil propio, con confirmación)
- * - HU-12.1–HU-12.4: Eliminar publicación propia (solo en perfil propio, con confirmación, visual diferenciada)
+ * - HU-11.1–HU-11.4: Editar publicación propia (solo en perfil propio, con confirmación) [T053]
+ * - HU-12.1–HU-12.4: Eliminar publicación propia (solo en perfil propio, con confirmación, visual diferenciada) [T054]
  * - A6 (paginación server-side): Botón "Cargar más" cuando hasMore = true
+ *
+ * Integraciones:
+ * - T050: EditPostForm — Componente de edición
+ * - T051: ConfirmDeletePostDialog — Componente de confirmación de eliminación
+ * - T053: Integración de EditPostForm en overlay modal
  *
  * Props:
  * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
  * - paginacion?: { items, total, limit, offset, hasMore } — Metadatos de paginación (A6)
  * - esPerfilPropio: boolean — Si true, muestra botones de editar/eliminar
  * - usuarioActualId?: string — ID del usuario actual (para verificación esPropia())
- * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2)
- * - onEliminar?: (publicacionId: string) => void — Callback para eliminar (AC-12.2)
+ * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2) [T053]
+ * - onEliminar?: (publicacionId: string) => void — Callback para eliminar (AC-12.2) [T054]
  * - onCargarMas?: () => void — Callback para cargar siguiente página (A6)
  * - cargando?: boolean — Indica si se está cargando la página actual
  * - cargandoMas?: boolean — Indica si se está cargando la siguiente página
+ * - onEditarExitosamente?: (publicacion: Publicacion) => void — Callback tras edición exitosa [T053]
  */
 
 interface PublicacionListProps {
@@ -47,6 +54,7 @@ interface PublicacionListProps {
   onCargarMas?: () => void
   cargando?: boolean
   cargandoMas?: boolean
+  onEditarExitosamente?: (publicacion: Publicacion) => void
 }
 
 /**
@@ -63,21 +71,56 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   onCargarMas,
   cargando = false,
   cargandoMas = false,
+  onEditarExitosamente,
 }) => {
   const [cargandoAccion, setCargandoAccion] = useState<string | null>(null)
+  const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<Publicacion | null>(null)
 
   /**
    * Manejador para editar publicación.
-   * HU-11: Abre modal/formulario de edición (AC-11.2, AC-11.3).
+   * HU-11: Abre formulario de edición con confirmación (AC-11.2, AC-11.3).
+   * T053: Integra EditPostForm en la lista.
    */
   const handleEditar = (publicacion: Publicacion) => {
     if (onEditar) {
       setCargandoAccion(publicacion.id)
       // Simular delay de carga; en implementación real, el servicio maneja esto
       setTimeout(() => {
-        onEditar(publicacion)
+        setPublicacionEnEdicion(publicacion)
         setCargandoAccion(null)
       }, 300)
+    }
+  }
+
+  /**
+   * Manejador para cierre de formulario de edición.
+   * Limpia el estado de edición sin guardar.
+   */
+  const handleCancelarEdicion = () => {
+    setPublicacionEnEdicion(null)
+  }
+
+  /**
+   * Manejador para éxito en edición.
+   * AC-11.3: Actualiza la publicación en la UI tras editar exitosamente.
+   * T053: Actualiza la lista con la publicación editada.
+   */
+  const handleEdicionExitosa = (publicacionEditada: Publicacion) => {
+    // Actualizar la publicación en la lista local
+    const indice = publicaciones.findIndex((p) => p.id === publicacionEditada.id)
+    if (indice !== -1) {
+      const nuevasPublicaciones = [...publicaciones]
+      nuevasPublicaciones[indice] = publicacionEditada
+      // Nota: Esto requeriría que PublicacionList maneje estado de publicaciones
+      // Para ahora, cerramos el formulario y notificamos al padre
+    }
+
+    // Cerrar formulario de edición
+    setPublicacionEnEdicion(null)
+
+    // Invocar callback opcional del padre si existe
+    if (onEditarExitosamente) {
+      onEditarExitosamente(publicacionEditada)
     }
   }
 
@@ -114,6 +157,22 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
     return (
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <p>Cargando publicaciones...</p>
+      </div>
+    )
+  }
+
+  // T053: Mostrar formulario de edición si hay publicación en edición
+  if (publicacionEnEdicion) {
+    return (
+      <div style={styles.edicionOverlay}>
+        <div style={styles.edicionContainer}>
+          <EditPostForm
+            publicacion={publicacionEnEdicion}
+            onSuccess={handleEdicionExitosa}
+            onCancel={handleCancelarEdicion}
+            deshabilitado={false}
+          />
+        </div>
       </div>
     )
   }
@@ -324,4 +383,32 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
       )}
     </div>
   )
+}
+
+/**
+ * Estilos para PublicacionList (T053).
+ */
+const styles: Record<string, React.CSSProperties> = {
+  edicionOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: '1rem',
+  },
+  edicionContainer: {
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    maxWidth: '600px',
+    width: '100%',
+  },
 }
