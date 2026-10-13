@@ -6,6 +6,7 @@ import {
   validacionError,
 } from '../../application/dto/ResultadoValidacion'
 import { publicacionService } from '../../services/perfilPublicacionService'
+import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**
  * `EditPostForm`: Formulario para editar una publicación propia.
@@ -13,7 +14,7 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, AC-11.1–AC-11.4, A5)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", publicaciones/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T050)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T050, T072)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity)
  *
  * Responsabilidades:
@@ -35,6 +36,11 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  *    - Invoca publicacionService.editarPublicacion(publicacionId, nuevoTexto)
  *    - Callback onSuccess: (publicacion: Publicacion) => void
  *    - Callback onCancel: () => void
+ *
+ * 4. Confirmación explícita (T072):
+ *    - Reemplazar modal inline con ConfirmacionAccionSensibleModal
+ *    - Variante: 'informativa' (cambio de contenido, no destructivo)
+ *    - AC-11.2: Requiere confirmación antes de guardar
  *
  * Props:
  * - `publicacion: Publicacion` — Publicación a editar (contiene texto actual e imagen)
@@ -60,6 +66,7 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  * - Imagen mostrada como referencia, no editable
  * - Si falla servidor: mostrar error específico (400 validación, 403 no propietario, 404 no existe)
  * - T053: Integración con PublicacionList
+ * - T072: ConfirmacionAccionSensibleModal con variante='informativa'
  */
 
 export interface EditPostFormProps {
@@ -271,41 +278,18 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
         </button>
       </div>
 
-      {/* Diálogo de confirmación (AC-11.2) */}
-      {mostrarConfirmacion && (
-        <div style={styles.overlay}>
-          <div style={styles.dialogo}>
-            <h3 style={styles.tituloDialogo}>Confirmar edición</h3>
-            <p style={styles.mensajeDialogo}>
-              ¿Estás seguro de que deseas editar esta publicación? Esta acción no se puede deshacer.
-            </p>
-            <div style={styles.botonesDialogo}>
-              <button
-                onClick={handleCancelarConfirmacion}
-                disabled={enviando}
-                style={{
-                  ...styles.botonDialogoCancelar,
-                  opacity: enviando ? 0.6 : 1,
-                  cursor: enviando ? 'not-allowed' : 'pointer',
-                }}
-              >
-                No, cancelar
-              </button>
-              <button
-                onClick={handleConfirmarEdicion}
-                disabled={enviando}
-                style={{
-                  ...styles.botonDialogoConfirmar,
-                  opacity: enviando ? 0.6 : 1,
-                  cursor: enviando ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {enviando ? 'Guardando...' : 'Sí, editar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Diálogo de confirmación (T072: AC-11.2, ConfirmacionAccionSensibleModal) */}
+      <ConfirmacionAccionSensibleModal
+        abierto={mostrarConfirmacion}
+        titulo="Confirmar edición"
+        mensaje="¿Estás seguro de que deseas editar esta publicación?"
+        variante="informativa"
+        textoConfirmar="Sí, editar"
+        textoCancelar="Cancelar"
+        confirmando={enviando}
+        onConfirmar={handleConfirmarEdicion}
+        onCancelar={handleCancelarConfirmacion}
+      />
     </div>
   )
 }
@@ -399,58 +383,5 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '4px',
     fontWeight: '500',
   },
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  dialogo: {
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '400px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-  },
-  tituloDialogo: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '12px',
-    color: '#333',
-  },
-  mensajeDialogo: {
-    fontSize: '14px',
-    color: '#666',
-    marginBottom: '20px',
-    lineHeight: '1.5',
-  },
-  botonesDialogo: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '10px',
-  },
-  botonDialogoCancelar: {
-    padding: '10px 20px',
-    fontSize: '14px',
-    backgroundColor: '#e9ecef',
-    color: '#333',
-    border: '1px solid #dee2e6',
-    borderRadius: '4px',
-    fontWeight: '500',
-  },
-  botonDialogoConfirmar: {
-    padding: '10px 20px',
-    fontSize: '14px',
-    backgroundColor: '#ffc107',
-    color: '#333',
-    border: 'none',
-    borderRadius: '4px',
-    fontWeight: '500',
-  },
 }
+
