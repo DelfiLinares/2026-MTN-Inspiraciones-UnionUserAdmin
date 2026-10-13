@@ -6,6 +6,7 @@ import {
   validacionError,
 } from '../../application/dto/ResultadoValidacion'
 import { carpetaService } from '../../services/carpetaService'
+import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**
  * `RenameCarpetaDialog`: Diálogo de renombrado de carpeta de posts guardados.
@@ -13,7 +14,7 @@ import { carpetaService } from '../../services/carpetaService'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-06, AC-06.1–AC-06.5, A3)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", carpetas/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T040)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T040, T070)
  *
  * Responsabilidades:
  * 1. Formulario de renombrado de carpeta (HU-06):
@@ -23,9 +24,10 @@ import { carpetaService } from '../../services/carpetaService'
  *      - 1–15 caracteres (RF-21)
  *      - Permite espacios
  *
- * 2. Confirmación explícita (AC-06.2):
+ * 2. Confirmación explícita (AC-06.2, T070):
  *    - Requiere confirmación antes de ejecutar cambio
- *    - Implementado en UI: botones "Cancelar" y "Confirmar"
+ *    - Usa ConfirmacionAccionSensibleModal (componente compartido, variante='advertencia')
+ *    - Muestra cambio de nombre (de "Nombre Actual" a "Nuevo Nombre")
  *
  * 3. Validaciones de negocio:
  *    - Nombre: 1–15 caracteres, permite espacios
@@ -49,7 +51,7 @@ import { carpetaService } from '../../services/carpetaService'
  *
  * Criterios de aceptación:
  * - AC-06.1: Mismas reglas que crear (1–15 chars, espacios, no vacío)
- * - AC-06.2: Confirmación explícita (implementada en UI)
+ * - AC-06.2: Confirmación explícita (T070: ConfirmacionAccionSensibleModal)
  * - AC-06.3: Refleja cambio en lista (callback notifica padre)
  * - AC-06.4: No altera cantidad/contenido (backend)
  * - AC-06.5: Solo propietario puede renombrar (backend: 403)
@@ -59,9 +61,9 @@ import { carpetaService } from '../../services/carpetaService'
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo diálogo (Principio VI)
- * - Confirmación explícita está en la UI (botones, no requerir modal extra)
+ * - Confirmación explícita usa ConfirmacionAccionSensibleModal (T070)
  * - Si falla servidor: mostrar error específico (A3: duplicado, AC-06.5: 403)
- * - T043: Integración con CarpetaList
+ * - T070: Integración con ConfirmacionAccionSensibleModal para confirmación
  */
 
 export interface RenameCarpetaDialogProps {
@@ -92,6 +94,10 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
   // Server state
   const [enviando, setEnviando] = useState(false)
   const [errorServidor, setErrorServidor] = useState<string>('')
+
+  // Confirmation modal state (T070: ConfirmacionAccionSensibleModal)
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+  const [nombrePendiente, setNombrePendiente] = useState<string>('')
 
   /**
    * Validar nombre de carpeta (AC-06.1).
@@ -139,10 +145,11 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
   }
 
   /**
-   * Manejar renombrado de carpeta (AC-06.2: confirmación explícita).
+   * Manejar renombrado de carpeta (AC-06.2, T070: mostrar confirmación modal).
+   * Primero valida, luego muestra modal de confirmación.
    */
-  const handleConfirmar = async () => {
-    // Validar antes de enviar
+  const handleConfirmar = () => {
+    // Validar antes de mostrar modal
     const resultadoValidacion = validarNombre(nombre)
     if (!resultadoValidacion.esValido) {
       setValidacion(resultadoValidacion)
@@ -156,18 +163,28 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
     }
 
     // Limpiar errores previos
-    setValidacion(validacionOk())
     setErrorServidor('')
 
-    // Enviar al backend
+    // Mostrar modal de confirmación (T070)
+    setNombrePendiente(nombre.trim())
+    setMostrarConfirmacion(true)
+  }
+
+  /**
+   * Confirmar renombrado tras confirmación modal (T070).
+   */
+  const handleConfirmarRenombre = async () => {
+    if (!nombrePendiente) return
+
     setEnviando(true)
     try {
       const carpetaRenombrada = await carpetaService.renombrarCarpeta(
         carpeta.id,
-        nombre.trim(),
+        nombrePendiente,
       )
 
       // AC-06.3: Notificar éxito
+      setMostrarConfirmacion(false)
       onSuccess(carpetaRenombrada)
     } catch (error) {
       // Manejar errores del servidor
@@ -185,8 +202,12 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
       else {
         setErrorServidor(mensajeError)
       }
+
+      // Mantener modal abierta para reintentar
+      setMostrarConfirmacion(false)
     } finally {
       setEnviando(false)
+      setNombrePendiente('')
     }
   }
 
@@ -518,8 +539,25 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
           background-color: #7f8c8d;
         }
       `}</style>
+
+      {/* T070: Modal de confirmación de renombrado (ConfirmacionAccionSensibleModal) */}
+      <ConfirmacionAccionSensibleModal
+        abierto={mostrarConfirmacion}
+        titulo="Confirmar cambio de nombre"
+        mensaje={`¿Cambiar el nombre de la carpeta de "${carpeta.nombre}" a "${nombrePendiente}"?`}
+        variante="advertencia"
+        textoConfirmar="Sí, cambiar"
+        textoCancelar="Cancelar"
+        confirmando={enviando}
+        onConfirmar={handleConfirmarRenombre}
+        onCancelar={() => {
+          setMostrarConfirmacion(false)
+          setNombrePendiente('')
+        }}
+      />
     </div>
   )
 }
 
 export default RenameCarpetaDialog
+
