@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Publicacion } from '../../domain/Publicacion'
 import { publicacionService } from '../../services/perfilPublicacionService'
+import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**
  * `ConfirmDeletePostDialog`: Diálogo de confirmación de eliminación de publicación.
@@ -8,13 +9,13 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-12, AC-12.1–AC-12.4)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", publicaciones/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T051)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T051, T073)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity)
  *
  * Responsabilidades:
  * 1. Confirmación explícita de eliminación (HU-12, AC-12.2):
  *    - Requiere confirmación explícita antes de eliminar
- *    - Implementado en UI: botones "Cancelar" y "Eliminar publicación"
+ *    - Implementado con ConfirmacionAccionSensibleModal (T073)
  *
  * 2. Advertencias claras (AC-12.2, AC-12.3):
  *    - AC-12.2: Requiere confirmación explícita
@@ -22,9 +23,9 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  *    - Acción destructiva e irreversible
  *
  * 3. Diferenciación visual (AC-12.4):
- *    - Botón "Eliminar publicación" con color rojo/destructivo
+ *    - ConfirmacionAccionSensibleModal con variante='peligro'
  *    - Distinto de acciones de consulta (editar, guardar en carpeta)
- *    - Header con fondo rojo para enfatizar la acción destructiva
+ *    - Colores de advertencia y icono distintivo
  *
  * 4. Integración con servicios (PublicacionService, T048/T049):
  *    - Invoca publicacionService.eliminarPublicacion(publicacionId)
@@ -42,15 +43,16 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  *
  * Criterios de aceptación:
  * - AC-12.1: Solo disponible para publicaciones propias (backend: 403)
- * - AC-12.2: Requiere confirmación explícita (implementada en UI)
+ * - AC-12.2: Requiere confirmación explícita (ConfirmacionAccionSensibleModal)
  * - AC-12.3: Tras eliminar, la publicación desaparece del perfil (callback notifica)
- * - AC-12.4: La acción se diferencia visualmente (botón rojo, header destructivo)
+ * - AC-12.4: La acción se diferencia visualmente (variante='peligro')
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo diálogo (Principio VI)
  * - Acción destructiva: requiere confirmación explícita y diferenciación visual
  * - Si falla servidor: mostrar error específico (AC-12.1: 403 no propietario, 404 no existe)
  * - T054: Integración con PublicacionList
+ * - T073: ConfirmacionAccionSensibleModal con variante='peligro'
  */
 
 export interface ConfirmDeletePostDialogProps {
@@ -70,10 +72,20 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
   const [eliminando, setEliminando] = useState(false)
   const [errorServidor, setErrorServidor] = useState<string>('')
 
+  // T073: Confirmation modal state
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+
   /**
-   * Manejar eliminación de publicación (AC-12.2: confirmación explícita).
+   * T073: Mostrar modal de confirmación (no ejecutar eliminación aún).
    */
-  const handleEliminar = async () => {
+  const handleMostrarConfirmacion = () => {
+    setMostrarConfirmacion(true)
+  }
+
+  /**
+   * T073: Confirmar y ejecutar eliminación (AC-12.2: confirmación explícita).
+   */
+  const handleConfirmarEliminacion = async () => {
     // Limpiar errores previos
     setErrorServidor('')
 
@@ -83,6 +95,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
       await publicacionService.eliminarPublicacion(publicacion.id)
 
       // AC-12.3: Notificar éxito (publicación se elimina de la lista)
+      setMostrarConfirmacion(false)
       onSuccess()
     } catch (error) {
       // Manejar errores del servidor
@@ -100,6 +113,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
       else {
         setErrorServidor(mensajeError)
       }
+      setMostrarConfirmacion(false)
     } finally {
       setEliminando(false)
     }
@@ -200,7 +214,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
             {/* AC-12.4: Botón destructivo con diferenciación visual */}
             <button
               className="btn btn-danger"
-              onClick={handleEliminar}
+              onClick={handleMostrarConfirmacion}
               disabled={eliminarDeshabilitado}
             >
               {eliminando ? 'Eliminando...' : 'Eliminar publicación'}
@@ -449,8 +463,25 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           transform: scale(0.98);
         }
       `}</style>
+
+      {/* T073: Modal de confirmación de eliminación (ConfirmacionAccionSensibleModal) */}
+      {/* AC-12.2, AC-12.4: Confirmación explícita con diferenciación visual (peligro) */}
+      <ConfirmacionAccionSensibleModal
+        abierto={mostrarConfirmacion}
+        titulo="¿Eliminar esta publicación?"
+        mensaje="Una vez eliminada, no podrás recuperar esta publicación."
+        variante="peligro"
+        textoConfirmar="Sí, eliminar"
+        textoCancelar="Cancelar"
+        confirmando={eliminando}
+        onConfirmar={handleConfirmarEliminacion}
+        onCancelar={() => {
+          setMostrarConfirmacion(false)
+        }}
+      />
     </div>
   )
 }
 
 export default ConfirmDeletePostDialog
+
