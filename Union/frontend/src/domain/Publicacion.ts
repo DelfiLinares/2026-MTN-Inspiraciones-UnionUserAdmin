@@ -3,22 +3,26 @@
  *
  * Fuente de verdad:
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Domain Entities: Publicacion)
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, HU-12, HU-13, A5)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T011)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, HU-12, HU-13, AC-03.2, AC-03.3, A5)
+ * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: Publicacion)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T011, T063)
  *
  * Encapsula una publicación propia dentro del módulo de perfil con reglas de negocio para:
  * - Editar publicación (HU-11): Solo texto es editable, imagen es inmutable (A5)
  * - Eliminar publicación (HU-12)
  * - Visualizar posts del perfil (HU-13)
+ * - Navegar a perfil del autor (HU-03, AC-03.2, AC-03.3, T063)
  */
 export class Publicacion {
   constructor(
     public id: string,
     public autorId: string,
+    public autorNombreUsuario: string, // T063: para navegación a perfil ajeno (AC-03.2, AC-03.3)
     public imagenUrl: string, // URL de imagen (A5: immutable)
     public texto: string, // A5: mutable (max 2000 chars per openapi.yaml)
     public fechaCreacion: Date = new Date(),
     public fechaActualizacion?: Date,
+    public autorFotoUrl?: string, // T063: foto del autor para avatar clickeable (AC-03.2)
   ) {}
 
   /**

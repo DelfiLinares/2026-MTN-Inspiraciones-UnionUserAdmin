@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Publicacion } from '../../domain/Publicacion'
 import { EditPostForm } from './EditPostForm'
 import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
@@ -8,11 +9,11 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * Componente PublicacionList — Módulo 004-inspiraciones-perfil.
  *
  * Fuente de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-11, HU-12, HU-13)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-11, HU-12, HU-13, AC-03.2, AC-03.3)
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055, T063)
  *
  * Renderiza la lista de publicaciones de un perfil (propio o ajeno) con paginación.
  *
@@ -22,6 +23,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - HU-12.1–HU-12.4: Eliminar publicación propia (solo en perfil propio, con confirmación, visual diferenciada) [T054]
  * - HU-09.1–HU-09.5: Guardar publicación en carpeta con idempotencia (A8) [T055]
  * - A6 (paginación server-side): Botón "Cargar más" cuando hasMore = true
+ * - AC-03.2, AC-03.3: Navegación a perfil ajeno desde foto/nombre de autor (T063)
  *
  * Integraciones:
  * - T050: EditPostForm — Componente de edición
@@ -30,6 +32,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - T053: Integración de EditPostForm en overlay modal
  * - T054: Integración de ConfirmDeletePostDialog en overlay modal
  * - T055: Integración de SavePostToCarpetaDialog en overlay modal
+ * - T063: Navegación a `/perfil/:id` al clickear foto o nombre del autor
  *
  * Props:
  * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
@@ -85,6 +88,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   onEliminarExitosamente,
   onGuardarEnCarpeta,
 }) => {
+  const navigate = useNavigate()
   const [cargandoAccion, setCargandoAccion] = useState<string | null>(null)
   const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<Publicacion | null>(null)
   const [publicacionEnEliminacion, setPublicacionEnEliminacion] = useState<Publicacion | null>(null)
@@ -230,6 +234,14 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
     }
   }
 
+  /**
+   * Manejador para navegar a perfil ajeno (T063).
+   * AC-03.2, AC-03.3: Clickear foto o nombre de usuario navega a `/perfil/:id`.
+   */
+  const handleNavegaAPerfil = (autorId: string) => {
+    navigate(`/perfil/${autorId}`)
+  }
+
   // Estado de carga general (mientras se obtienen publicaciones)
   if (cargando) {
     return (
@@ -340,6 +352,102 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
               elem.style.boxShadow = 'none'
             }}
           >
+            {/* Información del autor — T063: clickeable para navegar a perfil ajeno (AC-03.2, AC-03.3) */}
+            <div
+              style={{
+                flexShrink: 0,
+                width: '120px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              {/* Foto del autor — AC-03.2: clickeable */}
+              <button
+                onClick={() => handleNavegaAPerfil(pub.autorId)}
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  overflow: 'hidden',
+                  backgroundColor: '#e5e7eb',
+                  padding: 0,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+                }}
+                onMouseLeave={(e) => {
+                  ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+                }}
+                title={`Ver perfil de ${pub.autorNombreUsuario}`}
+              >
+                {pub.autorFotoUrl ? (
+                  <img
+                    src={pub.autorFotoUrl}
+                    alt={pub.autorNombreUsuario}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#d1d5db',
+                      fontSize: '24px',
+                      fontWeight: 'bold',
+                      color: '#ffffff',
+                    }}
+                  >
+                    {pub.autorNombreUsuario.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </button>
+
+              {/* Nombre de usuario del autor — AC-03.3: clickeable */}
+              <button
+                onClick={() => handleNavegaAPerfil(pub.autorId)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#3b82f6',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  padding: '0',
+                  textDecoration: 'none',
+                  maxWidth: '110px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  transition: 'color 0.2s ease, text-decoration 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  ;(e.currentTarget as HTMLButtonElement).style.color = '#1d4ed8'
+                  ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
+                }}
+                onMouseLeave={(e) => {
+                  ;(e.currentTarget as HTMLButtonElement).style.color = '#3b82f6'
+                  ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'none'
+                }}
+                title={`Ver perfil de ${pub.autorNombreUsuario}`}
+              >
+                @{pub.autorNombreUsuario}
+              </button>
+            </div>
+
             {/* Imagen de la publicación — AC-13.1, AC-13.3 (consulta en ajeno) */}
             <div
               style={{
