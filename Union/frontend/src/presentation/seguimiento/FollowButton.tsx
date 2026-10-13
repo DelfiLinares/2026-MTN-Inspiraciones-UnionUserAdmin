@@ -9,17 +9,18 @@ import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Value Object: SeguimientoRelacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (endpoints de seguimiento)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T026)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T026, T062)
  *
- * UI reutilizable para seguir/dejar de seguir a otro usuario.
+ * UI reutilizable para seguir/dejar de seguir a otro usuario con feedback visual.
  *
  * Funcionalidades:
  * - AC-04.1: Muestra opción de seguir en perfil ajeno
  * - AC-04.2: Disponible para cualquier autenticado (sin distinción de rol)
  * - AC-04.3: Refleja nuevo estado tras éxito (optimistic update)
- * - AC-04.4: Maneja errores, revierte estado si falla
+ * - AC-04.4: Maneja errores, revierte estado si falla (rollback)
  * - AC-04.5: No requiere confirmación explícita (es no-destructivo)
  * - A4: Implementa toggle bidireccional (seguir ↔ dejar de seguir)
+ * - T062: Estados visuales: loading (spinner), error (mensaje), success (confirmación)
  *
  * Props:
  * - seguimiento: SeguimientoRelacion — Estado actual de seguimiento
@@ -28,10 +29,12 @@ import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
  * - error?: string — Mensaje de error si la operación falla (AC-04.4)
  * - onErrorClear?: () => void — Callback para limpiar error
  *
- * Estados visuales:
+ * Estados visuales (T062):
  * - Normal: Seguir (azul) / Dejar de seguir (gris)
- * - Enviando: Opacidad reducida, cursor not-allowed
- * - Error: Mensaje rojo debajo del botón
+ * - Loading: Spinner + opacidad reducida (T062)
+ * - Error: Mensaje de error rojo + botón retry (T062)
+ * - Success: Confirmación visual breve (checkmark) (T062)
+ * - Rollback: Revierte a estado anterior si falla (AC-04.4)
  */
 
 interface FollowButtonProps {
@@ -57,6 +60,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
   const [seguimientoLocal, setSeguimientoLocal] = useState<SeguimientoRelacion>(seguimiento)
   const [enviandoLocal, setEnviandoLocal] = useState(false)
   const [errorLocal, setErrorLocal] = useState<string | undefined>(error)
+  const [mostrarExito, setMostrarExito] = useState(false)
 
   /**
    * AC-04: Handle toggle follow/unfollow.
@@ -64,10 +68,12 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
    * 1. Toggle local inmediato (AC-04.3)
    * 2. Si falla, revert (AC-04.4)
    * 3. No requiere confirmación (AC-04.5)
+   * T062: Feedback visual de success
    */
   const handleToggle = async () => {
     // Limpia error anterior si existe
     setErrorLocal(undefined)
+    setMostrarExito(false)
     if (onErrorClear) {
       onErrorClear()
     }
@@ -83,6 +89,9 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
         await onToggleSeguimiento(seguimientoToggled)
       }
       // AC-04.3: State reflects new state after success
+      // T062: Mostrar feedback de éxito brevemente
+      setMostrarExito(true)
+      setTimeout(() => setMostrarExito(false), 1500) // Mostrar durante 1.5s
     } catch (err) {
       // AC-04.4: Revert if fails
       setSeguimientoLocal(seguimiento)
@@ -106,8 +115,13 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
         style={{
           padding: '0.5rem 1rem',
           // AC-04: Visual diferenciación: Seguir (azul/activo) vs Dejar de seguir (gris/inactivo)
-          backgroundColor: isFollowing ? '#e5e7eb' : '#4f46e5',
-          color: isFollowing ? '#374151' : 'white',
+          // T062: Cambiar a verde si hay éxito
+          backgroundColor: mostrarExito
+            ? '#10b981' // Verde para éxito
+            : isFollowing
+              ? '#e5e7eb' // Gris para "Dejar de seguir"
+              : '#4f46e5', // Azul para "Seguir"
+          color: mostrarExito ? 'white' : isFollowing ? '#374151' : 'white',
           border: 'none',
           borderRadius: '6px',
           fontSize: '13px',
@@ -119,7 +133,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
           textAlign: 'center',
         }}
         onMouseEnter={(e) => {
-          if (!isLoading) {
+          if (!isLoading && !mostrarExito) {
             const btn = e.currentTarget as HTMLButtonElement
             if (isFollowing) {
               btn.style.backgroundColor = '#d1d5db'
@@ -130,26 +144,96 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
         }}
         onMouseLeave={(e) => {
           const btn = e.currentTarget as HTMLButtonElement
-          btn.style.backgroundColor = isFollowing ? '#e5e7eb' : '#4f46e5'
+          if (!mostrarExito) {
+            btn.style.backgroundColor = isFollowing ? '#e5e7eb' : '#4f46e5'
+          }
         }}
       >
-        {/* A4: Toggle text based on state */}
-        {seguimientoLocal.getBotonTexto()}
+        {/* T062: Mostrar spinner/loader durante carga */}
+        {isLoading ? (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <span
+              style={{
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderTop: '2px solid white',
+                borderRadius: '50%',
+                animation: 'spin 0.6s linear infinite',
+              }}
+            />
+            Procesando...
+          </span>
+        ) : mostrarExito ? (
+          /* T062: Mostrar checkmark para éxito */
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            ✓ Actualizado
+          </span>
+        ) : (
+          /* A4: Toggle text based on state */
+          seguimientoLocal.getBotonTexto()
+        )}
       </button>
 
-      {/* AC-04.4: Error message if operation fails */}
+      {/* T062: Spinner animation CSS */}
+      <style>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+
+      {/* T062: Error message with retry option if operation fails */}
       {errorLocal && (
-        <p
+        <div
           style={{
-            margin: '0',
-            fontSize: '12px',
-            color: '#dc2626',
-            fontWeight: '500',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+            padding: '0.75rem',
+            backgroundColor: '#fee2e2',
+            border: '1px solid #fecaca',
+            borderRadius: '4px',
           }}
           role="alert"
         >
-          {errorLocal}
-        </p>
+          <p
+            style={{
+              margin: '0',
+              fontSize: '12px',
+              color: '#dc2626',
+              fontWeight: '500',
+            }}
+          >
+            {errorLocal}
+          </p>
+          {/* Botón de reintentar */}
+          <button
+            onClick={handleToggle}
+            style={{
+              padding: '0.35rem 0.75rem',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              alignSelf: 'flex-start',
+              transition: 'background-color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#b91c1c'
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#dc2626'
+            }}
+          >
+            Reintentar
+          </button>
+        </div>
       )}
     </div>
   )
