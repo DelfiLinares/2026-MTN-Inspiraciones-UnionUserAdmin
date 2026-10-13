@@ -90,16 +90,20 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   const [seguimientoLocal, setSeguimientoLocal] = useState<SeguimientoRelacion | undefined>(seguimiento)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | undefined>()
-  
-  // T046: Estado para paginación de carpetas (modo consulta sin acciones)
-  const [carpetasPaginadas, setCarpetasPaginadas] = useState<CarpetaPost[]>(carpetas)
-  const [paginacionCarpetas, setPaginacionCarpetas] = useState<ResultadoCarpetasPaginado>({
-    items: carpetas,
-    total: carpetas.length,
-    limit: 20,
-    offset: 0,
-    hasMore: false,
-  })
+
+  // T046: Estado para carpetas y paginación (modo consulta, sin acciones)
+  const [carpetasActuales, setCarpetasActuales] = useState(carpetas)
+  const [paginacionCarpetas, setPaginacionCarpetas] = useState<ResultadoCarpetasPaginado | undefined>(
+    carpetas.length > 0
+      ? {
+          items: carpetas,
+          total: carpetas.length,
+          limit: 20,
+          offset: 0,
+          hasMore: false,
+        }
+      : undefined
+  )
   const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
 
   /**
@@ -114,59 +118,48 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
     setEnviando(true)
     setError(undefined)
 
-    // Optimistic update: toggle state locally
-    const seguimientoToggled = seguimientoLocal.toggle()
-    setSeguimientoLocal(seguimientoToggled)
+    // Toggle usando método toggle() del value object (patrón funcional)
+    const nuevoSeguimiento = seguimientoLocal.toggle()
+    setSeguimientoLocal(nuevoSeguimiento)
 
-    try {
-      // AC-04.5: No requiere confirmación explícita (ya estamos aquí sin confirm)
-      if (onSeguimiento) {
-        await onSeguimiento(seguimientoToggled)
+    if (onSeguimiento) {
+      try {
+        await onSeguimiento(nuevoSeguimiento)
+      } catch (err) {
+        // Revert si falla (AC-04.4)
+        setSeguimientoLocal(seguimiento)
+        setError((err as any)?.message || 'Error al actualizar seguimiento')
+      } finally {
+        setEnviando(false)
       }
-      // AC-04.3: State refleja nuevo estado tras éxito
-    } catch (err) {
-      // AC-04.4: Revert si falla
-      setSeguimientoLocal(seguimiento)
-      const errorMsg = err instanceof Error ? err.message : 'Error al actualizar seguimiento'
-      setError(errorMsg)
-    } finally {
+    } else {
       setEnviando(false)
     }
   }
 
-  // T046: Callback para cargar más carpetas en perfil ajeno (paginación server-side, T045)
-  // En modo consulta: sin acciones de crear, renombrar o eliminar
-  const handleCargarMasCarpetasAjenas = async (limit: number, offset: number) => {
+  /**
+   * T046: Handler para cargar más carpetas en modo consulta (sin acciones).
+   * En perfil ajeno, solo permite visualización sin edición.
+   */
+  const handleCargarMasCarpetasAjeno = async (limit: number, offset: number) => {
+    // En modo consulta, solo cargamos más carpetas para visualización
+    // Sin acciones de edición
     setCargandoCarpetas(true)
     try {
-      // T046: En esta iteración, se simula que todos los datos están ya cargados
-      // En T046 futuro, aquí se haría la llamada al API con limit/offset
-      // Por ahora, simplemente retornamos los datos actuales
-      // TODO: Implementar llamada real al carpetaService.listarCarpetas(usuarioId, limit, offset)
-      
-      // Simulación: los datos están todos en carpetas[]
-      const proximasPagina = carpetas.slice(offset, offset + limit)
-      setCarpetasPaginadas([...carpetasPaginadas, ...proximasPagina])
-      
-      const nuevoOffset = offset + limit
-      setPaginacionCarpetas({
-        items: [...carpetasPaginadas, ...proximasPagina],
-        total: carpetas.length,
-        limit,
-        offset: nuevoOffset,
-        hasMore: nuevoOffset < carpetas.length,
-      })
-    } catch (err) {
-      console.error('Error cargando más carpetas:', err)
+      // TODO: Implementar llamada a carpetaService.listarCarpetas(usuarioId, limit, offset)
     } finally {
       setCargandoCarpetas(false)
     }
   }
 
-  // T046: Callback para seleccionar una carpeta (navegar a vista de posts de carpeta)
+  /**
+   * T046: Handler para seleccionar una carpeta en modo ajeno.
+   * Navega a la lista de posts de la carpeta (sin permisos de edición).
+   */
   const handleSeleccionarCarpetaAjena = (carpeta: CarpetaPost) => {
-    // TODO: Implementar navegación a vista de carpeta con sus posts
-    console.log('Carpeta seleccionada:', carpeta.nombre)
+    // Navegar a carpeta en modo lectura
+    // TODO: Implementar navegación
+    console.log('Ver carpeta ajena:', carpeta.nombre)
   }
 
   if (cargando) {
@@ -279,16 +272,17 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         </div>
       </section>
 
-      {/* AC-03.5: Carpetas ajenas en modo consulta */}
-      {/* T046: Integración de CarpetaList en perfil ajeno SIN acciones */}
-      <CarpetaList
-        carpetas={carpetasPaginadas}
-        esPerfilPropio={false}
-        paginacion={paginacionCarpetas}
-        cargando={cargandoCarpetas}
-        onCargarMas={handleCargarMasCarpetasAjenas}
-        onSelectCarpeta={handleSeleccionarCarpetaAjena}
-      />
+      {/* AC-03.5: Carpetas ajenas en modo consulta (T046: Integración de CarpetaList) */}
+      <section style={{ marginBottom: '2rem' }}>
+        <CarpetaList
+          carpetas={carpetasActuales}
+          esPerfilPropio={false}
+          paginacion={paginacionCarpetas}
+          cargando={cargandoCarpetas}
+          onCargarMas={handleCargarMasCarpetasAjeno}
+          onSelectCarpeta={handleSeleccionarCarpetaAjena}
+        />
+      </section>
 
       {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura */}
       <section>
