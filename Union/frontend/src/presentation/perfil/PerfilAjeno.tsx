@@ -12,9 +12,9 @@ import { FollowButton } from '../seguimiento/FollowButton'
  * `PerfilAjeno`: Vista de perfil ajeno con opción de seguimiento (modo consulta).
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-03, HU-04, HU-13, AC-03, AC-04, A4, A10)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-03, HU-04, HU-13, AC-03, AC-04, A4, A10, CB-17, CB-18)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T021, T057, T061)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T021, T057, T061, T074)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-03.1):
@@ -42,12 +42,14 @@ import { FollowButton } from '../seguimiento/FollowButton'
  *    - Carpetas en modo lectura
  *    - Nombre y cantidad de posts
  *    - SIN acciones de gestión
+ *    - T074: Estados de loading/empty/error (CB-17: mostrar vacío si sin carpetas)
  *
  * 5. Muestra publicaciones ajenas en modo consulta (AC-03.1, HU-13, T057):
  *    - En modo lectura (AC-13.3)
  *    - SIN opciones de editar/eliminar
  *    - SIN callbacks de acción
  *    - PublicacionList con esPerfilPropio=false
+ *    - T074: Estados de loading/empty/error (CB-18: mostrar vacío si sin publicaciones)
  *
  * Props:
  * - `usuario: Usuario` — Usuario ajeno cuyo perfil se visualiza
@@ -66,12 +68,15 @@ import { FollowButton } from '../seguimiento/FollowButton'
  * Clarificaciones:
  * - A4: Botón alterna entre "Seguir" / "Dejar de seguir" (bidireccional)
  * - A10: Perfil BANEADO/ELIMINADO no es visible (validación en PerfilPage)
+ * - CB-17: Perfil sin carpetas → estado vacío
+ * - CB-18: Perfil sin publicaciones → estado vacío
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo contenido (Principio VI)
  * - Optimistic update: Toggle local inmediato, revert si error (AC-04.3, AC-04.4)
  * - T061: Integración de FollowButton para UI reutilizable de seguimiento
  * - T057: Integración de lista de publicaciones en modo lectura (sin callbacks de acción)
+ * - T074: Estados loading/empty/error en carpetas y publicaciones (CB-17, CB-18)
  */
 
 export interface PerfilAjenoProps {
@@ -112,9 +117,15 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   )
   const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
 
+  // T074: Error states for carpetas
+  const [errorCarpetas, setErrorCarpetas] = useState<string>('')
+
   // T057: Estado para publicaciones ajenas (modo consulta, sin acciones)
   const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
   const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
+
+  // T074: Error states for publicaciones
+  const [errorPublicaciones, setErrorPublicaciones] = useState<string>('')
 
   /**
    * T046: Handler para cargar más carpetas en modo consulta (sin acciones).
@@ -233,24 +244,108 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
       </section>
 
       {/* AC-03.5: Carpetas ajenas en modo consulta (T046: Integración de CarpetaList) */}
+      {/* T074: Estados de loading/empty/error para carpetas */}
       <section style={{ marginBottom: '2rem' }}>
-        <CarpetaList
-          carpetas={carpetasActuales}
-          esPerfilPropio={false}
-          paginacion={paginacionCarpetas}
-          cargando={cargandoCarpetas}
-          onCargarMas={handleCargarMasCarpetasAjeno}
-          onSelectCarpeta={handleSeleccionarCarpetaAjena}
-        />
+        {errorCarpetas && (
+          <div
+            style={{
+              padding: '1rem',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '6px',
+              color: '#c33',
+              marginBottom: '1rem',
+              fontSize: '14px',
+            }}
+          >
+            <strong>Error:</strong> {errorCarpetas}
+          </div>
+        )}
+
+        {cargandoCarpetas ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+            <p>Cargando carpetas...</p>
+          </div>
+        ) : carpetasActuales.length === 0 ? (
+          // CB-17: Empty state when no carpetas
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              color: '#6b7280',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+              No hay carpetas
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+              Este usuario aún no ha creado carpetas
+            </p>
+          </div>
+        ) : (
+          <CarpetaList
+            carpetas={carpetasActuales}
+            esPerfilPropio={false}
+            paginacion={paginacionCarpetas}
+            cargando={cargandoCarpetas}
+            onCargarMas={handleCargarMasCarpetasAjeno}
+            onSelectCarpeta={handleSeleccionarCarpetaAjena}
+          />
+        )}
       </section>
 
       {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura (T057: Integración con PublicacionList sin callbacks) */}
+      {/* T074: Estados de loading/empty/error para publicaciones */}
       <section>
-        <PublicacionList
-          publicaciones={publicacionesActuales}
-          esPerfilPropio={false}
-          cargando={cargandoPublicaciones}
-        />
+        {errorPublicaciones && (
+          <div
+            style={{
+              padding: '1rem',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '6px',
+              color: '#c33',
+              marginBottom: '1rem',
+              fontSize: '14px',
+            }}
+          >
+            <strong>Error:</strong> {errorPublicaciones}
+          </div>
+        )}
+
+        {cargandoPublicaciones ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+            <p>Cargando publicaciones...</p>
+          </div>
+        ) : publicacionesActuales.length === 0 ? (
+          // CB-18: Empty state when no publicaciones
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              color: '#6b7280',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+              No hay publicaciones
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+              Este usuario aún no ha compartido publicaciones
+            </p>
+          </div>
+        ) : (
+          <PublicacionList
+            publicaciones={publicacionesActuales}
+            esPerfilPropio={false}
+            cargando={cargandoPublicaciones}
+          />
+        )}
       </section>
     </div>
   )

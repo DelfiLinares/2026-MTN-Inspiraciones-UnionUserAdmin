@@ -13,9 +13,9 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * `PerfilPropio`: Vista de perfil propio con acciones de edición.
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-11, HU-12, HU-13, AC-01, AC-02, A5, A8)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-11, HU-12, HU-13, AC-01, AC-02, A5, A8, CB-17, CB-18)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T020, T034, T057)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T020, T034, T057, T074)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-01.1):
@@ -32,6 +32,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * 3. Muestra carpetas públicas del usuario (AC-01.2):
  *    - Lista de carpetas (CarpetaPost[])
  *    - Acciones de gestión: crear, renombrar, eliminar (T024–T026)
+ *    - T074: Estados de loading/empty/error (CB-17: mostrar vacío si sin carpetas)
  *
  * 4. Muestra publicaciones propias del usuario (AC-01.3, HU-11/12/13, T057):
  *    - Lista de publicaciones (Publicacion[])
@@ -39,6 +40,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  *    - Opción para guardar en carpeta (T055)
  *    - Callbacks para notificar cambios: onEditarExitosamente, onEliminarExitosamente, onGuardarEnCarpeta
  *    - Manejo de errores (A5: solo texto editable, A8: idempotencia)
+ *    - T074: Estados de loading/empty/error (CB-18: mostrar vacío si sin publicaciones)
  *
  * 5. No ofrece botón de seguir (AC-01.5):
  *    - Regla explícita: debeeMostrarBotonSeguir() siempre false para perfil propio
@@ -62,6 +64,8 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * - A2: Foto de perfil restricciones
  * - A5: Solo texto editable en publicaciones (imagen inmutable)
  * - A8: Idempotencia en guardado a carpeta (200 vs 201)
+ * - CB-17: Perfil sin carpetas → estado vacío
+ * - CB-18: Perfil sin publicaciones → estado vacío
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo contenido (Principio VI)
@@ -70,6 +74,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * - La subida de foto es T023 (PhotoUploadField.tsx)
  * - T034: Integración de modal de edición con EditarPerfilForm y PhotoUploadField
  * - T057: Integración de lista de publicaciones con acciones (editar, eliminar, guardar en carpeta)
+ * - T074: Estados loading/empty/error en carpetas y publicaciones (CB-17, CB-18)
  */
 
 export interface PerfilPropioProps {
@@ -110,9 +115,15 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   )
   const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
 
+  // T074: Error states for carpetas and publicaciones
+  const [errorCarpetas, setErrorCarpetas] = useState<string>('')
+
   // T057: Estado para publicaciones propias
   const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
   const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
+
+  // T074: Error states for publicaciones
+  const [errorPublicaciones, setErrorPublicaciones] = useState<string>('')
 
   const handleEditarPerfil = () => {
     setMostrarModalEditar(true)
@@ -336,30 +347,114 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
       </section>
 
       {/* AC-01.2: Carpetas públicas del usuario (T046: Integración de CarpetaList) */}
+      {/* T074: Estados de loading/empty/error para carpetas */}
       <section style={{ marginBottom: '2rem' }}>
-        <CarpetaList
-          carpetas={carpetasActuales}
-          esPerfilPropio={true}
-          paginacion={paginacionCarpetas}
-          cargando={cargandoCarpetas}
-          onCargarMas={handleCargarMasCarpetas}
-          onCreate={handleCrearCarpeta}
-          onRename={handleRenombrarCarpeta}
-          onDelete={handleEliminarCarpeta}
-          onSelectCarpeta={handleSeleccionarCarpeta}
-        />
+        {errorCarpetas && (
+          <div
+            style={{
+              padding: '1rem',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '6px',
+              color: '#c33',
+              marginBottom: '1rem',
+              fontSize: '14px',
+            }}
+          >
+            <strong>Error:</strong> {errorCarpetas}
+          </div>
+        )}
+
+        {cargandoCarpetas ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+            <p>Cargando carpetas...</p>
+          </div>
+        ) : carpetasActuales.length === 0 ? (
+          // CB-17: Empty state when no carpetas
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              color: '#6b7280',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+              No hay carpetas aún
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+              Crea una carpeta para organizar tus posts guardados
+            </p>
+          </div>
+        ) : (
+          <CarpetaList
+            carpetas={carpetasActuales}
+            esPerfilPropio={true}
+            paginacion={paginacionCarpetas}
+            cargando={cargandoCarpetas}
+            onCargarMas={handleCargarMasCarpetas}
+            onCreate={handleCrearCarpeta}
+            onRename={handleRenombrarCarpeta}
+            onDelete={handleEliminarCarpeta}
+            onSelectCarpeta={handleSeleccionarCarpeta}
+          />
+        )}
       </section>
 
       {/* AC-01.3: Publicaciones propias del usuario (T057: Integración con PublicacionList y callbacks) */}
+      {/* T074: Estados de loading/empty/error para publicaciones */}
       <section>
-        <PublicacionList
-          publicaciones={publicacionesActuales}
-          esPerfilPropio={true}
-          cargando={cargandoPublicaciones}
-          onEditarExitosamente={handleEditarPublicacionExitosamente}
-          onEliminarExitosamente={handleEliminarPublicacionExitosamente}
-          onGuardarEnCarpeta={handleGuardarPublicacionEnCarpeta}
-        />
+        {errorPublicaciones && (
+          <div
+            style={{
+              padding: '1rem',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '6px',
+              color: '#c33',
+              marginBottom: '1rem',
+              fontSize: '14px',
+            }}
+          >
+            <strong>Error:</strong> {errorPublicaciones}
+          </div>
+        )}
+
+        {cargandoPublicaciones ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+            <p>Cargando publicaciones...</p>
+          </div>
+        ) : publicacionesActuales.length === 0 ? (
+          // CB-18: Empty state when no publicaciones
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              color: '#6b7280',
+            }}
+          >
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
+              No hay publicaciones aún
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+              Comparte tu primer post para que otros puedan verlo
+            </p>
+          </div>
+        ) : (
+          <PublicacionList
+            publicaciones={publicacionesActuales}
+            esPerfilPropio={true}
+            cargando={cargandoPublicaciones}
+            onEditarExitosamente={handleEditarPublicacionExitosamente}
+            onEliminarExitosamente={handleEliminarPublicacionExitosamente}
+            onGuardarEnCarpeta={handleGuardarPublicacionEnCarpeta}
+          />
+        )}
       </section>
 
       {/* T034: Modal de edición de perfil con EditarPerfilForm integrado */}
