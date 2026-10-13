@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { carpetaService } from '../../services/carpetaService'
+import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**
  * `ConfirmDeleteCarpetaDialog`: Diálogo de confirmación de eliminación de carpeta.
@@ -8,21 +9,22 @@ import { carpetaService } from '../../services/carpetaService'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-07, AC-07.1–AC-07.7, A7)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", carpetas/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T041)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T041, T071)
  *
  * Responsabilidades:
- * 1. Confirmación explícita de eliminación (HU-07, AC-07.1):
+ * 1. Confirmación explícita de eliminación (HU-07, AC-07.1, T071):
  *    - Requiere confirmación explícita antes de eliminar
- *    - Implementado en UI: botones "Cancelar" y "Eliminar"
+ *    - Usa ConfirmacionAccionSensibleModal (componente compartido, variante='peligro')
+ *    - Mantiene advertencia completa de A7
  *
- * 2. Advertencias claras (AC-07.2, AC-07.3, A7):
+ * 2. Advertencias claras (AC-07.2, AC-07.3, A7, T071):
  *    - AC-07.2: Advierte que el contenido guardado en la carpeta se perderá
  *    - AC-07.3: Aclara que los posts originales NO se eliminan de la plataforma
- *    - A7: Información clara y diferenciada visualmente
+ *    - A7: Información clara y diferenciada visualmente en modal
  *
  * 3. Diferenciación visual (AC-07.7):
- *    - Botón "Eliminar" con color rojo/destructivo
- *    - Distinto de acciones de consulta (consultar, renombrar)
+ *    - Modal con variante='peligro' (rojo, icono de advertencia)
+ *    - Distinto de acciones de consulta o cambio
  *
  * 4. Integración con servicios (CarpetaService, T037/T038):
  *    - Invoca carpetaService.eliminarCarpeta(carpetaId)
@@ -39,22 +41,22 @@ import { carpetaService } from '../../services/carpetaService'
  * - HU-07: Eliminar carpeta
  *
  * Criterios de aceptación:
- * - AC-07.1: Confirmación explícita (implementada en UI)
+ * - AC-07.1: Confirmación explícita (T071: ConfirmacionAccionSensibleModal)
  * - AC-07.2: Advierte pérdida de contenido guardado
  * - AC-07.3: Aclara que posts originales no se eliminan
  * - AC-07.4: Callback notifica eliminación (se refleja en lista T044)
  * - AC-07.5: Backend libera cupo (implementado en T037/T038)
  * - AC-07.6: Solo propietario puede eliminar (backend: 403)
- * - AC-07.7: Diferenciación visual (botón rojo/destructivo)
+ * - AC-07.7: Diferenciación visual (variante='peligro' en modal)
  *
  * Clarificaciones:
- * - A7: Información clara sobre pérdida de guardados
+ * - A7: Información clara sobre pérdida de guardados (mantener en T071)
  *
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo diálogo (Principio VI)
  * - Acción destructiva: requiere confirmación explícita y diferenciación visual
  * - Si falla servidor: mostrar error específico (AC-07.6: 403)
- * - T044: Integración con CarpetaList
+ * - T071: Integración con ConfirmacionAccionSensibleModal para confirmación de eliminación
  */
 
 export interface ConfirmDeleteCarpetaDialogProps {
@@ -74,10 +76,20 @@ export const ConfirmDeleteCarpetaDialog: React.FC<ConfirmDeleteCarpetaDialogProp
   const [eliminando, setEliminando] = useState(false)
   const [errorServidor, setErrorServidor] = useState<string>('')
 
+  // Confirmation modal state (T071: ConfirmacionAccionSensibleModal)
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+
   /**
-   * Manejar eliminación de carpeta (AC-07.1: confirmación explícita).
+   * Mostrar confirmación modal (T071: ConfirmacionAccionSensibleModal).
    */
-  const handleEliminar = async () => {
+  const handleMostrarConfirmacion = () => {
+    setMostrarConfirmacion(true)
+  }
+
+  /**
+   * Confirmar y ejecutar eliminación de carpeta (AC-07.1, T071).
+   */
+  const handleConfirmarEliminacion = async () => {
     // Limpiar errores previos
     setErrorServidor('')
 
@@ -87,6 +99,7 @@ export const ConfirmDeleteCarpetaDialog: React.FC<ConfirmDeleteCarpetaDialogProp
       await carpetaService.eliminarCarpeta(carpeta.id)
 
       // AC-07.4: Notificar éxito (carpeta se elimina de la lista)
+      setMostrarConfirmacion(false)
       onSuccess()
     } catch (error) {
       // Manejar errores del servidor
@@ -100,6 +113,9 @@ export const ConfirmDeleteCarpetaDialog: React.FC<ConfirmDeleteCarpetaDialogProp
       else {
         setErrorServidor(mensajeError)
       }
+
+      // Mantener modal cerrada para reintentar
+      setMostrarConfirmacion(false)
     } finally {
       setEliminando(false)
     }
@@ -188,7 +204,7 @@ export const ConfirmDeleteCarpetaDialog: React.FC<ConfirmDeleteCarpetaDialogProp
             {/* AC-07.7: Botón destructivo con diferenciación visual */}
             <button
               className="btn btn-danger"
-              onClick={handleEliminar}
+              onClick={handleMostrarConfirmacion}
               disabled={eliminarDeshabilitado}
             >
               {eliminando ? 'Eliminando...' : 'Eliminar carpeta'}
@@ -408,8 +424,25 @@ export const ConfirmDeleteCarpetaDialog: React.FC<ConfirmDeleteCarpetaDialogProp
           transform: scale(0.98);
         }
       `}</style>
+
+      {/* T071: Modal de confirmación de eliminación (ConfirmacionAccionSensibleModal) */}
+      {/* AC-07.2, AC-07.3, A7: Mantiene advertencia completa sobre pérdida de guardados */}
+      <ConfirmacionAccionSensibleModal
+        abierto={mostrarConfirmacion}
+        titulo="¿Eliminar esta carpeta?"
+        mensaje={`Se eliminarán todos los posts guardados en "${carpeta.nombre}",\npero los posts originales seguirán en la plataforma.`}
+        variante="peligro"
+        textoConfirmar="Sí, eliminar"
+        textoCancelar="Cancelar"
+        confirmando={eliminando}
+        onConfirmar={handleConfirmarEliminacion}
+        onCancelar={() => {
+          setMostrarConfirmacion(false)
+        }}
+      />
     </div>
   )
 }
 
 export default ConfirmDeleteCarpetaDialog
+
