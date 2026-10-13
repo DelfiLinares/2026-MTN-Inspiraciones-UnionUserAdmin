@@ -6,6 +6,7 @@ import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import { CarpetaList } from '../carpetas/CarpetaList'
 import { PublicacionList } from '../publicaciones/PublicacionList'
+import { FollowButton } from '../seguimiento/FollowButton'
 
 /**
  * `PerfilAjeno`: Vista de perfil ajeno con opción de seguimiento (modo consulta).
@@ -13,7 +14,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * Fuentes de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-03, HU-04, HU-13, AC-03, AC-04, A4, A10)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T021, T057)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T021, T057, T061)
  *
  * Responsabilidades:
  * 1. Muestra encabezado del perfil (AC-03.1):
@@ -23,12 +24,13 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  *    - Descripción (≤200 chars)
  *    - Cantidad de seguidores
  *
- * 2. Ofrece acción de seguimiento (AC-04.1 + A4):
- *    - Botón "Seguir" / "Dejar de seguir" (toggle bidireccional)
+ * 2. Ofrece acción de seguimiento con FollowButton (AC-04.1, T061 + A4):
+ *    - Componente FollowButton para toggle "Seguir" / "Dejar de seguir"
  *    - AC-04.2: Disponible para cualquier autenticado (sin distinción de rol)
  *    - AC-04.3: Refleja estado de seguimiento tras éxito
  *    - AC-04.4: Maneja errores, no cambia estado si falla
  *    - AC-04.5: NO requiere confirmación explícita
+ *    - A4: Toggle bidireccional (seguir ↔ dejar de seguir)
  *
  * 3. Modo consulta sin edición (AC-03.4):
  *    - SIN botón "Editar perfil"
@@ -50,15 +52,15 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * Props:
  * - `usuario: Usuario` — Usuario ajeno cuyo perfil se visualiza
  * - `usuarioActual: Usuario` — Usuario autenticado actual (para determinar si puede seguir)
- * - `seguimiento?: SeguimientoRelacion` — Estado de seguimiento (opcional, para T029)
+ * - `seguimiento?: SeguimientoRelacion` — Estado de seguimiento (opcional, para HU-04)
  * - `carpetas?: CarpetaPost[]` — Carpetas públicas del usuario ajeno (opcional)
  * - `publicaciones?: Publicacion[]` — Publicaciones propias del usuario ajeno (opcional)
  * - `cargando?: boolean` — true si se están cargando datos (opcional, para skeleton)
- * - `onSeguimiento?: (seguimiento: SeguimientoRelacion) => Promise<void>` — Callback para toggling (T029)
+ * - `onSeguimiento?: (seguimiento: SeguimientoRelacion) => Promise<void>` — Callback para toggle de seguimiento (HU-04, T061)
  *
  * Historias de usuario:
  * - HU-03: Visualizar perfil de otra persona
- * - HU-04: Seguir a otra persona (con A4: bidireccional toggle)
+ * - HU-04: Seguir a otra persona (con A4: bidireccional toggle, integración con FollowButton, T061)
  * - HU-13: Visualizar publicaciones del perfil (integración con PublicacionList, T057)
  *
  * Clarificaciones:
@@ -68,8 +70,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo contenido (Principio VI)
  * - Optimistic update: Toggle local inmediato, revert si error (AC-04.3, AC-04.4)
- * - La lógica de servicios depende de T029 (PerfilService)
- * - No hay confirmación explícita para seguir (AC-04.5)
+ * - T061: Integración de FollowButton para UI reutilizable de seguimiento
  * - T057: Integración de lista de publicaciones en modo lectura (sin callbacks de acción)
  */
 
@@ -114,37 +115,6 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   // T057: Estado para publicaciones ajenas (modo consulta, sin acciones)
   const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
   const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
-
-  /**
-   * AC-04: Handle follow/unfollow toggle (A4).
-   * Implementa optimistic update: toggle local inmediato, revert si error.
-   */
-  const handleSeguimiento = async () => {
-    if (!seguimientoLocal) {
-      return
-    }
-
-    setEnviando(true)
-    setError(undefined)
-
-    // Toggle usando método toggle() del value object (patrón funcional)
-    const nuevoSeguimiento = seguimientoLocal.toggle()
-    setSeguimientoLocal(nuevoSeguimiento)
-
-    if (onSeguimiento) {
-      try {
-        await onSeguimiento(nuevoSeguimiento)
-      } catch (err) {
-        // Revert si falla (AC-04.4)
-        setSeguimientoLocal(seguimiento)
-        setError((err as any)?.message || 'Error al actualizar seguimiento')
-      } finally {
-        setEnviando(false)
-      }
-    } else {
-      setEnviando(false)
-    }
-  }
 
   /**
    * T046: Handler para cargar más carpetas en modo consulta (sin acciones).
@@ -244,37 +214,18 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
               </div>
             )}
 
-            {/* AC-04.1 + A4: Botón de seguimiento toggle */}
+            {/* AC-04.1 + A4: Integración de FollowButton (T061) */}
             <div style={{ marginTop: '1rem' }}>
               {/* AC-03.4: NO mostrar acciones de edición (a diferencia de PerfilPropio) */}
               {/* AC-04.1: En perfil ajeno se muestra opción de seguir */}
               {seguimientoLocal && usuario.debeeMostrarBotonSeguir(usuarioActual.id) && (
-                <div>
-                  <button
-                    onClick={handleSeguimiento}
-                    disabled={enviando}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      backgroundColor: seguimientoLocal.esSiguiendo() ? '#e5e7eb' : '#4f46e5',
-                      color: seguimientoLocal.esSiguiendo() ? '#374151' : 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      cursor: enviando ? 'not-allowed' : 'pointer',
-                      opacity: enviando ? 0.6 : 1,
-                    }}
-                  >
-                    {/* A4: Toggle text based on state */}
-                    {seguimientoLocal.getBotonTexto()}
-                  </button>
-                  {/* AC-04.4: Mostrar error si falla */}
-                  {error && (
-                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
-                      {error}
-                    </p>
-                  )}
-                </div>
+                <FollowButton
+                  seguimiento={seguimientoLocal}
+                  onToggleSeguimiento={onSeguimiento}
+                  enviando={enviando}
+                  error={error}
+                  onErrorClear={() => setError(undefined)}
+                />
               )}
             </div>
           </div>
