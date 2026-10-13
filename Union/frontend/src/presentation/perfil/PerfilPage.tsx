@@ -12,9 +12,9 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * `PerfilPage`: Contenedor root que decide entre perfil propio y ajeno.
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-03, A10)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-03, A10, §1.3, §8)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", perfil/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T019, T035)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T019, T035, T064)
  *
  * Responsabilidades:
  * 1. Extrae parámetro `:id` de la ruta (React Router).
@@ -33,6 +33,12 @@ import { usuarioPerfilService } from '../../services/perfilService'
  *    - PerfilAjeno.tsx (T021): Perfil ajeno con opción de seguir.
  *    - ProfileNotFoundView.tsx (T027): Perfil no disponible (A10, T035).
  *
+ * 4. Resuelve permisos por contexto, NO por rol (T064):
+ *    - La decisión de qué acciones mostrar depende ÚNICAMENTE de si es perfil propio o ajeno.
+ *    - El rol (USER/ADMIN) es IRRELEVANTE para las capacidades del módulo (Principio VI, §1.3).
+ *    - Ambos USER y ADMIN ven y pueden hacer exactamente lo mismo (spec.md §8).
+ *    - Esto se implementa delegando a PerfilPropio (solo edición) o PerfilAjeno (solo seguimiento).
+ *
  * Rutas:
  * - GET `/perfil` → Perfil propio (usuarioActualId se obtiene de AuthContext)
  * - GET `/perfil/:id` → Perfil ajeno (usuarioId = params.id)
@@ -45,8 +51,10 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * Reglas:
  * - A10 (Clarificación): Perfil BANEADO/ELIMINADO no es visible a terceros.
  *       Respuesta backend: 404/403 en obtenerPerfil; el frontend lo trata como ProfileNotFoundView (T035).
- * - Rol-agnóstico: Ambos USER y ADMIN ven el mismo contenido (Principio VI).
+ * - Rol-agnóstico: Ambos USER y ADMIN ven el mismo contenido (Principio VI, spec.md §1.3).
+ * - Contexto-agnóstico: Todos los permisos se resuelven por "¿es perfil propio?" (T064).
  * - T035: Guardas de visualización por estado de cuenta (404/403 → ProfileNotFoundView)
+ * - T064: Verificación de contexto (propio vs ajeno), no de rol (USER vs ADMIN)
  */
 
 interface PerfilPageState {
