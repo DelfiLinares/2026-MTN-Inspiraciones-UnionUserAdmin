@@ -19,6 +19,14 @@
 - **Admin y respuestas**: el administrador solo borra respuestas ajenas; no las edita. Esto cambia el requisito original (HU-16, RF-14) y contradice el principio 6 del constitution, que se enmienda a la versión 1.1.0 para alinearlo.
 - **Pendientes tras esta sesión**: A-02, A-04, A-08, A-11, A-13, A-14, A-15, A-16, A-17, A-19, A-20, A-21, A-22.
 
+### Sesión 2026-10-12
+- **Estado del desafío (RF-06)**: la API calcula y entrega `PROGRAMADO`, `ACTIVO` y `FINALIZADO`. El frontend no los recalcula ni decide permisos con su propio reloj.
+- **A-02 (catálogo de ámbitos)**: solo el administrador gestiona el catálogo; los usuarios eligen de él. Lista inicial exacta: pendiente.
+- **A-04 (solicitudes resueltas)**: solo se editan o eliminan solicitudes en estado `PENDIENTE`.
+- **A-08 (datos de solicitud)**: una solicitud tiene los mismos campos que un desafío: nombre, descripción larga, 1 a 5 fotos, fechas y ámbitos.
+- **A-16 (zona y fin de día)**: las fechas se evalúan en la zona horaria del servidor. El día de fin es exclusivo: el desafío deja de estar `ACTIVO` al inicio de su fecha de fin.
+- **Pendientes tras esta sesión**: A-02 (lista inicial), A-11, A-13, A-14, A-15, A-17, A-19, A-20, A-21, A-22.
+
 ## 1. Objetivo
 
 Permitir que los usuarios encuentren desafíos de inspiración artística de forma simple y rápida, los filtren por ámbito y estado, vean su detalle y las respuestas de otros usuarios, y propongan nuevos desafíos mediante solicitudes. Los administradores publican desafíos completos y moderan desafíos, solicitudes y respuestas.
@@ -95,7 +103,8 @@ Prioridades: **P1** imprescindible, **P2** importante, **P3** deseable.
 **HU-05 (gestionar mis solicitudes)**
 - El usuario ve solo sus solicitudes, con su estado.
 - Puede editar y eliminar solo las suyas. Antes de eliminar se pide confirmación.
-- No puede editar ni eliminar solicitudes de otros. [A ACLARAR: A-04 para solicitudes ya resueltas]
+- No puede editar ni eliminar solicitudes de otros.
+- Solo puede editar o eliminar solicitudes en estado `PENDIENTE` (A-04).
 
 **HU-06 (aprobar o rechazar solicitud)**
 - El administrador ve el listado de solicitudes `PENDIENTE` paginado.
@@ -145,10 +154,10 @@ Prioridades: **P1** imprescindible, **P2** importante, **P3** deseable.
 - **RF-03** La fecha de fin debe ser posterior a la fecha de inicio (`RangoFechas`).
 - **RF-04** Un desafío debe tener nombre, descripción larga, al menos una foto y al menos un tag de ámbito válido.
 - **RF-05** El administrador edita y elimina desafíos.
-- **RF-06** El estado (`PROGRAMADO`, `ACTIVO`, `FINALIZADO`) se deriva de las fechas y no se almacena de forma redundante. `ELIMINADO` se persiste como borrado lógico (A-01).
+- **RF-06** El estado (`PROGRAMADO`, `ACTIVO`, `FINALIZADO`) se deriva de las fechas y no se almacena de forma redundante. `ELIMINADO` se persiste como borrado lógico (A-01). La API lo calcula y lo entrega; el frontend no lo recalcula.
 
 **Solicitudes**
-- **RF-07** El usuario envía solicitudes de desafío.
+- **RF-07** El usuario envía solicitudes de desafío, con los mismos campos que un desafío (A-08).
 - **RF-08** Cada solicitud tiene estado `EstadoSolicitudDesafio`: `PENDIENTE`, `APROBADA` o `RECHAZADA`. Toda solicitud nueva nace en `PENDIENTE`.
 - **RF-09** El administrador ve, aprueba y rechaza solicitudes de cualquier usuario.
 - **RF-10** El usuario ve, edita y elimina solo sus propias solicitudes.
@@ -190,7 +199,7 @@ Prioridades: **P1** imprescindible, **P2** importante, **P3** deseable.
 - **CB-03** Un usuario elimina su solicitud mientras el administrador la está aprobando: el administrador ve que ya no existe.
 - **CB-04** Un usuario envía la misma solicitud dos veces (doble clic): solo se crea una. [A ACLARAR: A-20 sobre duplicados lógicos]
 - **CB-05** Un desafío cambia de estado mientras un usuario tiene el listado abierto (`PROGRAMADO` a `ACTIVO`): el estado mostrado se actualiza al recargar.
-- **CB-06** Una solicitud ya `APROBADA` o `RECHAZADA` intenta volver a `PENDIENTE`: la operación se rechaza. [A ACLARAR: A-04]
+- **CB-06** Una solicitud ya `APROBADA` o `RECHAZADA` intenta volver a `PENDIENTE`: la operación se rechaza. Tampoco se edita ni elimina (A-04).
 - **CB-07** Un usuario intenta editar la respuesta de otro desde la URL: el backend rechaza la acción y la UI muestra un mensaje de permiso denegado.
 - **CB-08** Sesión expirada durante un envío de solicitud o respuesta: se pide autenticarse de nuevo sin perder el formulario.
 - **CB-09** Un desafío sin respuestas muestra un estado vacío claro.
@@ -204,13 +213,13 @@ Prioridades: **P1** imprescindible, **P2** importante, **P3** deseable.
 No se asume ninguna de estas decisiones durante la implementación. Las referencias a la constitution usan la numeración A1–A7 de su sección de puntos pendientes.
 
 - ~~**A-01**~~ Resuelta: borrado lógico con `ELIMINADO` persistido. (constitution A1)
-- **A-02** Catálogo de tags de ámbito: ¿lista inicial exacta? ¿Solo los admins los administran o los usuarios pueden crear tags nuevos? (constitution A2)
+- **A-02** Parcialmente resuelta: solo el admin gestiona el catálogo. Pendiente: lista inicial exacta. (constitution A2)
 - ~~**A-03**~~ Resuelta: aprobar solo cambia el estado a `APROBADA`; publicar es un paso aparte. (constitution A3)
-- **A-04** ¿Un usuario puede editar o eliminar una solicitud ya `APROBADA` o `RECHAZADA`? (constitution A4)
+- ~~**A-04**~~ Resuelta: solo se editan o eliminan solicitudes `PENDIENTE`. (constitution A4)
 - ~~**A-05**~~ Resuelta: solo mientras el desafío está `ACTIVO`. (constitution A5)
 - ~~**A-06**~~ Resuelta: 1 a 5 fotos, JPEG o PNG; los topes de tamaño los valida el backend. (constitution A6)
 - ~~**A-07**~~ Resuelta: todos los campos editables, con confirmación explícita. (constitution A7)
-- **A-08** Datos de una solicitud: ¿los mismos campos que un desafío (fotos, fechas, tags) o una propuesta más simple?
+- ~~**A-08**~~ Resuelta: los mismos campos que un desafío (nombre, descripción larga, 1 a 5 fotos, fechas y ámbitos).
 - ~~**A-09**~~ Resuelta: una publicación del módulo de Publicación de Contenido vinculada al desafío. El admin solo la borra (ver Clarificaciones). Formatos: ver A-22.
 - ~~**A-10**~~ Resuelta: una respuesta por usuario y desafío, editable por su autor.
 - **A-11** Longitud mínima y máxima del nombre y de la descripción larga.
@@ -218,7 +227,7 @@ No se asume ninguna de estas decisiones durante la implementación. Las referenc
 - **A-13** ¿Un desafío `FINALIZADO` sigue visible, y por cuánto tiempo?
 - **A-14** ¿Se puede filtrar por fecha, y de qué forma (rango, "activos hoy", etc.)?
 - **A-15** Tiempos máximos aceptables de carga del listado y del detalle, y volúmenes objetivo (desafíos, solicitudes, respuestas).
-- **A-16** Zona horaria con la que se evalúan las fechas, y si el día de fin es inclusivo para el estado `ACTIVO`.
+- ~~**A-16**~~ Resuelta: fechas evaluadas en la zona horaria del servidor; el día de fin es exclusivo. (ver Clarificaciones 2026-10-12)
 - **A-17** ¿El usuario ve el motivo de rechazo de sus solicitudes? ¿Hay campo de motivo?
 - ~~**A-18**~~ Resuelta: ver desafíos y respuestas requiere sesión iniciada.
 - **A-19** ¿Un administrador también puede enviar solicitudes y respuestas como usuario? (precedente: spec 002, A-4)
