@@ -22,9 +22,17 @@ import type { PaginaResultado } from './useInfiniteList'
 
 export interface PublicacionFeedDto {
   id: string
-  autorId: string
+  /** Nombres del contrato Java (PublicacionResponse), con aliases legacy para feeds previos. */
+  usuarioId?: string
+  autorId?: string
+  contenido?: string
   tipoContenido: TipoContenido
-  estado: EstadoPublicacion
+  estado?: EstadoPublicacion
+  fotoUrl?: string
+  createdAt?: string
+  comentariosCount?: number
+  reaccionesCount?: number
+  hashtags?: string[]
   tags?: string[]
   cantidadLikes?: number
   likeDelUsuarioActual?: boolean
@@ -60,13 +68,17 @@ export interface ConsentimientoFeedRequest {
 function mapearPublicacion(dto: PublicacionFeedDto): Publicacion {
   return new Publicacion({
     id: dto.id,
-    autorId: dto.autorId,
+    autorId: dto.usuarioId ?? dto.autorId ?? '',
     tipoContenido: dto.tipoContenido,
     estado: dto.estado ?? EstadoPublicacion.ACTIVA,
-    tags: dto.tags ?? [],
-    cantidadLikes: dto.cantidadLikes ?? 0,
+    tags: dto.hashtags ?? dto.tags ?? [],
+    cantidadLikes: dto.reaccionesCount ?? dto.cantidadLikes ?? 0,
     likeDelUsuarioActual: dto.likeDelUsuarioActual ?? false,
     reportadaPorUsuarioActual: dto.reportadaPorUsuarioActual ?? false,
+    contenido: dto.contenido ?? dto.descripcion ?? dto.titulo,
+    fotoUrl: dto.fotoUrl ?? dto.urlContenido,
+    creadaEn: dto.createdAt ?? dto.creadaEn,
+    cantidadComentarios: dto.comentariosCount,
   })
 }
 

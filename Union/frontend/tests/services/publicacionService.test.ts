@@ -60,15 +60,15 @@ describe('publicacionService (T070)', () => {
   describe('alternarLike & Reversión (AC-01.3, CB-02)', () => {
     it('incrementa optimistamente los likes y llama a POST /publicaciones/{id}/reacciones', async () => {
       vi.mocked(httpClient.post).mockResolvedValueOnce({
-        cantidadLikes: 11,
-        likeadaPorMi: true,
+        reaccionesCount: 11,
+        activa: true,
       })
 
       const res = await alternarLike(publicacionBase, usuarioActualId, true)
 
       expect(httpClient.post).toHaveBeenCalledWith(
         '/publicaciones/pub-100/reacciones',
-        undefined,
+        { tipo: 'LIKE' },
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
       expect(res.cantidadLikes).toBe(11)
@@ -83,15 +83,15 @@ describe('publicacionService (T070)', () => {
       })
 
       vi.mocked(httpClient.post).mockResolvedValueOnce({
-        cantidadLikes: 10,
-        likeDelUsuarioActual: false,
+        reaccionesCount: 10,
+        activa: false,
       })
 
       const res = await alternarLike(publicacionConLike, usuarioActualId, true)
 
       expect(httpClient.post).toHaveBeenCalledWith(
         '/publicaciones/pub-100/reacciones',
-        undefined,
+        { tipo: 'LIKE' },
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
       expect(res.cantidadLikes).toBe(10)
@@ -220,7 +220,7 @@ describe('publicacionService (T070)', () => {
         expect(signalClic1?.aborted).toBe(true)
         expect(httpClient.post).toHaveBeenCalledWith(
           '/publicaciones/pub-100/reacciones',
-          undefined,
+          { tipo: 'LIKE' },
           expect.objectContaining({ signal: signalClic2 })
         )
 

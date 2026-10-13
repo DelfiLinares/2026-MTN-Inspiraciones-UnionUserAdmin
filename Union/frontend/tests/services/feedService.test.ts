@@ -20,7 +20,21 @@ describe('feedService', () => {
   })
 
   it('consulta recomendaciones con cursor opaco y límite por defecto', async () => {
-    vi.mocked(httpClient.get).mockResolvedValueOnce({ items: [], nextCursor: 'cursor-siguiente' })
+    vi.mocked(httpClient.get).mockResolvedValueOnce({
+      items: [{
+        id: 'publicacion-1',
+        usuarioId: 'artista-7',
+        contenido: 'Una pieza hecha con acuarela',
+        tipoContenido: 'IMAGEN',
+        estado: 'ACTIVA',
+        fotoUrl: 'https://cdn.example.test/acuarela.jpg',
+        createdAt: '2026-10-12T10:00:00Z',
+        comentariosCount: 2,
+        reaccionesCount: 8,
+        hashtags: ['acuarela', 'paisaje'],
+      }],
+      nextCursor: 'cursor-siguiente',
+    })
 
     const pagina = await feedService.obtenerPagina('cursor-opaco')
 
@@ -28,6 +42,15 @@ describe('feedService', () => {
       params: { limite: 3, cursor: 'cursor-opaco' },
     })
     expect(pagina.siguienteCursor).toBe('cursor-siguiente')
+    expect(pagina.items[0]).toMatchObject({
+      id: 'publicacion-1',
+      autorId: 'artista-7',
+      contenido: 'Una pieza hecha con acuarela',
+      fotoUrl: 'https://cdn.example.test/acuarela.jpg',
+      tags: ['acuarela', 'paisaje'],
+      cantidadLikes: 8,
+      cantidadComentarios: 2,
+    })
   })
 
   it('valida el límite antes de enviar la consulta', async () => {

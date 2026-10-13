@@ -10,6 +10,10 @@ export interface PublicacionProps {
   cantidadLikes: number
   likeDelUsuarioActual: boolean
   reportadaPorUsuarioActual: boolean
+  contenido?: string
+  fotoUrl?: string
+  creadaEn?: string
+  cantidadComentarios?: number
 }
 
 /**
@@ -29,6 +33,10 @@ export class Publicacion {
   readonly cantidadLikes: number
   readonly likeDelUsuarioActual: boolean
   readonly reportadaPorUsuarioActual: boolean
+  readonly contenido?: string
+  readonly fotoUrl?: string
+  readonly creadaEn?: string
+  readonly cantidadComentarios?: number
 
   constructor(props: PublicacionProps) {
     this.id = props.id
@@ -39,6 +47,10 @@ export class Publicacion {
     this.cantidadLikes = props.cantidadLikes
     this.likeDelUsuarioActual = props.likeDelUsuarioActual
     this.reportadaPorUsuarioActual = props.reportadaPorUsuarioActual
+    this.contenido = props.contenido
+    this.fotoUrl = props.fotoUrl
+    this.creadaEn = props.creadaEn
+    this.cantidadComentarios = props.cantidadComentarios
   }
 
   esPropia(usuarioActualId: string): boolean {
@@ -91,6 +103,10 @@ export class Publicacion {
       cantidadLikes: nuevaCantidad,
       likeDelUsuarioActual: nuevoEstadoLike,
       reportadaPorUsuarioActual: this.reportadaPorUsuarioActual,
+      contenido: this.contenido,
+      fotoUrl: this.fotoUrl,
+      creadaEn: this.creadaEn,
+      cantidadComentarios: this.cantidadComentarios,
     })
   }
 }

@@ -25,9 +25,11 @@ import { TipoContenido } from '../domain/enums/TipoContenido'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 
 export interface LikeResponseDto {
-  cantidadLikes: number
+  cantidadLikes?: number
+  reaccionesCount?: number
   likeadaPorMi?: boolean
   likeDelUsuarioActual?: boolean
+  activa?: boolean
 }
 
 export interface ReporteResponseDto {
@@ -123,7 +125,7 @@ export async function alternarLike(
     try {
       const resultadoDto = await httpClient.post<LikeResponseDto>(
         apiEndpoints.reaccionesPublicacion(publicacionId),
-        undefined,
+        { tipo: 'LIKE' },
         {
           signal: controller.signal,
         },
@@ -132,8 +134,8 @@ export async function alternarLike(
       // Si la llamada fue exitosa y no fue abortada por una acción posterior
       return new Publicacion({
         ...publicacionOptimista,
-        cantidadLikes: resultadoDto.cantidadLikes ?? publicacionOptimista.cantidadLikes,
-        likeDelUsuarioActual: resultadoDto.likeadaPorMi ?? resultadoDto.likeDelUsuarioActual ?? dioLike,
+        cantidadLikes: resultadoDto.reaccionesCount ?? resultadoDto.cantidadLikes ?? publicacionOptimista.cantidadLikes,
+        likeDelUsuarioActual: resultadoDto.likeadaPorMi ?? resultadoDto.likeDelUsuarioActual ?? resultadoDto.activa ?? dioLike,
       })
     } catch (error) {
       if (controller.signal.aborted) {
