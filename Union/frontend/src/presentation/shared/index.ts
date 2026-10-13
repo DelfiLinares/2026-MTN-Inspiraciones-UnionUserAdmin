@@ -17,4 +17,4 @@ export * from './ConfirmacionAccionSensibleModal'
 // Centralizaciones de mensajes de error (se crean en T065–T068)
 export * as perfilErrorMessages from '../perfil/perfilErrorMessages'
 export * as carpetaErrorMessages from '../carpetas/carpetaErrorMessages'
-// export * as publicacionErrorMessages from '../publicaciones/publicacionErrorMessages'
+export * as publicacionErrorMessages from '../publicaciones/publicacionErrorMessages'
