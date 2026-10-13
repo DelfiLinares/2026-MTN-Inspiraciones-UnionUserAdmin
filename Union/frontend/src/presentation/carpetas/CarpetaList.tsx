@@ -4,14 +4,15 @@ import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpet
 import CreateCarpetaDialog from './CreateCarpetaDialog'
 import RenameCarpetaDialog from './RenameCarpetaDialog'
 import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
+import { ManageCarpetaPublicacionesDialog } from './ManageCarpetaPublicacionesDialog'
 
 /**
  * `CarpetaList`: Componente de listado de carpetas de posts guardados.
  *
  * Fuentes de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-05, HU-06, HU-07, HU-08, AC-05–AC-08, A3, A6, A7)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-05, HU-06, HU-07, HU-08, HU-10, AC-05–AC-08, AC-10, A3, A6, A7)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", carpetas/)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T024)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T024, T056)
  *
  * Responsabilidades:
  * 1. Render de carpetas públicas (AC-08.1, AC-08.2):
@@ -26,10 +27,11 @@ import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
  *    - Scroll responsivo sin degradar interfaz (AC-08.3)
  *
  * 3. Modo propio (perfil propio):
- *    - Acciones: crear, renombrar, eliminar
+ *    - Acciones: crear, renombrar, eliminar, gestionar publicaciones
  *    - Botones contextuales por carpeta
  *    - Advertencias de eliminación (A7)
  *    - Validación de límite 50 carpetas (AC-05.4)
+ *    - Quitar publicaciones de carpeta sin eliminarlas (HU-10, AC-10.1–AC-10.3) [T056]
  *
  * 4. Modo ajeno (perfil de otro usuario):
  *    - SIN acciones (solo consulta)
@@ -45,12 +47,14 @@ import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
  * - `onRename?: (carpeta: CarpetaPost) => void` — Callback para renombrar (HU-06, A3)
  * - `onDelete?: (carpeta: CarpetaPost) => void` — Callback para eliminar (HU-07, A7)
  * - `onSelectCarpeta?: (carpeta: CarpetaPost) => void` — Callback para seleccionar (navegación)
+ * - `onManageCarpetaPublicaciones?: (carpeta: CarpetaPost) => void` — Callback para gestionar publicaciones (HU-10, T056)
  *
  * Historias de usuario:
  * - HU-05: Crear carpeta (botón "Nueva carpeta")
  * - HU-06: Renombrar carpeta (botón por carpeta)
  * - HU-07: Eliminar carpeta (botón por carpeta con advertencia A7)
  * - HU-08: Ver lista de carpetas (render base)
+ * - HU-10: Quitar un post de una carpeta (botón "Publicaciones", diálogo para quitar) [T056]
  *
  * Criterios de aceptación:
  * - AC-08.1: Carpetas visibles públicamente (render para ambos)
@@ -60,6 +64,9 @@ import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
  * - AC-06.5: Renombrar solo en carpetas propias
  * - AC-07.6: Eliminar solo en carpetas propias
  * - AC-07.7: Eliminar diferenciado visualmente
+ * - AC-10.1: Quitar NO elimina el post (solo lo desvincula) [T056]
+ * - AC-10.2: Tras quitar, postCount se actualiza [T056]
+ * - AC-10.3: La acción solo está disponible en carpetas propias [T056]
  *
  * Clarificaciones:
  * - A3: Nombres únicos por usuario (validado en backend)
@@ -69,6 +76,7 @@ import ConfirmDeleteCarpetaDialog from './ConfirmDeleteCarpetaDialog'
  * Notas:
  * - Rol-agnóstico: USER y ADMIN ven el mismo componente (Principio VI)
  * - Las acciones de edición se implementan en T025–T027 (modales/dialogs)
+ * - T056: ManageCarpetaPublicacionesDialog para quitar posts (HU-10)
  * - Este componente es presentational; lógica de servicios en T029
  * - Paginación base = soporte para limit/offset; carga manual "cargar más"
  */
@@ -83,6 +91,7 @@ export interface CarpetaListProps {
   onRename?: (carpeta: CarpetaPost) => void
   onDelete?: (carpeta: CarpetaPost) => void
   onSelectCarpeta?: (carpeta: CarpetaPost) => void
+  onManageCarpetaPublicaciones?: (carpeta: CarpetaPost) => void
 }
 
 export const CarpetaList: React.FC<CarpetaListProps> = ({
@@ -95,6 +104,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   onRename,
   onDelete,
   onSelectCarpeta,
+  onManageCarpetaPublicaciones,
 }) => {
   const [cargandoMas, setCargandoMas] = useState(false)
   // T042: Estado para mostrar/ocultar CreateCarpetaDialog
@@ -107,6 +117,9 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   const [carpetaAEliminar, setCarpetaAEliminar] = useState<CarpetaPost | null>(null)
   // T045: Estado para paginación server-side (limit y offset)
   const [offsetActual, setOffsetActual] = useState(0)
+  // T056: Estado para mostrar/ocultar ManageCarpetaPublicacionesDialog
+  const [mostrarDialogoManagePubs, setMostrarDialogoManagePubs] = useState(false)
+  const [carpetaAManagear, setCarpetaAManagear] = useState<CarpetaPost | null>(null)
 
   /**
    * Determinar si el botón "crear" debe estar deshabilitado.
@@ -237,6 +250,34 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
   const handleCancelarEliminar = () => {
     setMostrarDialogoEliminar(false)
     setCarpetaAEliminar(null)
+  }
+
+  /**
+   * T056: Manejo para abrir diálogo de gestión de publicaciones de carpeta.
+   * Abre ManageCarpetaPublicacionesDialog para quitar posts de la carpeta (HU-10).
+   */
+  const handleAbrirManagePubs = (carpeta: CarpetaPost) => {
+    setCarpetaAManagear(carpeta)
+    setMostrarDialogoManagePubs(true)
+  }
+
+  /**
+   * T056: Manejo de cierre de diálogo de gestión de publicaciones.
+   */
+  const handleCerrarManagePubs = () => {
+    setMostrarDialogoManagePubs(false)
+    setCarpetaAManagear(null)
+  }
+
+  /**
+   * T056: Manejo cuando se quita una publicación de la carpeta.
+   * AC-10.2: Actualiza postCount y notifica al padre.
+   */
+  const handlePublicacionQuitada = (carpeta: CarpetaPost, publicacionId: string) => {
+    // Notificar al padre (PerfilPropio) para refrescar postCount
+    if (onManageCarpetaPublicaciones) {
+      onManageCarpetaPublicaciones(carpeta)
+    }
   }
 
   /**
@@ -396,6 +437,36 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                     Eliminar
                   </button>
                 )}
+
+                {/* HU-10: Botón gestionar publicaciones (T056) — Quitar posts sin eliminar (AC-10.1–AC-10.3) */}
+                {carpeta.postCount > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAbrirManagePubs(carpeta)
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '0.4rem 0.5rem',
+                      backgroundColor: '#d1fae5',
+                      color: '#0d9488',
+                      border: '1px solid #6ee7b7',
+                      borderRadius: '4px',
+                      fontSize: '10px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#a7f3d0'
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#d1fae5'
+                    }}
+                  >
+                    Publicaciones ({carpeta.postCount})
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -457,6 +528,17 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
           onCancel={handleCancelarEliminar}
         />
       )}
+
+      {/* T056: Diálogo de gestión de publicaciones de carpeta (integración con ManageCarpetaPublicacionesDialog) */}
+      {mostrarDialogoManagePubs && esPerfilPropio && carpetaAManagear && (
+        <ManageCarpetaPublicacionesDialog
+          carpeta={carpetaAManagear}
+          onQuitar={handlePublicacionQuitada}
+          onCancel={handleCerrarManagePubs}
+          deshabilitado={false}
+        />
+      )}
     </div>
   )
 }
+
