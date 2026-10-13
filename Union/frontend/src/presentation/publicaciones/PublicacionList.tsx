@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Publicacion } from '../../domain/Publicacion'
 import { EditPostForm } from './EditPostForm'
+import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
 
 /**
  * Componente PublicacionList — Módulo 004-inspiraciones-perfil.
@@ -10,7 +11,7 @@ import { EditPostForm } from './EditPostForm'
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054)
  *
  * Renderiza la lista de publicaciones de un perfil (propio o ajeno) con paginación.
  *
@@ -24,6 +25,7 @@ import { EditPostForm } from './EditPostForm'
  * - T050: EditPostForm — Componente de edición
  * - T051: ConfirmDeletePostDialog — Componente de confirmación de eliminación
  * - T053: Integración de EditPostForm en overlay modal
+ * - T054: Integración de ConfirmDeletePostDialog en overlay modal
  *
  * Props:
  * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
@@ -31,11 +33,12 @@ import { EditPostForm } from './EditPostForm'
  * - esPerfilPropio: boolean — Si true, muestra botones de editar/eliminar
  * - usuarioActualId?: string — ID del usuario actual (para verificación esPropia())
  * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2) [T053]
- * - onEliminar?: (publicacionId: string) => void — Callback para eliminar (AC-12.2) [T054]
+ * - onEliminar?: (publicacion: Publicacion) => void — Callback para eliminar (AC-12.2) [T054]
  * - onCargarMas?: () => void — Callback para cargar siguiente página (A6)
  * - cargando?: boolean — Indica si se está cargando la página actual
  * - cargandoMas?: boolean — Indica si se está cargando la siguiente página
  * - onEditarExitosamente?: (publicacion: Publicacion) => void — Callback tras edición exitosa [T053]
+ * - onEliminarExitosamente?: (publicacionId: string) => void — Callback tras eliminación exitosa [T054]
  */
 
 interface PublicacionListProps {
@@ -55,6 +58,7 @@ interface PublicacionListProps {
   cargando?: boolean
   cargandoMas?: boolean
   onEditarExitosamente?: (publicacion: Publicacion) => void
+  onEliminarExitosamente?: (publicacionId: string) => void
 }
 
 /**
@@ -72,9 +76,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   cargando = false,
   cargandoMas = false,
   onEditarExitosamente,
+  onEliminarExitosamente,
 }) => {
   const [cargandoAccion, setCargandoAccion] = useState<string | null>(null)
   const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<Publicacion | null>(null)
+  const [publicacionEnEliminacion, setPublicacionEnEliminacion] = useState<Publicacion | null>(null)
 
   /**
    * Manejador para editar publicación.
@@ -126,19 +132,42 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
 
   /**
    * Manejador para eliminar publicación.
-   * HU-12: Muestra confirmación, luego elimina (AC-12.2, AC-12.3).
+   * HU-12: Abre diálogo de confirmación (AC-12.2, AC-12.3).
+   * T054: Integra ConfirmDeletePostDialog en la lista.
    */
-  const handleEliminar = (publicacionId: string) => {
+  const handleEliminar = (publicacion: Publicacion) => {
     if (onEliminar) {
-      // Simulación: En un caso real, aquí aparecería un modal de confirmación
-      // que advierte sobre la pérdida permanente (AC-12.2)
-      if (confirm('¿Eliminar esta publicación? Esta acción no puede deshacerse.')) {
-        setCargandoAccion(publicacionId)
-        setTimeout(() => {
-          onEliminar(publicacionId)
-          setCargandoAccion(null)
-        }, 300)
-      }
+      setCargandoAccion(publicacion.id)
+      // Simular delay de carga; en implementación real, el servicio maneja esto
+      setTimeout(() => {
+        setPublicacionEnEliminacion(publicacion)
+        setCargandoAccion(null)
+      }, 300)
+    }
+  }
+
+  /**
+   * Manejador para cierre de diálogo de eliminación.
+   * Limpia el estado sin eliminar.
+   */
+  const handleCancelarEliminacion = () => {
+    setPublicacionEnEliminacion(null)
+  }
+
+  /**
+   * Manejador para éxito en eliminación.
+   * AC-12.3: La publicación desaparece del perfil tras eliminación exitosa.
+   * T054: Actualiza la lista tras eliminación.
+   */
+  const handleEliminacionExitosa = () => {
+    const publicacionId = publicacionEnEliminacion?.id
+    
+    // Cerrar diálogo de eliminación
+    setPublicacionEnEliminacion(null)
+
+    // Invocar callback opcional del padre si existe
+    if (publicacionId && onEliminarExitosamente) {
+      onEliminarExitosamente(publicacionId)
     }
   }
 
@@ -170,6 +199,22 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
             publicacion={publicacionEnEdicion}
             onSuccess={handleEdicionExitosa}
             onCancel={handleCancelarEdicion}
+            deshabilitado={false}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // T054: Mostrar diálogo de confirmación de eliminación si hay publicación en eliminación
+  if (publicacionEnEliminacion) {
+    return (
+      <div style={styles.eliminacionOverlay}>
+        <div style={styles.eliminacionContainer}>
+          <ConfirmDeletePostDialog
+            publicacion={publicacionEnEliminacion}
+            onSuccess={handleEliminacionExitosa}
+            onCancel={handleCancelarEliminacion}
             deshabilitado={false}
           />
         </div>
@@ -329,7 +374,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
 
                 {/* Botón Eliminar — HU-12.1–HU-12.4, AC-12.4 (visual diferenciada en rojo) */}
                 <button
-                  onClick={() => handleEliminar(pub.id)}
+                  onClick={() => handleEliminar(pub)}
                   disabled={cargandoAccion === pub.id}
                   style={{
                     padding: '0.5rem 0.75rem',
@@ -386,7 +431,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
 }
 
 /**
- * Estilos para PublicacionList (T053).
+ * Estilos para PublicacionList (T053, T054).
  */
 const styles: Record<string, React.CSSProperties> = {
   edicionOverlay: {
@@ -403,6 +448,28 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '1rem',
   },
   edicionContainer: {
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    maxWidth: '600px',
+    width: '100%',
+  },
+  eliminacionOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: '1rem',
+  },
+  eliminacionContainer: {
     backgroundColor: 'white',
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
