@@ -4,7 +4,7 @@
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/spec.md (RF-16 a RF-20, RF-37 a RF-39, CB-07, AC-08.3, AC-08.4)
  * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md
- *   (`GET /usuarios/{id}`, `PATCH /perfil`, `POST/DELETE /usuarios/{id}/seguir`)
+ *   (`GET /usuarios/{id}`, `PATCH /perfil`, `PUT/DELETE /usuarios/{id}/seguimiento`)
  * - Union/specs/001-plataforma-unificada/plan.md (sección 3.2, 3.4)
  * - Union/specs/001-plataforma-unificada/tasks.md (T074, depende de T062)
  *
@@ -12,7 +12,7 @@
  * - Actualización optimista del contador de seguidores y del estado `siguiendoAlUsuarioActual` (AC-08.3).
  * - Reversión inmediata al estado previo si la solicitud a la API falla (CB-07, AC-08.4).
  * - Modificación de perfil excluyendo contraseña (RF-16) y enviando FormData si incluye foto.
- * - Invocaciones a `POST /usuarios/{id}/seguir` y `DELETE /usuarios/{id}/seguir`.
+ * - Invocaciones a `PUT/DELETE /usuarios/{id}/seguimiento` con respuesta `204`.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -36,6 +36,7 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
       get: vi.fn(),
       patch: vi.fn(),
       post: vi.fn(),
+      put: vi.fn(),
       delete: vi.fn(),
     },
   }
@@ -142,41 +143,32 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
     })
   })
 
-  describe('seguirUsuario & dejarDeSeguir (POST/DELETE /usuarios/{id}/seguir, RF-38, RF-39)', () => {
-    it('invoca POST /usuarios/{id}/seguir al seguir a un usuario', async () => {
-      vi.mocked(httpClient.post).mockResolvedValueOnce({
-        siguiendo: true,
-        cantidadSeguidores: 6,
-      })
+  describe('seguirUsuario & dejarDeSeguir (PUT/DELETE /usuarios/{id}/seguimiento)', () => {
+    it('invoca PUT /usuarios/{id}/seguimiento al seguir a un usuario', async () => {
+      vi.mocked(httpClient.put).mockResolvedValueOnce(undefined)
 
-      const respuesta = await seguirUsuario('usr-target-1')
+      await seguirUsuario('usr-target-1')
 
-      expect(httpClient.post).toHaveBeenCalledWith('/usuarios/usr-target-1/seguir', undefined, undefined)
-      expect(respuesta.siguiendo).toBe(true)
-      expect(respuesta.cantidadSeguidores).toBe(6)
+      expect(httpClient.put).toHaveBeenCalledWith(
+        '/usuarios/usr-target-1/seguimiento',
+        undefined,
+        undefined,
+      )
     })
 
-    it('invoca DELETE /usuarios/{id}/seguir al dejar de seguir a un usuario', async () => {
-      vi.mocked(httpClient.delete).mockResolvedValueOnce({
-        siguiendo: false,
-        cantidadSeguidores: 4,
-      })
+    it('invoca DELETE /usuarios/{id}/seguimiento al dejar de seguir a un usuario', async () => {
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
 
-      const respuesta = await dejarDeSeguir('usr-target-1')
+      await dejarDeSeguir('usr-target-1')
 
-      expect(httpClient.delete).toHaveBeenCalledWith('/usuarios/usr-target-1/seguir', undefined)
-      expect(respuesta.siguiendo).toBe(false)
-      expect(respuesta.cantidadSeguidores).toBe(4)
+      expect(httpClient.delete).toHaveBeenCalledWith('/usuarios/usr-target-1/seguimiento', undefined)
     })
   })
 
   describe('useSeguirUsuario & Actualización Optimista + Revert (CB-07, AC-08.3, AC-08.4)', () => {
-    it('actualiza optimistamente al seguir y confirma con la respuesta de la API (AC-08.3)', async () => {
+    it('actualiza optimistamente al seguir y confirma la respuesta 204 (AC-08.3)', async () => {
       const usuarioInicial = crearUsuarioPrueba(false, 10)
-      vi.mocked(httpClient.post).mockResolvedValueOnce({
-        siguiendo: true,
-        cantidadSeguidores: 11,
-      })
+      vi.mocked(httpClient.put).mockResolvedValueOnce(undefined)
 
       const { result } = renderHook(() => useSeguirUsuario(usuarioInicial))
 
@@ -187,8 +179,8 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
         await result.current.alternarSeguir()
       })
 
-      expect(httpClient.post).toHaveBeenCalledWith(
-        '/usuarios/usr-target-1/seguir',
+      expect(httpClient.put).toHaveBeenCalledWith(
+        '/usuarios/usr-target-1/seguimiento',
         undefined,
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
@@ -199,10 +191,7 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
 
     it('actualiza optimistamente al dejar de seguir y confirma con la respuesta de la API', async () => {
       const usuarioInicial = crearUsuarioPrueba(true, 10)
-      vi.mocked(httpClient.delete).mockResolvedValueOnce({
-        siguiendo: false,
-        cantidadSeguidores: 9,
-      })
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
 
       const { result } = renderHook(() => useSeguirUsuario(usuarioInicial))
 
@@ -213,7 +202,7 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
       })
 
       expect(httpClient.delete).toHaveBeenCalledWith(
-        '/usuarios/usr-target-1/seguir',
+        '/usuarios/usr-target-1/seguimiento',
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
       expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(false)
@@ -223,7 +212,7 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
 
     it('CB-07 / AC-08.4: revierte el estado optimistamente aplicado al fallar la solicitud HTTP', async () => {
       const usuarioInicial = crearUsuarioPrueba(false, 10)
-      vi.mocked(httpClient.post).mockRejectedValueOnce({
+      vi.mocked(httpClient.put).mockRejectedValueOnce({
         message: 'Error de red al intentar seguir al usuario',
       })
 

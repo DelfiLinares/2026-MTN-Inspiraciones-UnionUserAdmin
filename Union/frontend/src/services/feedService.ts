@@ -3,17 +3,18 @@
  *
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/spec.md (RF-43, RNF-05, CB-05)
- * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md (`GET /publicaciones/feed`)
+ * - Contrato de publicaciones: `GET /api/feed/recomendaciones`
  * - Union/specs/001-plataforma-unificada/plan.md (sección 3.2, 3.4, Principio X)
  * - Union/specs/001-plataforma-unificada/tasks.md (T056)
  *
  * Responsabilidades:
- * - Obtiene el feed paginado (`GET /publicaciones/feed`), compatible con `useInfiniteList` (T054).
+ * - Obtiene recomendaciones con cursor opaco, compatible con `useInfiniteList`.
  * - Mapea los resultados a entidades `Publicacion` de dominio.
- * - Soporta paginación por página numérica (`page`, `pageSize`) y cursor opaco.
+ * - Envía un límite de 1 a 20 resultados (por defecto 3).
  */
 
 import { httpClient, HttpRequestOptions } from '../infrastructure/httpClient'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { Publicacion } from '../domain/Publicacion'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 import { TipoContenido } from '../domain/enums/TipoContenido'
@@ -42,9 +43,18 @@ export interface FeedResponseDto {
 }
 
 export interface OpcionesFeed {
-  page?: number
-  pageSize?: number
   cursor?: string | null
+  limite?: number
+}
+
+export interface PreferenciasFeedDto {
+  categorias: string[]
+  hashtags: string[]
+}
+
+export interface ConsentimientoFeedRequest {
+  aceptoUsoParaEntrenamiento: boolean
+  policyVersion: string
 }
 
 function mapearPublicacion(dto: PublicacionFeedDto): Publicacion {
@@ -60,27 +70,28 @@ function mapearPublicacion(dto: PublicacionFeedDto): Publicacion {
   })
 }
 
+function validarLimite(limite?: number): number {
+  const valor = limite ?? 3
+  if (!Number.isInteger(valor) || valor < 1 || valor > 20) {
+    throw new RangeError('El límite del feed debe ser un entero entre 1 y 20.')
+  }
+  return valor
+}
+
 /**
- * Obtiene una página del feed (`GET /publicaciones/feed`), compatible con `useInfiniteList` (T054).
- * Acepta un cursor (o número de página convertido a string) y opciones HTTP opcionales.
+ * Obtiene un lote de recomendaciones (`GET /feed/recomendaciones`), compatible con `useInfiniteList`.
  */
 export async function obtenerPagina(
   cursor: string | null,
   opciones?: HttpRequestOptions
 ): Promise<PaginaResultado<Publicacion>> {
-  const queryParams: Record<string, string | number | undefined> = {}
-
+  const queryParams: Record<string, string | number | undefined> = { limite: 3 }
   if (cursor) {
-    const posibleNumero = Number(cursor)
-    if (!Number.isNaN(posibleNumero) && Number.isInteger(posibleNumero) && posibleNumero > 0) {
-      queryParams.page = posibleNumero
-    } else {
-      queryParams.cursor = cursor
-    }
+    queryParams.cursor = cursor
   }
 
   const respuesta = await httpClient.get<FeedResponseDto>(
-    '/publicaciones/feed',
+    apiEndpoints.feedRecomendaciones(),
     {
       ...opciones,
       params: {
@@ -93,12 +104,7 @@ export async function obtenerPagina(
   const itemsRaw = Array.isArray(respuesta?.items) ? respuesta.items : []
   const items = itemsRaw.map(mapearPublicacion)
   const nextPage = respuesta?.nextPage ?? null
-  const siguienteCursor =
-    respuesta?.nextCursor !== undefined
-      ? respuesta.nextCursor
-      : nextPage !== null
-      ? String(nextPage)
-      : null
+  const siguienteCursor = respuesta?.nextCursor ?? null
 
   return {
     items,
@@ -109,26 +115,21 @@ export async function obtenerPagina(
 }
 
 /**
- * Sobrecarga orientada a consulta con parámetros directos de paginación (`page`, `pageSize`).
+ * Consulta recomendaciones con cursor opaco y límite configurable de 1 a 20 resultados.
  */
 export async function obtenerFeed(
   opciones?: OpcionesFeed,
   requestOptions?: HttpRequestOptions
 ): Promise<PaginaResultado<Publicacion>> {
-  const queryParams: Record<string, string | number | undefined> = {}
-
-  if (opciones?.page !== undefined) {
-    queryParams.page = opciones.page
-  }
-  if (opciones?.pageSize !== undefined) {
-    queryParams.pageSize = opciones.pageSize
+  const queryParams: Record<string, string | number | undefined> = {
+    limite: validarLimite(opciones?.limite),
   }
   if (opciones?.cursor) {
     queryParams.cursor = opciones.cursor
   }
 
   const respuesta = await httpClient.get<FeedResponseDto>(
-    '/publicaciones/feed',
+    apiEndpoints.feedRecomendaciones(),
     {
       ...requestOptions,
       params: {
@@ -141,12 +142,7 @@ export async function obtenerFeed(
   const itemsRaw = Array.isArray(respuesta?.items) ? respuesta.items : []
   const items = itemsRaw.map(mapearPublicacion)
   const nextPage = respuesta?.nextPage ?? null
-  const siguienteCursor =
-    respuesta?.nextCursor !== undefined
-      ? respuesta.nextCursor
-      : nextPage !== null
-      ? String(nextPage)
-      : null
+  const siguienteCursor = respuesta?.nextCursor ?? null
 
   return {
     items,
@@ -156,7 +152,31 @@ export async function obtenerFeed(
   }
 }
 
+export async function obtenerPreferenciasFeed(): Promise<PreferenciasFeedDto> {
+  return httpClient.get<PreferenciasFeedDto>(apiEndpoints.preferenciasFeed())
+}
+
+export async function reemplazarPreferenciasFeed(
+  preferencias: PreferenciasFeedDto,
+): Promise<PreferenciasFeedDto> {
+  return httpClient.put<PreferenciasFeedDto>(apiEndpoints.preferenciasFeed(), preferencias)
+}
+
+export async function registrarConsentimientoFeed(
+  consentimiento: ConsentimientoFeedRequest,
+): Promise<void> {
+  await httpClient.put<void>(apiEndpoints.consentimientoFeedPiloto(), consentimiento)
+}
+
+export async function retirarConsentimientoFeed(): Promise<void> {
+  await httpClient.delete<void>(apiEndpoints.consentimientoFeedPiloto())
+}
+
 export const feedService = {
   obtenerPagina,
   obtenerFeed,
+  obtenerPreferenciasFeed,
+  reemplazarPreferenciasFeed,
+  registrarConsentimientoFeed,
+  retirarConsentimientoFeed,
 }

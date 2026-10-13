@@ -14,6 +14,7 @@
  */
 
 import { httpClient, HttpRequestOptions } from '../infrastructure/httpClient'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { Publicacion } from '../domain/Publicacion'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 import { TipoContenido } from '../domain/enums/TipoContenido'
@@ -124,7 +125,7 @@ export async function buscarPublicaciones(
   }
 
   const respuesta = await httpClient.get<BusquedaPublicacionesRespuestaDto>(
-    '/publicaciones',
+    apiEndpoints.publicaciones(),
     {
       ...requestOptions,
       params: {

@@ -4,8 +4,18 @@ import {
   reportarPublicacion,
   consultarEstadoReporteMio,
   crearPublicacion,
+  obtenerCategoriasPublicacion,
+  actualizarPublicacion,
+  eliminarPublicacion,
+  listarComentarios,
+  crearComentario,
+  eliminarComentario,
+  invitarCoautor,
+  obtenerInvitacionesCoautoria,
+  responderInvitacionCoautoria,
 } from '../../src/services/publicacionService'
 import { httpClient, ApiError } from '../../src/infrastructure/httpClient'
+import { tokenStorage } from '../../src/infrastructure/tokenStorage'
 import { Publicacion } from '../../src/domain/Publicacion'
 import { TipoContenido } from '../../src/domain/enums/TipoContenido'
 import { EstadoPublicacion } from '../../src/domain/enums/EstadoPublicacion'
@@ -17,6 +27,7 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
     httpClient: {
       post: vi.fn(),
       put: vi.fn(),
+      patch: vi.fn(),
       get: vi.fn(),
       delete: vi.fn(),
     },
@@ -47,16 +58,16 @@ describe('publicacionService (T070)', () => {
   })
 
   describe('alternarLike & Reversión (AC-01.3, CB-02)', () => {
-    it('incrementa optimistamente los likes y llama a PUT /publicaciones/{id}/like', async () => {
-      vi.mocked(httpClient.put).mockResolvedValueOnce({
+    it('incrementa optimistamente los likes y llama a POST /publicaciones/{id}/reacciones', async () => {
+      vi.mocked(httpClient.post).mockResolvedValueOnce({
         cantidadLikes: 11,
         likeadaPorMi: true,
       })
 
       const res = await alternarLike(publicacionBase, usuarioActualId, true)
 
-      expect(httpClient.put).toHaveBeenCalledWith(
-        '/publicaciones/pub-100/like',
+      expect(httpClient.post).toHaveBeenCalledWith(
+        '/publicaciones/pub-100/reacciones',
         undefined,
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
@@ -64,22 +75,23 @@ describe('publicacionService (T070)', () => {
       expect(res.likeDelUsuarioActual).toBe(true)
     })
 
-    it('decrementa optimistamente los likes cuando ya le dio like y llama a DELETE /publicaciones/{id}/like', async () => {
+    it('decrementa optimistamente los likes al alternar la reacción existente', async () => {
       const publicacionConLike = new Publicacion({
         ...publicacionBase,
         cantidadLikes: 11,
         likeDelUsuarioActual: true,
       })
 
-      vi.mocked(httpClient.delete).mockResolvedValueOnce({
+      vi.mocked(httpClient.post).mockResolvedValueOnce({
         cantidadLikes: 10,
         likeDelUsuarioActual: false,
       })
 
       const res = await alternarLike(publicacionConLike, usuarioActualId, true)
 
-      expect(httpClient.delete).toHaveBeenCalledWith(
-        '/publicaciones/pub-100/like',
+      expect(httpClient.post).toHaveBeenCalledWith(
+        '/publicaciones/pub-100/reacciones',
+        undefined,
         expect.objectContaining({ signal: expect.any(AbortSignal) })
       )
       expect(res.cantidadLikes).toBe(10)
@@ -95,19 +107,19 @@ describe('publicacionService (T070)', () => {
       await expect(alternarLike(publicacionPropia, usuarioActualId, true)).rejects.toThrow(
         'No se puede dar like a una publicación propia o con sesión no autorizada.'
       )
-      expect(httpClient.put).not.toHaveBeenCalled()
+      expect(httpClient.post).not.toHaveBeenCalled()
     })
 
     it('restringe dar like a un usuario no autenticado', async () => {
       await expect(alternarLike(publicacionBase, usuarioActualId, false)).rejects.toThrow(
         'No se puede dar like a una publicación propia o con sesión no autorizada.'
       )
-      expect(httpClient.put).not.toHaveBeenCalled()
+      expect(httpClient.post).not.toHaveBeenCalled()
     })
 
     it('reverte la acción lanzando error cuando la API responde con fallo (AC-01.3)', async () => {
       const apiError = new ApiError('Error de servidor', 500, {})
-      vi.mocked(httpClient.put).mockRejectedValueOnce(apiError)
+      vi.mocked(httpClient.post).mockRejectedValueOnce(apiError)
 
       await expect(alternarLike(publicacionBase, usuarioActualId, true)).rejects.toThrow(apiError)
     })
@@ -120,11 +132,11 @@ describe('publicacionService (T070)', () => {
 
       let signalPeticion1: AbortSignal | undefined
 
-      vi.mocked(httpClient.put).mockImplementationOnce((_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
+      vi.mocked(httpClient.post).mockImplementationOnce((_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
         signalPeticion1 = options?.signal
         return promesaLenta as Promise<unknown>
       })
-      vi.mocked(httpClient.delete).mockResolvedValueOnce({
+      vi.mocked(httpClient.post).mockResolvedValueOnce({
         cantidadLikes: 10,
         likeDelUsuarioActual: false,
       })
@@ -177,7 +189,7 @@ describe('publicacionService (T070)', () => {
         let signalClic2: AbortSignal | undefined
 
         // Clic 1 (like): la petición nunca resuelve por sí sola, solo se cancela vía AbortSignal
-        vi.mocked(httpClient.put).mockImplementationOnce(
+        vi.mocked(httpClient.post).mockImplementationOnce(
           (_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
             signalClic1 = options?.signal
             return new Promise(() => {
@@ -187,8 +199,8 @@ describe('publicacionService (T070)', () => {
         )
 
         // Clic 2 (unlike): responde de inmediato con el estado final consistente
-        vi.mocked(httpClient.delete).mockImplementationOnce(
-          (_url: string, options?: { signal?: AbortSignal }) => {
+        vi.mocked(httpClient.post).mockImplementationOnce(
+          (_url: string, _body: unknown, options?: { signal?: AbortSignal }) => {
             signalClic2 = options?.signal
             return Promise.resolve({
               cantidadLikes: publicacionBase.cantidadLikes,
@@ -206,8 +218,9 @@ describe('publicacionService (T070)', () => {
 
         // La primera petición (like) debe haber sido cancelada por el segundo clic (CB-02)
         expect(signalClic1?.aborted).toBe(true)
-        expect(httpClient.delete).toHaveBeenCalledWith(
-          '/publicaciones/pub-100/like',
+        expect(httpClient.post).toHaveBeenCalledWith(
+          '/publicaciones/pub-100/reacciones',
+          undefined,
           expect.objectContaining({ signal: signalClic2 })
         )
 
@@ -264,6 +277,65 @@ describe('publicacionService (T070)', () => {
     })
   })
 
+  describe('rutas de publicación, comentarios y coautoría', () => {
+    it('consulta las categorías públicas', async () => {
+      const categorias = [{ codigo: 'ARTE', grupo: 'VISUAL', etiqueta: 'Arte' }]
+      vi.mocked(httpClient.get).mockResolvedValueOnce(categorias)
+
+      await expect(obtenerCategoriasPublicacion()).resolves.toEqual(categorias)
+
+      expect(httpClient.get).toHaveBeenCalledWith('/publicaciones/categorias')
+    })
+
+    it('reemplaza y elimina una publicación usando su recurso', async () => {
+      const solicitud = { titulo: 'Título actualizado' }
+      vi.mocked(httpClient.put).mockResolvedValueOnce({ id: 'pub-100' })
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
+
+      await actualizarPublicacion('pub-100', solicitud)
+      await eliminarPublicacion('pub-100')
+
+      expect(httpClient.put).toHaveBeenCalledWith('/publicaciones/pub-100', solicitud)
+      expect(httpClient.delete).toHaveBeenCalledWith('/publicaciones/pub-100')
+    })
+
+    it('lista, crea y elimina comentarios en las rutas anidadas', async () => {
+      const solicitud = { contenido: 'Buen trabajo' }
+      vi.mocked(httpClient.get).mockResolvedValueOnce([])
+      vi.mocked(httpClient.post).mockResolvedValueOnce({ id: 'comment-1' })
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
+
+      await listarComentarios('pub-100')
+      await crearComentario('pub-100', solicitud)
+      await eliminarComentario('pub-100', 'comment-1')
+
+      expect(httpClient.get).toHaveBeenCalledWith('/publicaciones/pub-100/comentarios')
+      expect(httpClient.post).toHaveBeenCalledWith('/publicaciones/pub-100/comentarios', solicitud)
+      expect(httpClient.delete).toHaveBeenCalledWith(
+        '/publicaciones/pub-100/comentarios/comment-1',
+      )
+    })
+
+    it('crea coautorías y permite consultar y responder invitaciones', async () => {
+      const solicitud = { usuarioId: 'usr-2' }
+      const respuesta = { decision: 'ACEPTAR' }
+      vi.mocked(httpClient.post).mockResolvedValueOnce({ id: 'inv-1' })
+      vi.mocked(httpClient.get).mockResolvedValueOnce([])
+      vi.mocked(httpClient.patch).mockResolvedValueOnce({ id: 'inv-1' })
+
+      await invitarCoautor('pub-100', solicitud)
+      await obtenerInvitacionesCoautoria()
+      await responderInvitacionCoautoria('inv-1', respuesta)
+
+      expect(httpClient.post).toHaveBeenCalledWith('/publicaciones/pub-100/coautores', solicitud)
+      expect(httpClient.get).toHaveBeenCalledWith('/usuarios/me/invitaciones-coautoria')
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        '/usuarios/me/invitaciones-coautoria/inv-1',
+        respuesta,
+      )
+    })
+  })
+
   describe('crearPublicacion (CB-01)', () => {
     it('exige adjuntar un archivo para crear la publicación', async () => {
       await expect(
@@ -302,6 +374,7 @@ describe('publicacionService (T070)', () => {
         status = 0
         responseText = ''
         open = vi.fn()
+        setRequestHeader = vi.fn()
         send = vi.fn()
         withCredentials = false
 
@@ -324,6 +397,7 @@ describe('publicacionService (T070)', () => {
       globalConXHR.XMLHttpRequest = XHRSimulado as unknown as typeof XMLHttpRequest
 
       try {
+        vi.spyOn(tokenStorage, 'getToken').mockReturnValue('token-prueba')
         const archivoOriginal = new Blob(['contenido-imagen'], { type: 'image/png' })
         const datosOriginales = {
           archivo: archivoOriginal,
@@ -340,6 +414,7 @@ describe('publicacionService (T070)', () => {
         // 1er intento: falla por error de red
         const primerIntento = crearPublicacion(datosOriginales, onProgreso)
         const xhr1 = XHRSimulado.instancias[0]
+        expect(xhr1.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer token-prueba')
         xhr1.disparar('error')
 
         await expect(primerIntento).rejects.toThrow(

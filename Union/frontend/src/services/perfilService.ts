@@ -3,7 +3,7 @@
  *
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/spec.md (RF-16 a RF-20, RF-37 a RF-39, CB-07, CB-08)
- * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md (`PATCH /perfil`, `GET /usuarios/{id}`, `POST/DELETE /usuarios/{id}/seguir`)
+ * - Contrato de publicaciones: `PUT/DELETE /usuarios/{usuarioId}/seguimiento`
  * - Union/specs/001-plataforma-unificada/plan.md (sección 3.2, 3.4)
  * - Union/specs/001-plataforma-unificada/tasks.md (T057, T062)
  *
@@ -12,8 +12,8 @@
  * - `actualizarPerfil(datos)`: Actualiza el perfil vía `PATCH /perfil`.
  *   Si incluye `foto`, envía `multipart/form-data`; de lo contrario, envía JSON.
  *   NO incluye contraseña (RF-16).
- * - `seguirUsuario(id)`: Llama a `POST /usuarios/{id}/seguir` (RF-39).
- * - `dejarDeSeguir(id)`: Llama a `DELETE /usuarios/{id}/seguir` (RF-38, RF-39).
+ * - `seguirUsuario(id)`: Llama a `PUT /usuarios/{usuarioId}/seguimiento`.
+ * - `dejarDeSeguir(id)`: Llama a `DELETE /usuarios/{usuarioId}/seguimiento`.
  * - `useSeguirUsuario(usuarioInicial)`: Hook para manejo reactivo con actualización optimista
  *   mediante `Usuario.toggleSeguir()` y reversión ante error de la API (CB-07).
  * - Mapeo consistente a la entidad de dominio `Usuario`.
@@ -21,6 +21,7 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { httpClient, HttpRequestOptions } from '../infrastructure/httpClient'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { Usuario } from '../domain/Usuario'
 import { RolUsuario } from '../domain/enums/RolUsuario'
 
@@ -103,11 +104,6 @@ export async function actualizarPerfil(
   return mapearUsuario(dto)
 }
 
-export interface SeguirRespuestaDto {
-  cantidadSeguidores: number
-  siguiendo: boolean
-}
-
 export interface UseSeguirUsuarioResult {
   /** Usuario con el estado de seguimiento más reciente (optimista o confirmado). */
   usuario: Usuario
@@ -120,28 +116,28 @@ export interface UseSeguirUsuarioResult {
 }
 
 /**
- * Sigue a un usuario (`POST /usuarios/{id}/seguir`, RF-39).
+ * Sigue a un usuario (`PUT /usuarios/{id}/seguimiento`).
  */
 export async function seguirUsuario(
   usuarioId: string,
   options?: HttpRequestOptions
-): Promise<SeguirRespuestaDto> {
-  return httpClient.post<SeguirRespuestaDto>(
-    `/usuarios/${encodeURIComponent(usuarioId)}/seguir`,
+): Promise<void> {
+  return httpClient.put<void>(
+    apiEndpoints.seguimientoUsuario(usuarioId),
     undefined,
     options
   )
 }
 
 /**
- * Deja de seguir a un usuario (`DELETE /usuarios/{id}/seguir`, RF-38, RF-39).
+ * Deja de seguir a un usuario (`DELETE /usuarios/{id}/seguimiento`).
  */
 export async function dejarDeSeguir(
   usuarioId: string,
   options?: HttpRequestOptions
-): Promise<SeguirRespuestaDto> {
-  return httpClient.delete<SeguirRespuestaDto>(
-    `/usuarios/${encodeURIComponent(usuarioId)}/seguir`,
+): Promise<void> {
+  return httpClient.delete<void>(
+    apiEndpoints.seguimientoUsuario(usuarioId),
     options
   )
 }
@@ -172,11 +168,13 @@ export function useSeguirUsuario(usuarioInicial: Usuario): UseSeguirUsuarioResul
     setError(null)
 
     try {
-      const respuesta = yaSiguiendo
-        ? await dejarDeSeguir(anterior.id, { signal: controller.signal })
-        : await seguirUsuario(anterior.id, { signal: controller.signal })
+      if (yaSiguiendo) {
+        await dejarDeSeguir(anterior.id, { signal: controller.signal })
+      } else {
+        await seguirUsuario(anterior.id, { signal: controller.signal })
+      }
 
-      // Sincroniza con los datos confirmados por la API
+      // El contrato responde 204; se confirma el estado optimista sin cuerpo de respuesta.
       setUsuario(
         new Usuario({
           id: anterior.id,
@@ -185,8 +183,10 @@ export function useSeguirUsuario(usuarioInicial: Usuario): UseSeguirUsuarioResul
           bio: anterior.bio,
           fotoUrl: anterior.fotoUrl,
           rol: anterior.rol,
-          siguiendoAlUsuarioActual: respuesta.siguiendo ?? !yaSiguiendo,
-          cantidadSeguidores: respuesta.cantidadSeguidores ?? (yaSiguiendo ? Math.max(0, anterior.cantidadSeguidores - 1) : anterior.cantidadSeguidores + 1),
+          siguiendoAlUsuarioActual: !yaSiguiendo,
+          cantidadSeguidores: yaSiguiendo
+            ? Math.max(0, anterior.cantidadSeguidores - 1)
+            : anterior.cantidadSeguidores + 1,
         })
       )
     } catch (err: unknown) {
