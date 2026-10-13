@@ -2,16 +2,17 @@ import React, { useState } from 'react'
 import { Publicacion } from '../../domain/Publicacion'
 import { EditPostForm } from './EditPostForm'
 import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
+import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
 
 /**
  * Componente PublicacionList — Módulo 004-inspiraciones-perfil.
  *
  * Fuente de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, HU-12, HU-13)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-11, HU-12, HU-13)
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
  * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055)
  *
  * Renderiza la lista de publicaciones de un perfil (propio o ajeno) con paginación.
  *
@@ -19,19 +20,22 @@ import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
  * - HU-13.1–HU-13.3: Visualizar todas las publicaciones del usuario en modo consulta (perfil ajeno)
  * - HU-11.1–HU-11.4: Editar publicación propia (solo en perfil propio, con confirmación) [T053]
  * - HU-12.1–HU-12.4: Eliminar publicación propia (solo en perfil propio, con confirmación, visual diferenciada) [T054]
+ * - HU-09.1–HU-09.5: Guardar publicación en carpeta con idempotencia (A8) [T055]
  * - A6 (paginación server-side): Botón "Cargar más" cuando hasMore = true
  *
  * Integraciones:
  * - T050: EditPostForm — Componente de edición
  * - T051: ConfirmDeletePostDialog — Componente de confirmación de eliminación
+ * - T052: SavePostToCarpetaDialog — Componente de guardado en carpeta
  * - T053: Integración de EditPostForm en overlay modal
  * - T054: Integración de ConfirmDeletePostDialog en overlay modal
+ * - T055: Integración de SavePostToCarpetaDialog en overlay modal
  *
  * Props:
  * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
  * - paginacion?: { items, total, limit, offset, hasMore } — Metadatos de paginación (A6)
  * - esPerfilPropio: boolean — Si true, muestra botones de editar/eliminar
- * - usuarioActualId?: string — ID del usuario actual (para verificación esPropia())
+ * - usuarioActualId?: string — ID del usuario actual (para verificación esPropia() y guardar en carpeta)
  * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2) [T053]
  * - onEliminar?: (publicacion: Publicacion) => void — Callback para eliminar (AC-12.2) [T054]
  * - onCargarMas?: () => void — Callback para cargar siguiente página (A6)
@@ -39,6 +43,7 @@ import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
  * - cargandoMas?: boolean — Indica si se está cargando la siguiente página
  * - onEditarExitosamente?: (publicacion: Publicacion) => void — Callback tras edición exitosa [T053]
  * - onEliminarExitosamente?: (publicacionId: string) => void — Callback tras eliminación exitosa [T054]
+ * - onGuardarEnCarpeta?: (publicacion: Publicacion) => void — Callback para guardar en carpeta (AC-09.1–AC-09.5, A8) [T055]
  */
 
 interface PublicacionListProps {
@@ -59,6 +64,7 @@ interface PublicacionListProps {
   cargandoMas?: boolean
   onEditarExitosamente?: (publicacion: Publicacion) => void
   onEliminarExitosamente?: (publicacionId: string) => void
+  onGuardarEnCarpeta?: (publicacion: Publicacion) => void
 }
 
 /**
@@ -77,10 +83,12 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   cargandoMas = false,
   onEditarExitosamente,
   onEliminarExitosamente,
+  onGuardarEnCarpeta,
 }) => {
   const [cargandoAccion, setCargandoAccion] = useState<string | null>(null)
   const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<Publicacion | null>(null)
   const [publicacionEnEliminacion, setPublicacionEnEliminacion] = useState<Publicacion | null>(null)
+  const [publicacionEnGuardado, setPublicacionEnGuardado] = useState<Publicacion | null>(null)
 
   /**
    * Manejador para editar publicación.
@@ -172,6 +180,47 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
   }
 
   /**
+   * Manejador para guardar publicación en carpeta.
+   * HU-09: Abre diálogo para seleccionar/crear carpeta (AC-09.1, AC-09.2).
+   * T055: Integra SavePostToCarpetaDialog en la lista.
+   */
+  const handleGuardar = (publicacion: Publicacion) => {
+    if (onGuardarEnCarpeta) {
+      setCargandoAccion(publicacion.id)
+      // Simular delay de carga; en implementación real, el servicio maneja esto
+      setTimeout(() => {
+        setPublicacionEnGuardado(publicacion)
+        setCargandoAccion(null)
+      }, 300)
+    }
+  }
+
+  /**
+   * Manejador para cierre de diálogo de guardado.
+   * Limpia el estado sin guardar.
+   */
+  const handleCancelarGuardado = () => {
+    setPublicacionEnGuardado(null)
+  }
+
+  /**
+   * Manejador para éxito en guardado.
+   * AC-09.4: Tras guardar, la interfaz refleja que el post quedó guardado.
+   * A8: Diferenciar entre 201 (nuevo) y 200 (idempotente).
+   * T055: Actualiza la UI tras guardado.
+   */
+  const handleGuardadoExitoso = (resultado: any) => {
+    // Cerrar diálogo de guardado
+    setPublicacionEnGuardado(null)
+
+    // Invocar callback opcional del padre si existe
+    if (onGuardarEnCarpeta) {
+      // El padre puede usar resultado.esNueva para diferenciar (A8)
+      onGuardarEnCarpeta(publicacionEnGuardado!)
+    }
+  }
+
+  /**
    * Manejador para cargar más publicaciones.
    * A6: Paginación server-side con botón "Cargar más".
    */
@@ -215,6 +264,23 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
             publicacion={publicacionEnEliminacion}
             onSuccess={handleEliminacionExitosa}
             onCancel={handleCancelarEliminacion}
+            deshabilitado={false}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // T055: Mostrar diálogo de guardado en carpeta si hay publicación en guardado
+  if (publicacionEnGuardado && usuarioActualId) {
+    return (
+      <div style={styles.guardadoOverlay}>
+        <div style={styles.guardadoContainer}>
+          <SavePostToCarpetaDialog
+            publicacion={publicacionEnGuardado}
+            usuarioId={usuarioActualId}
+            onSuccess={handleGuardadoExitoso}
+            onCancel={handleCancelarGuardado}
             deshabilitado={false}
           />
         </div>
@@ -399,6 +465,34 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                 >
                   {cargandoAccion === pub.id ? 'Eliminando...' : 'Eliminar'}
                 </button>
+
+                {/* Botón Guardar en carpeta — HU-09.1–HU-09.4, AC-09.1–AC-09.4 (T055) */}
+                <button
+                  onClick={() => handleGuardar(pub)}
+                  disabled={cargandoAccion === pub.id}
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: cargandoAccion === pub.id ? 'not-allowed' : 'pointer',
+                    opacity: cargandoAccion === pub.id ? 0.6 : 1,
+                    transition: 'background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (cargandoAccion !== pub.id) {
+                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#059669'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#10b981'
+                  }}
+                >
+                  {cargandoAccion === pub.id ? 'Guardando...' : 'Guardar'}
+                </button>
               </div>
             )}
           </div>
@@ -431,7 +525,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
 }
 
 /**
- * Estilos para PublicacionList (T053, T054).
+ * Estilos para PublicacionList (T053, T054, T055).
  */
 const styles: Record<string, React.CSSProperties> = {
   edicionOverlay: {
@@ -470,6 +564,28 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '1rem',
   },
   eliminacionContainer: {
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    maxWidth: '600px',
+    width: '100%',
+  },
+  guardadoOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: '1rem',
+  },
+  guardadoContainer: {
     backgroundColor: 'white',
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
