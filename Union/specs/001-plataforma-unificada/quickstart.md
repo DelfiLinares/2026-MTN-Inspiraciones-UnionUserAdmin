@@ -11,7 +11,8 @@ implemente, para mantener consistencia entre ambos equipos de frontend.
 
 ## 1. Requisitos previos
 
-- Node.js LTS (≥ 18.x) y un gestor de paquetes (npm, pnpm o yarn — a definir en fase de tasks).
+- Node.js LTS (≥ 18.x) y un gestor de paquetes (npm, pnpm o yarn — a definir en fase de tasks),
+   o Bun para instalar y ejecutar los proyectos sin npm en Linux.
 - Acceso a la API REST del backend (o a un servidor de mocks compatible con
   `contracts/api-contracts.md`).
 
@@ -57,6 +58,42 @@ npm run dev
 
 Ambos se ejecutan como SPA independientes, típicamente en puertos distintos (por ejemplo, `5173` y
 `5174`), sin dependencias cruzadas entre sí.
+
+### Linux sin npm (Bun)
+
+Bun incluye runtime y gestor de paquetes, por lo que no hace falta instalar Node.js ni npm. Desde la
+raíz del repositorio, instala Bun una vez y agrega su ejecutable al `PATH` de esta terminal:
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+export PATH="$HOME/.bun/bin:$PATH"
+bun --version
+```
+
+En una terminal, instala y levanta el frontend de usuario:
+
+```bash
+cd Union/frontend
+[ -f .env ] || cp .env.example .env
+bun install
+bun run dev
+```
+
+En otra terminal, desde la raíz del repositorio, instala y levanta el frontend administrativo:
+
+```bash
+cd Admin/my-proyect/frontend-admin
+[ -f .env ] || cp .env.example .env
+bun install
+bun run dev
+```
+
+Los comandos de validación también se ejecutan sin npm:
+
+```bash
+bun run test
+bun run build
+```
 
 ---
 
@@ -120,6 +157,8 @@ npm run test        # Vitest — tests unitarios de dominio y servicios
 npm run test:watch  # modo watch durante desarrollo
 ```
 
+Con Bun, los equivalentes son `bun run test` y `bun run test:watch`.
+
 Prioridad de cobertura según RNF-14 de `spec.md` (reglas de negocio críticas):
 - `frontend/tests/domain/`: reglas de `Publicacion` (like/reportar/editar según autoría),
   `Usuario` (botón seguir en perfil propio), `Filtro` (habilitación de distancia), `Carpeta`
@@ -147,7 +186,7 @@ Prioridad de cobertura según RNF-14 de `spec.md` (reglas de negocio críticas):
 - [x] Verificado que `frontend/` no expone ninguna pantalla/acción administrativa (RF-15) y que
   `frontend-admin/` no expone ninguna pantalla exclusiva de usuario final (sección "Fuera de
   Alcance" de `spec.md`).
-  _(Verificado 2026-09-28: en el proyecto unificado `Union/.../frontend/`, todas las pantallas y
+   _(Verificado 2026-09-28: en el proyecto unificado `Union/frontend/`, todas las pantallas y
   acciones administrativas (dashboard, usuarios, moderación, desafíos, reportes) están aisladas
   bajo rutas `/admin/*` protegidas por `RequireAdmin` (T101), que exige rol ADMIN vía
   `sessionGuard.validarAccesoAdmin()`; ningún usuario con rol USER puede alcanzarlas.)_
