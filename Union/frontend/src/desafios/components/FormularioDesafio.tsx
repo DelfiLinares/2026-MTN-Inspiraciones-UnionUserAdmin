@@ -1,9 +1,87 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { Desafio } from '../../domain/Desafio'
 import { RangoFechas } from '../../domain/RangoFechas'
 import { AmbitoDesafio } from '../../domain/AmbitoDesafio'
 import { Foto } from '../../domain/Foto'
 import { SelectorFotos } from '../../components/SelectorFotos'
+
+// Clave para almacenar el borrador en localStorage
+const BORRADOR_DESAFIO_KEY = 'borrador_formulario_desafio'
+
+interface BorradorDesafio {
+  nombre: string
+  descripcionLarga: string
+  fotos: Array<{
+    id: string
+    url: string
+    formato: 'JPEG' | 'PNG'
+    principal: boolean
+  }>
+  fechaInicio: string
+  fechaFin: string
+  ambitos: string[]
+}
+
+/**
+ * Helper para serializar fotos a JSON (localStorage)
+ */
+const serializarBorrador = (
+  nombre: string,
+  descripcionLarga: string,
+  fotos: Foto[],
+  fechaInicio: string,
+  fechaFin: string,
+  ambitos: string[]
+): BorradorDesafio => {
+  return {
+    nombre,
+    descripcionLarga,
+    fotos: fotos.map(f => ({
+      id: f.id,
+      url: f.url,
+      formato: f.formato,
+      principal: f.principal,
+    })),
+    fechaInicio,
+    fechaFin,
+    ambitos,
+  }
+}
+
+/**
+ * Helper para cargar borrador desde localStorage
+ */
+const cargarBorradorDelStorage = (): BorradorDesafio | null => {
+  try {
+    const borrador = localStorage.getItem(BORRADOR_DESAFIO_KEY)
+    return borrador ? JSON.parse(borrador) : null
+  } catch (error) {
+    console.warn('Error al cargar borrador:', error)
+    return null
+  }
+}
+
+/**
+ * Helper para guardar borrador en localStorage
+ */
+const guardarBorradorEnStorage = (borrador: BorradorDesafio): void => {
+  try {
+    localStorage.setItem(BORRADOR_DESAFIO_KEY, JSON.stringify(borrador))
+  } catch (error) {
+    console.warn('Error al guardar borrador:', error)
+  }
+}
+
+/**
+ * Helper para eliminar borrador de localStorage
+ */
+const eliminarBorradorDelStorage = (): void => {
+  try {
+    localStorage.removeItem(BORRADOR_DESAFIO_KEY)
+  } catch (error) {
+    console.warn('Error al eliminar borrador:', error)
+  }
+}
 
 /**
  * Props para FormularioDesafio (T053)
@@ -75,6 +153,44 @@ export const FormularioDesafio: React.FC<FormularioDesafioProps> = ({
   )
   const [errores, setErrores] = useState<Record<string, string>>({})
   const [enviando, setEnviando] = useState(false)
+  const [huboRecuperacion, setHuboRecuperacion] = useState(false)
+
+  // T071: Cargar borrador desde localStorage al montar el componente
+  useEffect(() => {
+    // Solo cargar borrador si no hay desafioInicial (creación nueva)
+    if (!desafioInicial) {
+      const borrador = cargarBorradorDelStorage()
+      if (borrador) {
+        setNombre(borrador.nombre)
+        setDescripcionLarga(borrador.descripcionLarga)
+        setFotos(
+          borrador.fotos.map(
+            f => new Foto({ id: f.id, url: f.url, formato: f.formato, principal: f.principal })
+          )
+        )
+        setFechaInicio(borrador.fechaInicio)
+        setFechaFin(borrador.fechaFin)
+        setAmbitos(borrador.ambitos)
+        setHuboRecuperacion(true)
+      }
+    }
+  }, [desafioInicial])
+
+  // T071: Guardar borrador en localStorage cuando los datos cambien
+  useEffect(() => {
+    // Solo guardar si no hay desafioInicial (creación nueva)
+    if (!desafioInicial) {
+      const borrador = serializarBorrador(
+        nombre,
+        descripcionLarga,
+        fotos,
+        fechaInicio,
+        fechaFin,
+        ambitos
+      )
+      guardarBorradorEnStorage(borrador)
+    }
+  }, [nombre, descripcionLarga, fotos, fechaInicio, fechaFin, ambitos, desafioInicial])
 
   // Crear instancia de Desafio con datos actuales para validar
   const desafioActual = useMemo(() => {
@@ -113,6 +229,8 @@ export const FormularioDesafio: React.FC<FormularioDesafioProps> = ({
       setEnviando(true)
       try {
         onEnviar(desafioActual)
+        // T071: Limpiar borrador después de enviar con éxito
+        eliminarBorradorDelStorage()
       } finally {
         setEnviando(false)
       }
@@ -125,6 +243,30 @@ export const FormularioDesafio: React.FC<FormularioDesafioProps> = ({
 
   return (
     <form onSubmit={handleEnviar} className="space-y-6">
+      {/* T071: Indicador cuando se recupera un borrador */}
+      {huboRecuperacion && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded flex items-center"
+        >
+          <svg
+            className="w-5 h-5 mr-2 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span className="text-sm">
+            Se recuperaron los datos de tu borrador anterior.
+          </span>
+        </div>
+      )}
+
       {/* Mensaje de errores general */}
       {tieneErrores && (
         <div

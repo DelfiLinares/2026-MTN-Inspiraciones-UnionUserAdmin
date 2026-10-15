@@ -2,7 +2,7 @@
  * Barrel export para componentes del módulo de Desafíos.
  *
  * Fuente de verdad:
- * - Union/specs/003-desafios/tasks.md (T052, T053, T054)
+ * - Union/specs/003-desafios/tasks.md (T052, T053, T054, T055, T056, T061)
  * - Union/specs/003-desafios/plan.md (sección 4)
  */
 
@@ -20,3 +20,10 @@ export type { FormularioRespuestaProps } from './FormularioRespuesta'
 
 export { ListaRespuestas } from './ListaRespuestas'
 export type { ListaRespuestasProps } from './ListaRespuestas'
+
+export { RespuestasDesafioSection } from './RespuestasDesafioSection'
+export type { RespuestasDesafioSectionProps } from './RespuestasDesafioSection'
+
+export { ModeracionRespuestasSection } from './ModeracionRespuestasSection'
+export type { ModeracionRespuestasSectionProps } from './ModeracionRespuestasSection'
+

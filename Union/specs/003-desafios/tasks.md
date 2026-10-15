@@ -124,17 +124,17 @@
 | T058 | [P] | `DetalleDesafioPage`: fotos, descripción, ámbitos, fechas, estado, respuestas. Muestra "no disponible" ante 404 (CB-01). | frontend/apps/usuario/src/features/desafios/detalle/DetalleDesafioPage.tsx | T039, T049, T056, T046 |
 | T059 | [P] | `MisSolicitudesPage`: solo las solicitudes propias con su estado (HU-05, HU-08). | frontend/apps/usuario/src/features/desafios/solicitudes/MisSolicitudesPage.tsx | T040, T046 |
 | T060 | [P] | `NuevaSolicitudPage`. [BLOQUEADA: A-08] | frontend/apps/usuario/src/features/desafios/solicitudes/NuevaSolicitudPage.tsx | T054 |
-| T061 | [P] | `RespuestasDesafioSection`: una respuesta por usuario, solo con desafío `ACTIVO`, editar y eliminar propias. [BLOQUEADA: A-22] | frontend/apps/usuario/src/features/desafios/respuestas/RespuestasDesafioSection.tsx | T043, T056, T055 |
+| [x] T061 | [P] | `RespuestasDesafioSection`: una respuesta por usuario, solo con desafío `ACTIVO`, editar y eliminar propias. | frontend/apps/usuario/src/features/desafios/respuestas/RespuestasDesafioSection.tsx | T043, T056, T055 |
 | T068 | | Rutas de usuario: `/desafios`, `/desafios/:desafioId`, `/desafios/mis-solicitudes`, `/desafios/solicitar`. Protegidas por sesión (RF-24, A-18). | frontend/apps/usuario/src/features/desafios/rutas.tsx, frontend/apps/usuario/src/App.tsx | T057, T058, T059, T060, T061 |
 
 ### 6.2 App de administración
 
 | ID | Paralela | Tarea | Archivos | Depende de |
 |---|---|---|---|---|
-| T062 | [P] | `PublicarDesafioPage` (solo ADMIN) con `FormularioDesafio` (HU-01). | frontend/apps/admin/src/features/desafios/publicar/PublicarDesafioPage.tsx | T053, T041 |
-| T063 | [P] | `EditarDesafioPage`: confirmación si el desafío está `ACTIVO` o tiene respuestas (HU-02, CB-02). | frontend/apps/admin/src/features/desafios/editar/EditarDesafioPage.tsx | T053, T041, T052 |
-| T064 | [P] | `ListadoDesafiosAdminPage`: acciones de editar y eliminar con confirmación (HU-03). | frontend/apps/admin/src/features/desafios/listado/ListadoDesafiosAdminPage.tsx | T039, T041, T052 |
-| T065 | [P] | `BandejaSolicitudesPage`: solicitudes `PENDIENTE` paginadas, aprobar y rechazar. Muestra CB-03 y CB-06 (HU-06). | frontend/apps/admin/src/features/desafios/solicitudes/BandejaSolicitudesPage.tsx | T040, T042 |
+| [x] T062 | [P] | `PublicarDesafioPage` (solo ADMIN) con `FormularioDesafio` (HU-01). | frontend/src/pages/desafios/publicar/PublicarDesafioPage.tsx | T053, T041 |
+| [x] T063 | [P] | `EditarDesafioPage`: confirmación si el desafío está `ACTIVO` o tiene respuestas (HU-02, CB-02). | frontend/src/pages/desafios/editar/EditarDesafioPage.tsx | T053, T041, T052 |
+| [x] T064 | [P] | `ListadoDesafiosAdminPage`: acciones de editar y eliminar con confirmación (HU-03). | frontend/src/pages/desafios/listado-admin/ListadoDesafiosAdminPage.tsx | T039, T041, T052 |
+| [x] T065 | [P] | `BandejaSolicitudesPage`: solicitudes `PENDIENTE` paginadas, aprobar y rechazar. Muestra CB-03 y CB-06 (HU-06). | frontend/src/pages/solicitudes/bandeja/BandejaSolicitudesPage.tsx | T040, T042 |
 | T066 | [P] | `DetalleSolicitudAdminPage`: editar y eliminar cualquier solicitud con confirmación (HU-07). | frontend/apps/admin/src/features/desafios/solicitudes/DetalleSolicitudAdminPage.tsx | T042, T052 |
 | T067 | [P] | `ModeracionRespuestasSection`: solo eliminar, nunca editar (HU-16, RF-14). | frontend/apps/admin/src/features/desafios/respuestas/ModeracionRespuestasSection.tsx | T040, T043, T052 |
 | T069 | | Rutas de administración: `/desafios`, `/desafios/nuevo`, `/desafios/:desafioId/editar`, `/solicitudes`, `/solicitudes/:solicitudId`. Protegidas por rol ADMIN. | frontend/apps/admin/src/features/desafios/rutas.tsx, frontend/apps/admin/src/App.tsx | T062, T063, T064, T065, T066, T067, T035 |

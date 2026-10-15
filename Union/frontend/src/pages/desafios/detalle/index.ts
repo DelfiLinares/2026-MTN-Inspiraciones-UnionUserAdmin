@@ -1,0 +1,1 @@
+export { DetalleDesafioPage } from './DetalleDesafioPage'
