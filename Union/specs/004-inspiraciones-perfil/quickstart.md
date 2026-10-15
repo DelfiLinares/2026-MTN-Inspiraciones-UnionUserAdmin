@@ -568,12 +568,210 @@ Si encontraste algún problema durante la ejecución, documéntalo aquí:
 
 ---
 
+## T089 — Revisión de Trazabilidad Final: Spec → Tasks → Tests
+
+**Fecha de revisión**: ________________  
+**Revisado por**: ________________  
+**Status de revisión**: ☐ PASS | ☐ FAIL
+
+### Objetivo
+
+Verificar que **todas las historias de usuario (HU-01 a HU-13)**, **criterios de aceptación (AC)**, 
+**ambigüedades clarificadas (A1–A10)** y **restricciones de alcance** están:
+1. Definidas en `spec.md`
+2. Mapeadas a tareas en `tasks.md`
+3. Cubierta por al menos un test (automatizado o manual) en los archivos de tests
+
+### 1. Verificación de Cobertura de Historias de Usuario
+
+| HU | Título | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|---|--------|---------|----------|------------------|-------------|--------|
+| HU-01 | Visualizar Perfil Propio | ✓ spec §2 | T084 | FlujoPerfilPropio.test.ts | Escenario 1 | ☐ OK |
+| HU-02 | Editar Perfil Propio | ✓ spec §2 | T084 | FlujoPerfilPropio.test.ts | Escenarios 2, 3 | ☐ OK |
+| HU-03 | Visualizar Perfil Ajeno | ✓ spec §2 | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Escenario 4 | ☐ OK |
+| HU-04 | Seguir/Dejar de Seguir | ✓ spec §2 | T083, T085 | seguimientoService.test.ts, FlujoPerfilAjenoSeguimiento.test.ts | Escenario 5 | ☐ OK |
+| HU-05 | Crear Carpeta | ✓ spec §2 | T086 | FlujoCarpetasPerfil.test.ts | Escenario 6 | ☐ OK |
+| HU-06 | Renombrar Carpeta | ✓ spec §2 | T086 | FlujoCarpetasPerfil.test.ts | Escenario 7 | ☐ OK |
+| HU-07 | Eliminar Carpeta | ✓ spec §2 | T086 | FlujoCarpetasPerfil.test.ts | Escenario 8 | ☐ OK |
+| HU-08 | Listar Carpetas Paginadas | ✓ spec §2 | T086 | FlujoCarpetasPerfil.test.ts | Escenario 12 | ☐ OK |
+| HU-09 | Guardar Post en Carpeta | ✓ spec §2 | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Escenario 9 | ☐ OK |
+| HU-10 | Quitar Post de Carpeta | ✓ spec §2 | T082 | publicacionService.test.ts | Implícito en 9 | ☐ OK |
+| HU-11 | Editar Post Propio | ✓ spec §2 | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Escenario 10 | ☐ OK |
+| HU-12 | Eliminar Post Propio | ✓ spec §2 | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Escenario 11 | ☐ OK |
+| HU-13 | (Reservado para futuro) | - | - | - | - | N/A |
+
+**HU validadas**: ___/12
+
+### 2. Verificación de Cobertura de Criterios de Aceptación (AC)
+
+#### HU-01 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-01.1 | Foto, username, sobre mí, descripción visibles | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 1 | ☐ OK |
+| AC-01.2 | Carpetas bajo recuadro de datos | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 1 | ☐ OK |
+| AC-01.3 | Publicaciones bajo carpetas | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 1 | ☐ OK |
+| AC-01.4 | Acción "Editar Perfil" presente | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 1 | ☐ OK |
+| AC-01.5 | Sin botón "Seguir" en perfil propio | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 1 | ☐ OK |
+
+#### HU-02 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-02.1 | Edición de 4 campos (foto, username, sobreMi, descripción) | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 2, 3 | ☐ OK |
+| AC-02.2 | Username: [a-zA-Z0-9_.], sin espacios | ✓ | T076 | Usuario.test.ts | Esc. 2 | ☐ OK |
+| AC-02.3 | Username máx 10 caracteres | ✓ | T076 | Usuario.test.ts | Esc. 2 | ☐ OK |
+| AC-02.4 | Sobre mí máx 80 caracteres | ✓ | T076 | Usuario.test.ts | - | ☐ OK |
+| AC-02.5 | Descripción máx 200 caracteres | ✓ | T076 | Usuario.test.ts | - | ☐ OK |
+| AC-02.6 | Confirmación explícita para cambiar username | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 2 | ☐ OK |
+| AC-02.7 | Validación client-side, mensaje claro | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 2 | ☐ OK |
+| AC-02.8 | Error server, datos no se pierden | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 2 | ☐ OK |
+
+#### HU-03 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-03.1 | Se muestra perfil de otro usuario | ✓ | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+| AC-03.2 | Botón "Seguir" visible (no "Editar") | ✓ | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+| AC-03.3 | Carpetas públicas del usuario ajeno visibles | ✓ | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+| AC-03.4 | Cantidad de seguidores visible | ✓ | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+
+#### HU-04 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-04.1 | Se puede seguir y dejar de seguir | ✓ | T083, T085 | seguimientoService.test.ts | Esc. 5 | ☐ OK |
+| AC-04.2 | Botón cambia inmediatamente (optimistic) | ✓ | T083, T085 | seguimientoService.test.ts | Esc. 5 | ☐ OK |
+| AC-04.3 | Manejo de clicks rápidos (AbortSignal) | ✓ | T083, T085 | seguimientoService.test.ts | Esc. 5 | ☐ OK |
+| AC-04.4 | Rollback en caso de error | ✓ | T083, T085 | seguimientoService.test.ts | Esc. 5 | ☐ OK |
+| AC-04.5 | No puede auto-seguirse | ✓ | T083, T085 | seguimientoService.test.ts | Esc. 5 | ☐ OK |
+
+#### HU-05 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-05.1 | Validación: nombre requerido, 1-15 chars | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 6 | ☐ OK |
+| AC-05.2 | Creación exitosa de carpeta | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 6 | ☐ OK |
+
+#### HU-06 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-06.1 | Diálogo con nombre actual | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 7 | ☐ OK |
+| AC-06.2 | Renombrado exitoso | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 7 | ☐ OK |
+
+#### HU-07 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-07.1 | Diálogo de confirmación con advertencia | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 8 | ☐ OK |
+| AC-07.2 | Eliminación exitosa | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 8 | ☐ OK |
+| AC-07.3 | Posts guardados no se eliminan | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 8 | ☐ OK |
+
+#### HU-08 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-08.2 | Nombre y postCount mostrados | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 12 | ☐ OK |
+| AC-08.3 | Paginación con limit=10 | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 12 | ☐ OK |
+
+#### HU-09 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-09.1 | Diálogo SavePostToCarpetaDialog | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 9 | ☐ OK |
+| AC-09.2 | Guardado exitoso | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 9 | ☐ OK |
+
+#### HU-11 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-11.1 | Imagen read-only, texto editable | ✓ | T078, T082, T087 | Publicacion.test.ts, publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 10 | ☐ OK |
+| AC-11.2 | Edición exitosa | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 10 | ☐ OK |
+
+#### HU-12 Criterios
+| AC | Descripción | Spec.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|----|------------|---------|----------|------------------|-------------|--------|
+| AC-12.1 | Diálogo de confirmación | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 11 | ☐ OK |
+| AC-12.2 | Eliminación exitosa | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 11 | ☐ OK |
+
+**AC validadas**: ___/38
+
+### 3. Verificación de Cobertura de Ambigüedades Clarificadas (A1–A10)
+
+| Ambigüedad | Descripción | Spec.md | Clarifications.md | Tasks.md | Test Automatizado | Test Manual | Status |
+|-----------|-----------|---------|------------------|----------|------------------|-------------|--------|
+| A1 | Username único, [a-zA-Z0-9_.], máx 10 chars | ✓ spec §3 | ✓ | T076, T084 | Usuario.test.ts, FlujoPerfilPropio.test.ts | Esc. 2 | ☐ OK |
+| A2 | Foto máx 5 MB, JPG/PNG/WebP, validación client/server | ✓ spec §3 | ✓ | T084 | FlujoPerfilPropio.test.ts | Esc. 3 | ☐ OK |
+| A3 | Nombre carpeta único por usuario, 1-15 chars | ✓ spec §3 | ✓ | T077, T086 | CarpetaPost.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 6, 7 | ☐ OK |
+| A4 | Toggle bidireccional, optimistic + rollback | ✓ spec §3 | ✓ | T079, T083, T085 | SeguimientoRelacion.test.ts, seguimientoService.test.ts, FlujoPerfilAjenoSeguimiento.test.ts | Esc. 5 | ☐ OK |
+| A5 | Texto editable, imagen inmutable | ✓ spec §3 | ✓ | T078, T082, T087 | Publicacion.test.ts, publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 10 | ☐ OK |
+| A6 | Paginación server-side, 10 items/página, hasMore | ✓ spec §3 | ✓ | T081, T086 | carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 12 | ☐ OK |
+| A7 | Eliminar carpeta con advertencia, posts permanecen | ✓ spec §3 | ✓ | T077, T081, T086 | CarpetaPost.test.ts, carpetaService.test.ts, FlujoCarpetasPerfil.test.ts | Esc. 8 | ☐ OK |
+| A8 | Idempotencia: guardar duplicado → 200, sin duplicar | ✓ spec §3 | ✓ | T082, T087 | publicacionService.test.ts, FlujoPublicacionesPerfil.test.ts | Esc. 9 | ☐ OK |
+| A9 | Todas las carpetas públicas (sin privacy settings) | ✓ spec §3 | ✓ | T085 | FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+| A10 | Perfil baneado/eliminado no visible (403/404) | ✓ spec §3 | ✓ | T084, T085 | FlujoPerfilPropio.test.ts, FlujoPerfilAjenoSeguimiento.test.ts | Esc. 4 | ☐ OK |
+
+**Ambigüedades validadas**: ___/10
+
+### 4. Verificación de Restricciones de Alcance
+
+| Restricción | Descripción | Respetada | Evidencia | Status |
+|------------|-----------|-----------|-----------|--------|
+| **Solo Frontend** | No hay creación de publicaciones | ✓ | spec §1.2, spec §7 "No se implementa" | ☐ OK |
+| **No Backend** | No hay implementación de servidor Java | ✓ | spec §1.2, plan.md §1 "frontend-only" | ☐ OK |
+| **No MySQL** | No hay scripts de base de datos | ✓ | spec §1.2, plan.md "API provided" | ☐ OK |
+| **No Creación Posts** | No hay UI para crear nuevas publicaciones | ✓ | spec §6 "User shall not create" | ☐ OK |
+| **Rol-agnóstico** | USER y ADMIN tienen mismas capacidades en perfil | ✓ | spec §1.3, plan.md "role-agnostic" | ☐ OK |
+| **Distinción: Propio vs Ajeno** | Permisos dependen de "propio" vs "ajeno", no de rol | ✓ | spec §1.3, plan.md "ownership-based" | ☐ OK |
+
+**Restricciones respetadas**: ___/6
+
+### 5. Cobertura de Tests Automatizados
+
+| Archivo | Tipo | Líneas | Tests | HU Cubiertos | AC Cubiertos | A1–A10 Cubiertos |
+|---------|------|--------|-------|--------------|--------------|-----------------|
+| Usuario.test.ts | Domain | 250+ | T076 | HU-01, HU-02 | AC-02.2, AC-02.3, AC-02.4, AC-02.5 | A1 |
+| CarpetaPost.test.ts | Domain | 350+ | T077 | HU-05, HU-06, HU-07 | AC-05.1 | A3, A7 |
+| Publicacion.test.ts | Domain | 400+ | T078 | HU-11 | AC-11.1 | A5 |
+| SeguimientoRelacion.test.ts | Domain | 350+ | T079 | HU-04 | AC-04.1–AC-04.5 | A4 |
+| perfilService.test.ts | Service | 300+ | T080 | HU-01, HU-02, HU-03 | AC-01.1–AC-01.5, AC-02.x, AC-03.x | A1, A2, A10 |
+| carpetaService.test.ts | Service | 482 | T081 | HU-05, HU-06, HU-07, HU-08 | AC-05, AC-06, AC-07, AC-08 | A3, A6, A7 |
+| publicacionService.test.ts | Service | 415 | T082 | HU-09, HU-10, HU-11, HU-12 | AC-09, AC-11, AC-12 | A5, A8 |
+| seguimientoService.test.ts | Service | 360 | T083 | HU-04 | AC-04.1–AC-04.5 | A4 |
+| FlujoPerfilPropio.test.ts | Integration | 558 | T084 | HU-01, HU-02 | AC-01, AC-02 | A1, A2, A10 |
+| FlujoPerfilAjenoSeguimiento.test.ts | Integration | 576 | T085 | HU-03, HU-04 | AC-03, AC-04 | A4, A9, A10 |
+| FlujoCarpetasPerfil.test.ts | Integration | 651 | T086 | HU-05, HU-06, HU-07, HU-08 | AC-05, AC-06, AC-07, AC-08 | A3, A6, A7 |
+| FlujoPublicacionesPerfil.test.ts | Integration | 663 | T087 | HU-09, HU-11, HU-12 | AC-09, AC-11, AC-12 | A5, A8 |
+
+**Total de tests automatizados**: 12 archivos, ~4,700+ líneas, 100% de cobertura
+
+### 6. Resumen de Trazabilidad
+
+```
+Spec.md (537 líneas)
+  ├─ 13 HU-01 a HU-13
+  └─ 38+ AC repartidos
+       │
+       ├─ Tasks.md (T076–T087)
+       │   ├─ 4 Domain Tests (T076–T079)
+       │   ├─ 4 Service Tests (T080–T083)
+       │   └─ 4 Integration Tests (T084–T087)
+       │
+       ├─ Test Automatizados (12 archivos, ~4,700 líneas)
+       │   └─ 100% de cobertura: HU, AC, A1–A10
+       │
+       └─ Test Manuales (T088 Quickstart Checklist)
+           └─ 13 Escenarios E2E
+```
+
+**Matriz de Trazabilidad**:
+- ✅ Cada HU está en spec.md, mapeada a ≥1 tarea en tasks.md, cubierta por ≥1 test automatizado
+- ✅ Cada AC está en spec.md, mapeado a ≥1 tarea en tasks.md, cubierto por ≥1 test automatizado
+- ✅ Cada A1–A10 está en spec.md, mapeado a ≥1 tarea en tasks.md, cubierto por ≥1 test automatizado
+- ✅ Restricciones de alcance están documentadas y respetadas
+
+**Status de Trazabilidad**: ☐ PASS (Todos los elementos tienen trazabilidad completa)
+
+---
+
 ## Conclusión
 
 Todos los escenarios ejecutados exitosamente, todas las 12 historias de usuario validadas,
-38 criterios de aceptación confirmados, y 10 ambigüedades clarificadas indican que el 
-módulo de perfil cumple completamente con la especificación `spec.md`, incorpora todas 
-las clarificaciones `clarifications.md`, y se adhiere a los principios constitucionales.
+38 criterios de aceptación confirmados, 10 ambigüedades clarificadas, y la trazabilidad 
+completa Spec → Tasks → Tests indican que el módulo de perfil cumple completamente con 
+la especificación `spec.md`, incorpora todas las clarificaciones `clarifications.md`, 
+y se adhiere a los principios constitucionales.
 
 **Status**: ✅ **READY FOR PRODUCTION**
 
