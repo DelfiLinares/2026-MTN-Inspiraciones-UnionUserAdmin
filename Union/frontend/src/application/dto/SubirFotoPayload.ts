@@ -2,7 +2,7 @@
  * DTO SubirFotoPayload — Módulo 004-inspiraciones-perfil.
  *
  * Fuente de verdad:
- * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (path: /perfil/foto, multipart/form-data)
+ * - Union/specs/006-integracion-perfil-api/contracts/openapi.yaml (path: /usuarios/me/avatar, multipart/form-data)
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-02, A2)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T016)
  *
@@ -13,7 +13,7 @@
  * - Tamaño máximo: 5 MB (A2)
  * Backend es authoritative para validaciones finales (A2).
  * 
- * Endpoint: POST /perfil/foto (multipart/form-data)
+ * Endpoint: POST /usuarios/me/avatar (multipart/form-data)
  * Respuesta: Usuario actualizado
  * Errores: 400 (validación), 401 (no autenticado), 413 (muy grande), 415 (formato no soportado)
  */
@@ -47,7 +47,7 @@ export const VALIDACIONES_FOTO = {
  */
 export const crearFormDataFoto = (archivo: File): FormData => {
   const formData = new FormData()
-  formData.append('foto', archivo)
+  formData.append('avatar', archivo)
   return formData
 }
 

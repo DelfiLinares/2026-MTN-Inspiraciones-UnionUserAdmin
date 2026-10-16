@@ -17,7 +17,7 @@
 import { httpClient } from '../httpClient'
 import { tokenStorage } from '../tokenStorage'
 import { Usuario } from '../../domain/Usuario'
-import { RolUsuario } from '../../domain/enums/RolUsuario'
+import { mapearUsuarioAutenticado } from '../mappers/perfilMappers'
 
 export interface LoginCredentials {
   mail: string
@@ -46,21 +46,6 @@ export interface LoginResult {
   usuario: Usuario
 }
 
-function mapearUsuario(dto: AuthUserResponseDto): Usuario {
-  const nombreCompleto = dto.nombreCompleto?.trim() || dto.username
-  const [nombre, ...apellidos] = nombreCompleto.split(/\s+/)
-
-  return new Usuario({
-    id: dto.id,
-    nombre,
-    apellido: apellidos.join(' '),
-    fotoUrl: dto.avatarUrl ?? undefined,
-    rol: dto.role === RolUsuario.ADMIN ? RolUsuario.ADMIN : RolUsuario.USER,
-    cantidadSeguidores: 0,
-    siguiendoAlUsuarioActual: false,
-  })
-}
-
 /**
  * Inicia sesión enviando credenciales a `POST /auth/login`.
  * Almacena el token obtenido en `tokenStorage` y retorna el usuario autenticado.
@@ -73,7 +58,7 @@ export async function iniciarSesion(credenciales: LoginCredentials | { email: st
   }
 
   const response = await httpClient.post<LoginResponseDto>('/auth/login', payload)
-  const usuario = mapearUsuario(response.user)
+  const usuario = mapearUsuarioAutenticado(response.user)
 
   if (response.accessToken) {
     tokenStorage.setToken(response.accessToken)

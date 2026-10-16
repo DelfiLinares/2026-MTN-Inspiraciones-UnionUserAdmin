@@ -141,12 +141,10 @@ describe('AuthAdminService & sessionGuard (T075)', () => {
         .mockRejectedValueOnce(new HttpForbiddenError({ error: 'CUENTA_BANEADA' }))
         .mockRejectedValueOnce(new HttpForbiddenError({ error: 'CUENTA_BANEADA' }))
 
-      await expect(login({ mail: mailAdmin, password: passwordValido })).rejects.toThrow(
-        CuentaBloqueadaError
-      )
-      await expect(login({ mail: mailAdmin, password: passwordValido })).rejects.toThrow(
-        /cuenta ha sido baneada/i
-      )
+      const intentoLogin = login({ mail: mailAdmin, password: passwordValido })
+
+      await expect(intentoLogin).rejects.toThrow(CuentaBloqueadaError)
+      await expect(intentoLogin).rejects.toThrow(/cuenta ha sido baneada/i)
       expect(sessionManager.obtenerSesion()).toBeNull()
     })
 

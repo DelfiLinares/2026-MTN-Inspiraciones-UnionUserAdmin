@@ -112,7 +112,12 @@ export const HomePage: React.FC = () => {
             to={usuario?.id ? `/perfil/${usuario.id}` : '/login'}
             aria-label="Mi perfil"
           >
-            <span aria-hidden="true">{usuario?.nombre?.charAt(0).toUpperCase() ?? ''}</span>
+            <span aria-hidden="true">
+              {`${usuario?.nombre ?? ''} ${usuario?.apellido ?? ''}`
+                .trim()
+                .charAt(0)
+                .toUpperCase()}
+            </span>
           </Link>
         </nav>
       </header>

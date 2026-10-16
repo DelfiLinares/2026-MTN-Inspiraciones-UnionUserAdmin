@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { carpetaService } from '../../services/carpetaPerfilService'
+import type { ResultadoGuardadoPublicacion } from '../../application/ports/PublicacionRepository'
 import { publicacionService } from '../../services/perfilPublicacionService'
 import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
 
@@ -64,7 +65,7 @@ import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
 export interface SavePostToCarpetaDialogProps {
   publicacion: PublicacionPerfil
   usuarioId: string
-  onSuccess: (resultado: any) => void
+  onSuccess: (resultado: ResultadoGuardadoPublicacion) => void
   onCancel: () => void
   deshabilitado?: boolean
 }
@@ -97,7 +98,7 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
     const cargarCarpetas = async () => {
       setCargandoCarpetas(true)
       try {
-        const resultado = await carpetaService.listarCarpetas(usuarioId)
+        const resultado = await carpetaService.listarCarpetas(usuarioId, 50, 0)
         setCarpetas(resultado.carpetas)
         // Pre-seleccionar la primera carpeta si hay alguna
         if (resultado.carpetas.length > 0) {

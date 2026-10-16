@@ -6,6 +6,7 @@ import { UsuarioPerfilRepository } from '../application/ports/UsuarioPerfilRepos
 import { UsuarioPerfilService } from '../application/UsuarioPerfilService'
 import { httpClient } from '../infrastructure/httpClient'
 import { apiEndpoints } from '../infrastructure/apiEndpoints'
+import { lanzarErrorAdaptado } from '../infrastructure/apiErrorAdapter'
 
 /**
  * Adaptador HTTP UsuarioPerfilRepository — Módulo 004-inspiraciones-perfil.
@@ -61,8 +62,8 @@ interface UsuarioResponseDto {
  */
 interface ActualizarPerfilRequestDto {
   username?: string
-  sobreMi?: string
-  descripcion?: string
+  sobreMi?: string | null
+  descripcion?: string | null
 }
 
 const ESTADO_DESDE_BACKEND: Record<string, EstadoCuentaUsuario> = {
@@ -107,46 +108,6 @@ function mapearPayloadAlDto(payload: ActualizarPerfilPayload): ActualizarPerfilR
 }
 
 /**
- * Parsear errores HTTP y lanzar excepciones descriptivas.
- * Maneja A1, A2, A10 según openapi.yaml.
- */
-function manejarErrorHttp(status: number, mensaje?: string): never {
-  switch (status) {
-    case 400:
-      // Validación fallida (formato de foto, campos fuera de límite, etc.)
-      throw new Error(mensaje || 'Validación fallida. Verifica los datos enviados.')
-    case 401:
-      // No autenticado
-      throw new Error('No estás autenticado. Inicia sesión para continuar.')
-    case 403:
-      // Perfil no disponible (A10: BANEADO)
-      throw new Error('Este perfil no está disponible.')
-    case 404:
-      // No encontrado o perfil eliminado (A10: ELIMINADO)
-      throw new Error('El usuario no existe o su perfil no está disponible.')
-    case 409:
-      // Conflicto (A1: username ya existe)
-      throw new Error(
-        mensaje || 'Este nombre de usuario ya está en uso. Por favor, elige otro.'
-      )
-    case 413:
-      // Payload too large (A2: archivo > 5 MB)
-      throw new Error(
-        'El archivo es demasiado grande. Máximo 5 MB permitido.'
-      )
-    case 415:
-      // Unsupported media type (A2: formato no soportado)
-      throw new Error(
-        'Formato de archivo no soportado. Solo JPG, PNG y WebP están permitidos.'
-      )
-    default:
-      throw new Error(
-        mensaje || `Error al procesar la solicitud (${status}). Por favor, intenta nuevamente.`
-      )
-  }
-}
-
-/**
  * Clase que implementa UsuarioPerfilRepository.
  * Delegada por UsuarioPerfilService (T030) para operaciones HTTP.
  */
@@ -162,9 +123,7 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
       )
       return mapearUsuarioDelDto(response)
     } catch (error) {
-      const status = (error as any)?.status || 401
-      const mensaje = (error as any)?.message
-      manejarErrorHttp(status, mensaje)
+      lanzarErrorAdaptado(error)
     }
   }
 
@@ -179,9 +138,7 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
       const response = await httpClient.get<UsuarioResponseDto>(url)
       return mapearUsuarioDelDto(response)
     } catch (error) {
-      const status = (error as any)?.status || 500
-      const mensaje = (error as any)?.message
-      manejarErrorHttp(status, mensaje)
+      lanzarErrorAdaptado(error)
     }
   }
 
@@ -199,9 +156,7 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
       )
       return mapearUsuarioDelDto(response)
     } catch (error) {
-      const status = (error as any)?.status || 500
-      const mensaje = (error as any)?.message
-      manejarErrorHttp(status, mensaje)
+      lanzarErrorAdaptado(error)
     }
   }
 
@@ -228,9 +183,7 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
       )
       return mapearUsuarioDelDto(response)
     } catch (error) {
-      const status = (error as any)?.status || 500
-      const mensaje = (error as any)?.message
-      manejarErrorHttp(status, mensaje)
+      lanzarErrorAdaptado(error)
     }
   }
 }
@@ -247,4 +200,3 @@ export const usuarioPerfilRepository = new HttpUsuarioPerfilRepository()
  * Usado en componentes de presentación (T032).
  */
 export const usuarioPerfilService = new UsuarioPerfilService(usuarioPerfilRepository)
-

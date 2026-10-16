@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { Navigate, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../services/AuthContext'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
-import { EstadoCuentaUsuario } from '../../domain/enums/EstadoCuentaUsuario'
 import { PerfilPropio } from './PerfilPropio'
 import { PerfilAjeno } from './PerfilAjeno'
 import { ProfileNotFoundView } from './ProfileNotFoundView'
 import { usuarioPerfilService } from '../../services/perfilUsuarioService'
+import { seguimientoService } from '../../services/seguimientoService'
+import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
+import { ErrorDeDominio } from '../../infrastructure/apiErrorAdapter'
 
 /**
  * `PerfilPage`: Contenedor root que decide entre perfil propio y ajeno.
@@ -66,7 +68,11 @@ interface PerfilPageState {
 
 export const PerfilPage: React.FC = () => {
   const { id: usuarioIdParam } = useParams<{ id?: string }>()
-  const { usuario: usuarioActual, cargando: cargandoAuth } = useAuth()
+  const {
+    usuario: usuarioActual,
+    cargando: cargandoAuth,
+    revalidarSesion,
+  } = useAuth()
   const navigate = useNavigate()
 
   const [state, setState] = useState<PerfilPageState>({ cargando: true })
@@ -89,7 +95,9 @@ export const PerfilPage: React.FC = () => {
     }
 
     const usuarioIdACargar = usuarioIdParam || usuarioActual.id
-    const esPerfilPropio = !usuarioIdParam
+    const esPerfilPropio =
+      !usuarioIdParam || usuarioIdParam === usuarioActual.id
+    let activo = true
 
     setState({
       cargando: true,
@@ -100,18 +108,12 @@ export const PerfilPage: React.FC = () => {
 
     const cargarUsuario = async () => {
       try {
-        // T035: Usar UsuarioPerfilService para cargar el perfil
-        // Maneja tanto perfil propio como ajeno, con validaciones de A10
-        let usuario: Usuario
-
-        if (esPerfilPropio) {
-          // HU-01: Obtener perfil propio
-          usuario = await usuarioPerfilService.obtenerPerfilPropio()
-        } else {
-          // HU-03: Obtener perfil ajeno (con validación A10)
-          usuario = await usuarioPerfilService.obtenerPerfilAjeno(usuarioIdACargar)
+        const usuario = esPerfilPropio
+          ? await usuarioPerfilService.obtenerPerfilPropio()
+          : await usuarioPerfilService.obtenerPerfilAjeno(usuarioIdACargar)
+        if (!activo) {
+          return
         }
-
         setState({
           cargando: false,
           error: undefined,
@@ -119,14 +121,17 @@ export const PerfilPage: React.FC = () => {
           es403O404: false,
         })
       } catch (err) {
-        // T035: Manejo de errores HTTP (404/403 para A10)
         const errorMsg = err instanceof Error ? err.message : 'Error al cargar perfil'
+        const es403O404 =
+          err instanceof ErrorDeDominio &&
+          (err.status === 403 || err.status === 404)
+        if (activo && err instanceof ErrorDeDominio && err.status === 401) {
+          navigate('/login', { replace: true })
+        }
 
-        // Detectar si es error 404/403 por estado de cuenta (A10)
-        const es403O404 = errorMsg.includes('no disponible') || 
-                         errorMsg.includes('no existe') ||
-                         errorMsg.includes('no está disponible')
-
+        if (!activo) {
+          return
+        }
         setState({
           cargando: false,
           error: errorMsg,
@@ -136,11 +141,24 @@ export const PerfilPage: React.FC = () => {
       }
     }
 
-    cargarUsuario()
+    void cargarUsuario()
+    return () => {
+      activo = false
+    }
   }, [usuarioIdParam, usuarioActual, cargandoAuth, navigate])
 
   // Mostrar loading mientras se cargan datos de autenticación
-  if (cargandoAuth || state.cargando) {
+  if (cargandoAuth) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>Cargando perfil...</p>
+      </div>
+    )
+  }
+  if (!usuarioActual) {
+    return <Navigate to="/login" replace />
+  }
+  if (state.cargando) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         <p>Cargando perfil...</p>
@@ -178,13 +196,14 @@ export const PerfilPage: React.FC = () => {
 
   // A10: Validación adicional client-side (respaldo de T035)
   // Si perfil ajeno y no está disponible, mostrar ProfileNotFoundView
-  const usuarioIdParam_ = usuarioIdParam
-  const esPerfilPropio = !usuarioIdParam_
-  if (!esPerfilPropio && !state.usuario.estaDisponible()) {
+  const usuarioPerfil = state.usuario
+  const esPerfilPropio =
+    !usuarioIdParam || usuarioIdParam === usuarioActual.id
+  if (!esPerfilPropio && !usuarioPerfil.estaDisponible()) {
     // T027: ProfileNotFoundView maneja BANEADO/ELIMINADO
     return (
       <ProfileNotFoundView
-        usuario={state.usuario}
+        usuario={usuarioPerfil}
         onVolver={() => navigate(-1)}
       />
     )
@@ -196,9 +215,10 @@ export const PerfilPage: React.FC = () => {
     // T034: Modales integrados de edición y cambio de foto
     return (
       <PerfilPropio
-        usuario={state.usuario}
+        key={usuarioPerfil.id}
+        usuario={usuarioPerfil}
         onPerfilActualizado={(usuarioActualizado) => {
-          // T034: Actualizar usuario en estado
+          void revalidarSesion()
           setState((prev) => ({
             ...prev,
             usuario: usuarioActualizado,
@@ -210,11 +230,49 @@ export const PerfilPage: React.FC = () => {
     // T021: PerfilAjeno con opción de seguimiento
     return (
       <PerfilAjeno
-        usuario={state.usuario}
-        usuarioActual={usuarioActual!}
+        key={usuarioPerfil.id}
+        usuario={usuarioPerfil}
+        usuarioActual={usuarioActual}
+        seguimiento={
+          new SeguimientoRelacion(
+            usuarioActual.id,
+            usuarioPerfil.id,
+            usuarioPerfil.siguiendoPorUsuarioActual,
+          )
+        }
         onSeguimiento={async (seguimiento) => {
-          // TODO (T030): Integrar servicio de seguimiento
-          console.log('Toggling seguimiento:', seguimiento)
+          await seguimientoService.toggleSeguimiento(
+            usuarioActual.id,
+            usuarioPerfil.id,
+            seguimiento.siguiendo,
+          )
+          setState((actual) => {
+            const usuario = actual.usuario
+            if (!usuario || usuario.id !== usuarioPerfil.id) {
+              return actual
+            }
+            const cambio =
+              seguimiento.siguiendo === usuario.siguiendoPorUsuarioActual
+                ? 0
+                : seguimiento.siguiendo
+                  ? 1
+                  : -1
+            return {
+              ...actual,
+              usuario: new Usuario(
+                usuario.id,
+                usuario.username,
+                usuario.foto,
+                usuario.sobreMi,
+                usuario.descripcion,
+                usuario.estado,
+                usuario.rol,
+                usuario.fechaCreacion,
+                seguimiento.siguiendo,
+                Math.max(0, usuario.cantidadSeguidores + cambio),
+              ),
+            }
+          })
         }}
       />
     )

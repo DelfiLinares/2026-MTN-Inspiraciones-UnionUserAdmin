@@ -1,6 +1,7 @@
 import { UsuarioPerfil as Usuario } from '../domain/UsuarioPerfil'
 import { ActualizarPerfilPayload } from './dto/ActualizarPerfilPayload'
 import { ResultadoValidacion } from './dto/ResultadoValidacion'
+import { crearFormDataFoto } from './dto/SubirFotoPayload'
 import { UsuarioPerfilRepository } from './ports/UsuarioPerfilRepository'
 
 /**
@@ -234,13 +235,11 @@ export class UsuarioPerfilService {
    *
    * Referencias:
    * - spec.md HU-02, AC-02.1, A2
-   * - openapi.yaml POST /perfil/foto
+   * - openapi.yaml POST /usuarios/me/avatar
    * - data-model.md SubirFotoPayload (validaciones)
    */
   async cambiarFotoPerfil(fotoFile: File): Promise<Usuario> {
-    // Crear FormData para upload multipart
-    const formData = new FormData()
-    formData.append('foto', fotoFile)
+    const formData = crearFormDataFoto(fotoFile)
 
     // Delega al repository; backend valida A2 (400/413/415 si inválido)
     return this.repository.cambiarFotoPerfil(formData)

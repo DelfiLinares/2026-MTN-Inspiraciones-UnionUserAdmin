@@ -47,6 +47,7 @@ import { PublicarDesafioPage } from '../pages/desafios/publicar'
 import { EditarDesafioPage } from '../pages/desafios/editar'
 import { BandejaSolicitudesPage } from '../pages/solicitudes/bandeja'
 import { DetalleSolicitudAdminPage } from '../pages/solicitudes/detalle-admin'
+import { CarpetaPostsPage } from '../presentation/carpetas/CarpetaPostsPage'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -109,6 +110,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaProtegida>
             <PerfilPage />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/carpeta/:id"
+        element={
+          <RutaProtegida>
+            <CarpetaPostsPage />
           </RutaProtegida>
         }
       />

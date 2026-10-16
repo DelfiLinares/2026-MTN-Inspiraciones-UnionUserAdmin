@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 /**
  * Tests de `useDescubrirFiltros` (T072).
  *
@@ -92,6 +94,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     await waitFor(() => {
@@ -104,6 +107,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     act(() => {
@@ -139,6 +143,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     expect(result.current.geolocalizacionHabilitada).toBe(false)
@@ -167,6 +172,11 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
+    })
+
+    act(() => {
+      result.current.establecerDistancia(10)
     })
 
     let activado = false
@@ -200,6 +210,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     let activado = true
@@ -225,6 +236,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     await act(async () => {
@@ -248,6 +260,7 @@ describe('useDescubrirFiltros (T072)', () => {
 
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toHaveLength(1)
     })
 
     act(() => {

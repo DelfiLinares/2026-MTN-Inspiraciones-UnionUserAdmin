@@ -97,7 +97,7 @@ export class UsuarioPerfil {
   /**
    * Helper: Determine if follow button should be shown (not on own profile).
    */
-  public debeeMostrarBotonSeguir(usuarioActualId: string): boolean {
+  public debeMostrarBotonSeguir(usuarioActualId: string): boolean {
     return !this.esUsuarioActual(usuarioActualId)
   }
 

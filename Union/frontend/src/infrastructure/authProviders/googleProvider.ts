@@ -18,17 +18,25 @@ import { httpClient } from '../httpClient'
 import { config } from '../config'
 import { tokenStorage, verificarSesion } from '../tokenStorage'
 import { Usuario } from '../../domain/Usuario'
-import { RolUsuario } from '../../domain/enums/RolUsuario'
+import { mapearUsuarioAutenticado } from '../mappers/perfilMappers'
 
 export interface OAuthLoginResponseDto {
   token?: string
+  accessToken?: string
   usuario?: {
     id: string
-    nombre: string
+    username?: string
+    nombreCompleto?: string | null
+    nombre?: string
     apellido?: string
     rol?: string
+    role?: string
+    status?: string
     bio?: string | null
+    sobreMi?: string | null
+    descripcion?: string | null
     fotoUrl?: string | null
+    avatarUrl?: string | null
     cantidadSeguidores?: number
   }
   error?: string
@@ -39,17 +47,13 @@ export interface OAuthResult {
   usuario: Usuario
 }
 
-function mapearUsuario(dto: OAuthLoginResponseDto['usuario']): Usuario {
-  return new Usuario({
-    id: dto?.id ?? '',
-    nombre: dto?.nombre ?? '',
-    apellido: dto?.apellido ?? '',
-    bio: dto?.bio ?? undefined,
-    fotoUrl: dto?.fotoUrl ?? undefined,
-    rol: RolUsuario.USER,
-    cantidadSeguidores: dto?.cantidadSeguidores ?? 0,
-    siguiendoAlUsuarioActual: false,
-  })
+function mapearUsuario(dto: NonNullable<OAuthLoginResponseDto['usuario']>): Usuario {
+  const username = dto.username ?? dto.nombre ?? ''
+  if (!dto.id || !username) {
+    throw new Error('La respuesta OAuth no incluye los datos requeridos del usuario.')
+  }
+
+  return mapearUsuarioAutenticado(dto)
 }
 
 /**
@@ -127,7 +131,8 @@ export async function procesarCallback(parametros?: string | URLSearchParams): P
       throw new Error(`Error en callback de autenticación: ${respuesta.error}`)
     }
 
-    const tokenRespuesta = respuesta.token ?? tokenStorage.getToken() ?? ''
+    const tokenRespuesta =
+      respuesta.accessToken ?? respuesta.token ?? tokenStorage.getToken() ?? ''
     if (tokenRespuesta) {
       tokenStorage.setToken(tokenRespuesta)
     }
@@ -139,6 +144,7 @@ export async function procesarCallback(parametros?: string | URLSearchParams): P
     if (!usuario) {
       throw new Error('No se pudo obtener el usuario autenticado tras procesar el código.')
     }
+    tokenStorage.setLoginData('', '', usuario)
 
     return {
       token: tokenRespuesta,

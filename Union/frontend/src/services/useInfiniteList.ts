@@ -52,7 +52,6 @@ export function useInfiniteList<T>(
 
   const observerRef = useRef<IntersectionObserver | null>(null)
   const enCursoRef = useRef<boolean>(false)
-
   const cargarSiguiente = useCallback(async () => {
     if (enCursoRef.current || !hayMas) {
       return
@@ -116,7 +115,7 @@ export function useInfiniteList<T>(
     }
   }, [])
 
-  // Carga inicial
+  // Carga inicial y reinicio ante cambios en resetKey comparten una sola petición.
   useEffect(() => {
     cargarSiguiente()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,8 +129,7 @@ export function useInfiniteList<T>(
     }
     resetKeyPrevioRef.current = resetKey
     recargar()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetKey])
+  }, [resetKey, recargar])
 
   // Centinela con IntersectionObserver
   const centinelaRef = useCallback(

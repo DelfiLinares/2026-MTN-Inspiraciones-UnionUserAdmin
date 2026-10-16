@@ -18,8 +18,8 @@
 export const apiEndpoints = {
   // Autenticación & Sesión (compartido)
   login: () => '/auth/login',
-  me: () => '/auth/me',
-  logout: () => '/auth/logout',
+  registro: () => '/auth/register',
+  me: () => '/usuarios/me',
 
   // Módulo 004-inspiraciones-perfil — Perfiles (HU-01, HU-02, HU-03)
   perfilActual: () => '/usuarios/me',

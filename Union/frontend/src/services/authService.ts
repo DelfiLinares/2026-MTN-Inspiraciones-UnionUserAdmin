@@ -13,11 +13,12 @@
  * - Registro y login de nuevos usuarios (`POST /auth/register`, `POST /auth/login`).
  * - Delegación de OAuth Google / GitHub (`googleProvider`, `githubProvider`).
  * - Verificación de sesión (`GET /usuarios/me`) mediante `tokenStorage.verificarSesion()`.
- * - Cierre de sesión (`POST /auth/logout` y `tokenStorage.clearToken()`).
+ * - Cierre de sesión local eliminando el token.
  */
 
 import { httpClient, ApiError, HttpForbiddenError } from '../infrastructure/httpClient'
 import { tokenStorage, verificarSesion } from '../infrastructure/tokenStorage'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { mailPasswordProvider, LoginCredentials, LoginResult } from '../infrastructure/authProviders/mailPasswordProvider'
 import { googleProvider, OAuthResult } from '../infrastructure/authProviders/googleProvider'
 import { githubProvider } from '../infrastructure/authProviders/githubProvider'
@@ -88,8 +89,17 @@ export async function registrar(datos: RegistroDatos): Promise<LoginResult> {
     nombreCompleto: `${datos.nombre.trim()} ${datos.apellido.trim()}`.trim(),
   }
 
-  await httpClient.post<unknown>('/auth/register', payload)
-  return mailPasswordProvider.iniciarSesion({ email, password: datos.password })
+  await httpClient.post<unknown>(apiEndpoints.registro(), payload)
+  try {
+    return await mailPasswordProvider.iniciarSesion({ email, password: datos.password })
+  } catch (error) {
+    if (error instanceof ApiError || error instanceof TypeError) {
+      throw new Error(
+        'La cuenta se creó, pero no se pudo iniciar sesión automáticamente. Iniciá sesión con tus credenciales.',
+      )
+    }
+    throw error
+  }
 }
 
 /**
@@ -120,28 +130,14 @@ export async function procesarCallbackOAuth(
  * Verifica la sesión actual contra `GET /usuarios/me`.
  */
 export async function verificarSesionActual(): Promise<Usuario | null> {
-  try {
-    return (await verificarSesion()) ?? tokenStorage.obtenerUsuarioPersistido()
-  } catch (error) {
-    const usuarioPersistido = tokenStorage.obtenerUsuarioPersistido()
-    if (usuarioPersistido) {
-      return usuarioPersistido
-    }
-    throw error
-  }
+  return verificarSesion()
 }
 
 /**
- * Cierra la sesión activa en el backend y limpia el token local.
+ * Cierra la sesión local. El contrato de la API no expone un endpoint de logout.
  */
 export async function logout(): Promise<void> {
-  try {
-    await httpClient.post('/auth/logout')
-  } catch {
-    // Si falla la llamada de red al desloguear, limpia igualmente el almacenamiento local
-  } finally {
-    tokenStorage.clearToken()
-  }
+  tokenStorage.clearToken()
 }
 
 export const authService = {

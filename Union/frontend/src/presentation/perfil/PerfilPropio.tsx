@@ -1,13 +1,18 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
+import type { ResultadoPublicacionesPaginado } from '../../application/ports/PublicacionRepository'
+import { carpetaService } from '../../services/carpetaPerfilService'
+import { publicacionService } from '../../services/perfilPublicacionService'
 import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
 import { CarpetaList } from '../carpetas/CarpetaList'
 import { PublicacionList } from '../publicaciones/PublicacionList'
+
+const TAMANIO_PAGINA = 20
 
 /**
  * `PerfilPropio`: Vista de perfil propio con acciones de edición.
@@ -43,7 +48,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  *    - T074: Estados de loading/empty/error (CB-18: mostrar vacío si sin publicaciones)
  *
  * 5. No ofrece botón de seguir (AC-01.5):
- *    - Regla explícita: debeeMostrarBotonSeguir() siempre false para perfil propio
+ *    - Regla explícita: debeMostrarBotonSeguir() siempre false para perfil propio
  *
  * Props:
  * - `usuario: Usuario` — Objeto usuario autenticado con datos de perfil
@@ -113,17 +118,102 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         }
       : undefined
   )
-  const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
+  const [cargandoCarpetas, setCargandoCarpetas] = useState(true)
 
   // T074: Error states for carpetas and publicaciones
   const [errorCarpetas, setErrorCarpetas] = useState<string>('')
 
   // T057: Estado para publicaciones propias
   const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
-  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
+  const [paginacionPublicaciones, setPaginacionPublicaciones] =
+    useState<ResultadoPublicacionesPaginado>()
+  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(true)
+  const [cargandoMasPublicaciones, setCargandoMasPublicaciones] = useState(false)
 
   // T074: Error states for publicaciones
   const [errorPublicaciones, setErrorPublicaciones] = useState<string>('')
+
+  const cargarCarpetas = useCallback(
+    async (limit: number, offset: number, anexar: boolean) => {
+      if (!anexar) {
+        setCargandoCarpetas(true)
+      }
+      setErrorCarpetas('')
+      try {
+        const resultado = await carpetaService.listarCarpetas(
+          usuarioActualizado.id,
+          limit,
+          offset,
+        )
+        setCarpetasActuales((actuales) =>
+          anexar ? [...actuales, ...resultado.carpetas] : resultado.carpetas,
+        )
+        setPaginacionCarpetas((actual) => ({
+          items: anexar
+            ? [...(actual?.items ?? []), ...resultado.carpetas]
+            : resultado.carpetas,
+          total: resultado.total,
+          limit: resultado.limit,
+          offset: resultado.offset,
+          hasMore: resultado.offset + resultado.carpetas.length < resultado.total,
+        }))
+      } catch (error) {
+        setErrorCarpetas(
+          error instanceof Error ? error.message : 'No se pudieron cargar las carpetas.',
+        )
+        throw error
+      } finally {
+        if (!anexar) {
+          setCargandoCarpetas(false)
+        }
+      }
+    },
+    [usuarioActualizado.id],
+  )
+
+  const cargarPublicaciones = useCallback(
+    async (limit: number, offset: number, anexar: boolean) => {
+      if (!anexar) {
+        setCargandoPublicaciones(true)
+      }
+      setErrorPublicaciones('')
+      try {
+        const resultado = await publicacionService.listarPublicaciones(
+          usuarioActualizado.id,
+          limit,
+          offset,
+        )
+        setPublicacionesActuales((actuales) =>
+          anexar ? [...actuales, ...resultado.items] : resultado.items,
+        )
+        setPaginacionPublicaciones((actual) => ({
+          ...resultado,
+          items: anexar ? [...(actual?.items ?? []), ...resultado.items] : resultado.items,
+        }))
+      } catch (error) {
+        setErrorPublicaciones(
+          error instanceof Error
+            ? error.message
+            : 'No se pudieron cargar las publicaciones.',
+        )
+      } finally {
+        if (!anexar) {
+          setCargandoPublicaciones(false)
+        }
+        setCargandoMasPublicaciones(false)
+      }
+    },
+    [usuarioActualizado.id],
+  )
+
+  useEffect(() => {
+    setCarpetasActuales([])
+    setPublicacionesActuales([])
+    setPaginacionCarpetas(undefined)
+    setPaginacionPublicaciones(undefined)
+    void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(() => undefined)
+    void cargarPublicaciones(TAMANIO_PAGINA, 0, false)
+  }, [cargarCarpetas, cargarPublicaciones])
 
   const handleEditarPerfil = () => {
     setMostrarModalEditar(true)
@@ -158,25 +248,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
 
   // T046: Handlers para gestión de carpetas
   const handleCargarMasCarpetas = async (limit: number, offset: number) => {
-    // En T045, onCargarMas recibe limit y offset
-    // Aquí simulamos que el padre (quien usa PerfilPropio) carga más carpetas
-    // Por ahora, no hacemos nada especial ya que las carpetas vienen como prop
-    // En una integración completa, esto llamaría a un servicio
-    setCargandoCarpetas(true)
-    try {
-      // TODO: Implementar llamada a carpetaService.listarCarpetas(usuarioId, limit, offset)
-      // Por ahora, asumimos que no hay más carpetas (hasMore = false)
-    } finally {
-      setCargandoCarpetas(false)
-    }
+    await cargarCarpetas(limit, offset, true)
   }
 
   const handleCrearCarpeta = () => {
-    // T042: Al crear carpeta, recargamos la lista desde el padre
-    // El callback onCreate de CarpetaList invocará esto
-    // Aquí podríamos recargar la lista o esperar que el padre (router) se refresque
-    console.log('Carpeta creada. Recargando lista...')
-    // TODO: Implementar recarga de carpetas desde el servicio
+    void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(() => undefined)
   }
 
   const handleRenombrarCarpeta = (carpetaRenombrada: CarpetaPost) => {
@@ -184,7 +260,6 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     setCarpetasActuales((prev) =>
       prev.map((c) => (c.id === carpetaRenombrada.id ? carpetaRenombrada : c))
     )
-    console.log('Carpeta renombrada:', carpetaRenombrada.nombre)
   }
 
   const handleEliminarCarpeta = (carpetaEliminada: CarpetaPost) => {
@@ -201,12 +276,10 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           : prev
       )
     }
-    console.log('Carpeta eliminada:', carpetaEliminada.nombre)
   }
 
   const handleSeleccionarCarpeta = (carpeta: CarpetaPost) => {
-    // HU-10: Navegar a la lista de posts de la carpeta
-    navigate(`/carpeta/${carpeta.id}`)
+    navigate(`/carpeta/${encodeURIComponent(carpeta.id)}`)
   }
 
   // T057: Handlers para gestión de publicaciones propias
@@ -222,11 +295,20 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     setPublicacionesActuales((prev) => prev.filter((p) => p.id !== publicacionId))
   }
 
-  const handleGuardarPublicacionEnCarpeta = (publicacionGuardada: PublicacionPerfil) => {
-    // HU-09: Notificar que la publicación se guardó en carpeta
-    // No modificamos la lista de publicaciones propias (la publicación sigue siendo propia)
-    // Solo notificamos el evento; el padre podría actualizar carpetas si lo desea
-    console.log('Publicación guardada en carpeta:', publicacionGuardada.id)
+  const handleGuardarPublicacionEnCarpeta = () => {
+    void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(() => undefined)
+  }
+
+  const handleCargarMasPublicaciones = () => {
+    if (!paginacionPublicaciones?.hasMore || cargandoMasPublicaciones) {
+      return
+    }
+    setCargandoMasPublicaciones(true)
+    void cargarPublicaciones(
+      paginacionPublicaciones.limit,
+      paginacionPublicaciones.offset + paginacionPublicaciones.limit,
+      true,
+    )
   }
 
   if (cargando) {
@@ -399,6 +481,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
             onRename={handleRenombrarCarpeta}
             onDelete={handleEliminarCarpeta}
             onSelectCarpeta={handleSeleccionarCarpeta}
+            onManageCarpetaPublicaciones={() => {
+              void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(
+                () => undefined,
+              )
+            }}
           />
         )}
       </section>
@@ -448,11 +535,17 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         ) : (
           <PublicacionList
             publicaciones={publicacionesActuales}
+            paginacion={paginacionPublicaciones}
             esPerfilPropio={true}
+            usuarioActualId={usuarioActualizado.id}
+            onEditar={() => undefined}
+            onEliminar={() => undefined}
+            onCargarMas={handleCargarMasPublicaciones}
             cargando={cargandoPublicaciones}
+            cargandoMas={cargandoMasPublicaciones}
+            onGuardarEnCarpeta={handleGuardarPublicacionEnCarpeta}
             onEditarExitosamente={handleEditarPublicacionExitosamente}
             onEliminarExitosamente={handleEliminarPublicacionExitosamente}
-            onGuardarEnCarpeta={handleGuardarPublicacionEnCarpeta}
           />
         )}
       </section>

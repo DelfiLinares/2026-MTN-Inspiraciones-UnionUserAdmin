@@ -148,9 +148,11 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
   const validarFormulario = (): boolean => {
     const erroresLocales: Record<string, string> = {}
 
-    const resultUsername = validarUsername(nombreUsuario)
-    if (!resultUsername.esValido) {
-      erroresLocales[resultUsername.campo || 'nombreUsuario'] = resultUsername.error || ''
+    if (nombreUsuario !== usuario.username) {
+      const resultUsername = validarUsername(nombreUsuario)
+      if (!resultUsername.esValido) {
+        erroresLocales[resultUsername.campo || 'nombreUsuario'] = resultUsername.error || ''
+      }
     }
 
     const resultSobreMi = validarSobreMi(sobreMi)

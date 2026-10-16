@@ -47,7 +47,13 @@ describe('mailPasswordProvider', () => {
     expect(tokenStorage.setLoginData).toHaveBeenCalledWith(
       'ana@ejemplo.com',
       'ana',
-      expect.objectContaining({ id: 'u1', nombre: 'Ana', apellido: 'Pérez' }),
+      expect.objectContaining({
+        id: 'u1',
+        nombre: 'Ana',
+        apellido: 'Pérez',
+        fotoUrl: 'https://example.com/avatar.png',
+        rol: RolUsuario.ADMIN,
+      }),
     )
     expect(resultado.token).toBe('jwt-123')
     expect(resultado.usuario).toBeInstanceOf(Usuario)

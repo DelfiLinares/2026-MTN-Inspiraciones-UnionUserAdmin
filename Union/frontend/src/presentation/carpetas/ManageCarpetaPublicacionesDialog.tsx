@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
-import { publicacionService } from '../../services/perfilPublicacionService'
+import { carpetaService } from '../../services/carpetaPerfilService'
 
 /**
  * `ManageCarpetaPublicacionesDialog`: Diálogo para gestionar publicaciones dentro de una carpeta.
@@ -67,6 +67,8 @@ export const ManageCarpetaPublicacionesDialog: React.FC<ManageCarpetaPublicacion
   const [publicaciones, setPublicaciones] = useState<PublicacionPerfil[]>([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string>('')
+  const [totalPublicaciones, setTotalPublicaciones] = useState(0)
+  const [cargandoMas, setCargandoMas] = useState(false)
 
   // State para quitar
   const [quitando, setQuitando] = useState<string | null>(null)
@@ -76,32 +78,61 @@ export const ManageCarpetaPublicacionesDialog: React.FC<ManageCarpetaPublicacion
    * Cargar publicaciones de la carpeta al abrir el diálogo (AC-10.1–AC-10.3).
    */
   useEffect(() => {
-    const cargarPublicaciones = async () => {
-      setCargando(true)
-      setErrorCarga('')
-      try {
-        // Listar publicaciones de la carpeta (parámetros genéricos)
-        // Nota: En una implementación real, habría un método específico para listar
-        // publicaciones de una carpeta. Por ahora, se asume que el servicio
-        // puede filtrar internamente o que existe un endpoint específico.
-        // Para esta versión, usamos un placeholder que será resuelto en integración.
-        
-        // TODO: Implementar cargarPublicacionesDeCarpeta cuando exista el método en el servicio
-        // const resultado = await publicacionService.listarPublicacionesDeCarpeta(carpeta.id)
-        // setPublicaciones(resultado.items || [])
+    let activo = true
+    setCargando(true)
+    setErrorCarga('')
+    setPublicaciones([])
+    setTotalPublicaciones(0)
+    void carpetaService
+      .listarPostsDeCarpeta(carpeta.id, 20, 0)
+      .then((resultado) => {
+        if (activo) {
+          setPublicaciones(resultado.publicaciones)
+          setTotalPublicaciones(resultado.total)
+        }
+      })
+      .catch((error: unknown) => {
+        if (activo) {
+          setErrorCarga(
+            error instanceof Error
+              ? error.message
+              : 'Error al cargar las publicaciones.',
+          )
+        }
+      })
+      .finally(() => {
+        if (activo) {
+          setCargando(false)
+        }
+      })
 
-        // Placeholder: mostrar lista vacía por ahora
-        setPublicaciones([])
-      } catch (error) {
-        const mensaje = (error as Error)?.message || 'Error al cargar las publicaciones.'
-        setErrorCarga(mensaje)
-      } finally {
-        setCargando(false)
-      }
+    return () => {
+      activo = false
     }
-
-    cargarPublicaciones()
   }, [carpeta.id])
+
+  const handleCargarMas = async () => {
+    if (cargandoMas || publicaciones.length >= totalPublicaciones) {
+      return
+    }
+    setCargandoMas(true)
+    setErrorCarga('')
+    try {
+      const resultado = await carpetaService.listarPostsDeCarpeta(
+        carpeta.id,
+        20,
+        publicaciones.length,
+      )
+      setPublicaciones((actuales) => [...actuales, ...resultado.publicaciones])
+      setTotalPublicaciones(resultado.total)
+    } catch (error) {
+      setErrorCarga(
+        error instanceof Error ? error.message : 'Error al cargar las publicaciones.',
+      )
+    } finally {
+      setCargandoMas(false)
+    }
+  }
 
   /**
    * Quitar publicación de la carpeta (AC-10.1–AC-10.3).
@@ -112,10 +143,11 @@ export const ManageCarpetaPublicacionesDialog: React.FC<ManageCarpetaPublicacion
 
     try {
       // Invocar servicio (T048/T049)
-      await publicacionService.quitarPublicacionDeCarpeta(carpeta.id, publicacionId)
+      await carpetaService.quitarPostDeCarpeta(carpeta.id, publicacionId)
 
       // AC-10.2: Actualizar lista local removiendo la publicación
       setPublicaciones((prev) => prev.filter((p) => p.id !== publicacionId))
+      setTotalPublicaciones((total) => Math.max(0, total - 1))
 
       // Notificar al padre (AC-10.2: postCount se actualiza)
       if (onQuitar) {
@@ -243,6 +275,16 @@ export const ManageCarpetaPublicacionesDialog: React.FC<ManageCarpetaPublicacion
                 </div>
               ))}
             </div>
+          )}
+          {!cargando && publicaciones.length < totalPublicaciones && (
+            <button
+              type="button"
+              onClick={() => void handleCargarMas()}
+              disabled={cargandoMas}
+              style={styles.btnCancelar}
+            >
+              {cargandoMas ? 'Cargando...' : 'Cargar más'}
+            </button>
           )}
         </div>
 

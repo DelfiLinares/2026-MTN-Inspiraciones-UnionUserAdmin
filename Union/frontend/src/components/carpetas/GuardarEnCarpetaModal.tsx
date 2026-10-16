@@ -2,7 +2,7 @@
  * Componente `GuardarEnCarpetaModal`: Modal de guardado de publicación en carpeta.
  * Cumple con CB-03:
  * - Bloquea la acción de guardar (`puedeGuardarEnCarpeta()`) mientras `cargando === true` o no hay carpeta seleccionada.
- * - Permite crear una nueva carpeta inline respetando el límite máximo de 100 carpetas (RF-52, `puedeCrearNuevaCarpeta()`).
+ * - Permite crear una nueva carpeta inline respetando el límite máximo de 50 carpetas (`puedeCrearNuevaCarpeta()`).
  *
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/spec.md (RF-48, RF-49, RF-52, CB-03)

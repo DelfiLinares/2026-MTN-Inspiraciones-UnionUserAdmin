@@ -149,7 +149,8 @@ export class SeguimientoService {
    */
   async toggleSeguimiento(
     usuarioActualId: string,
-    usuarioASeguidoId: string
+    usuarioASeguidoId: string,
+    ahoraSiguiendo: boolean,
   ): Promise<ResultadoToggleSeguimiento> {
     if (!usuarioActualId || usuarioActualId.trim() === '') {
       throw new Error('ID de usuario autenticado requerido')
@@ -163,6 +164,10 @@ export class SeguimientoService {
       throw new Error('No se puede seguir a sí mismo')
     }
 
-    return this.repository.toggleSeguimiento(usuarioActualId, usuarioASeguidoId)
+    return this.repository.toggleSeguimiento(
+      usuarioActualId,
+      usuarioASeguidoId,
+      ahoraSiguiendo,
+    )
   }
 }

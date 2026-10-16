@@ -96,5 +96,9 @@ export interface SeguimientoRepository {
    * 5. UI actualiza botón a "Dejar de seguir"
    * 6. Si falla: UI revierte estado (rollback en PerfilAjeno/SeguimientoService)
    */
-  toggleSeguimiento(usuarioId: string, usuarioASeguidoId: string): Promise<ResultadoToggleSeguimiento>
+  toggleSeguimiento(
+    usuarioId: string,
+    usuarioASeguidoId: string,
+    ahoraSiguiendo: boolean,
+  ): Promise<ResultadoToggleSeguimiento>
 }

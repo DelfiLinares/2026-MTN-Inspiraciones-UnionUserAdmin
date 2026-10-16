@@ -1,5 +1,5 @@
-import { TipoContenido } from './enums/TipoContenido'
 import { EstadoPublicacion } from './enums/EstadoPublicacion'
+import { TipoContenido } from './enums/TipoContenido'
 
 export interface PublicacionProps {
   id: string
@@ -109,4 +109,5 @@ export class Publicacion {
       cantidadComentarios: this.cantidadComentarios,
     })
   }
+
 }

@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { CarpetaPost } from '../../domain/CarpetaPost'
 import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
+import type { ResultadoPublicacionesPaginado } from '../../application/ports/PublicacionRepository'
+import { carpetaService } from '../../services/carpetaPerfilService'
+import { publicacionService } from '../../services/perfilPublicacionService'
 import { CarpetaList } from '../carpetas/CarpetaList'
 import { PublicacionList } from '../publicaciones/PublicacionList'
 import { FollowButton } from '../seguimiento/FollowButton'
+
+const TAMANIO_PAGINA = 20
 
 /**
  * `PerfilAjeno`: Vista de perfil ajeno con opción de seguimiento (modo consulta).
@@ -98,6 +104,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   cargando = false,
   onSeguimiento,
 }) => {
+  const navigate = useNavigate()
   const [seguimientoLocal, setSeguimientoLocal] = useState<SeguimientoRelacion | undefined>(seguimiento)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | undefined>()
@@ -115,31 +122,133 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         }
       : undefined
   )
-  const [cargandoCarpetas, setCargandoCarpetas] = useState(false)
+  const [cargandoCarpetas, setCargandoCarpetas] = useState(true)
 
   // T074: Error states for carpetas
   const [errorCarpetas, setErrorCarpetas] = useState<string>('')
 
   // T057: Estado para publicaciones ajenas (modo consulta, sin acciones)
   const [publicacionesActuales, setPublicacionesActuales] = useState(publicaciones)
-  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(false)
+  const [paginacionPublicaciones, setPaginacionPublicaciones] =
+    useState<ResultadoPublicacionesPaginado>()
+  const [cargandoPublicaciones, setCargandoPublicaciones] = useState(true)
+  const [cargandoMasPublicaciones, setCargandoMasPublicaciones] = useState(false)
 
   // T074: Error states for publicaciones
   const [errorPublicaciones, setErrorPublicaciones] = useState<string>('')
+
+  const cargarCarpetas = useCallback(
+    async (limit: number, offset: number, anexar: boolean) => {
+      if (!anexar) {
+        setCargandoCarpetas(true)
+      }
+      setErrorCarpetas('')
+      try {
+        const resultado = await carpetaService.listarCarpetas(
+          usuario.id,
+          limit,
+          offset,
+        )
+        setCarpetasActuales((actuales) =>
+          anexar ? [...actuales, ...resultado.carpetas] : resultado.carpetas,
+        )
+        setPaginacionCarpetas((actual) => ({
+          items: anexar
+            ? [...(actual?.items ?? []), ...resultado.carpetas]
+            : resultado.carpetas,
+          total: resultado.total,
+          limit: resultado.limit,
+          offset: resultado.offset,
+          hasMore: resultado.offset + resultado.carpetas.length < resultado.total,
+        }))
+      } catch (error) {
+        setErrorCarpetas(
+          error instanceof Error ? error.message : 'No se pudieron cargar las carpetas.',
+        )
+        throw error
+      } finally {
+        if (!anexar) {
+          setCargandoCarpetas(false)
+        }
+      }
+    },
+    [usuario.id],
+  )
+
+  const cargarPublicaciones = useCallback(
+    async (limit: number, offset: number, anexar: boolean) => {
+      if (!anexar) {
+        setCargandoPublicaciones(true)
+      }
+      setErrorPublicaciones('')
+      try {
+        const resultado = await publicacionService.listarPublicaciones(
+          usuario.id,
+          limit,
+          offset,
+        )
+        setPublicacionesActuales((actuales) =>
+          anexar ? [...actuales, ...resultado.items] : resultado.items,
+        )
+        setPaginacionPublicaciones((actual) => ({
+          ...resultado,
+          items: anexar ? [...(actual?.items ?? []), ...resultado.items] : resultado.items,
+        }))
+      } catch (error) {
+        setErrorPublicaciones(
+          error instanceof Error
+            ? error.message
+            : 'No se pudieron cargar las publicaciones.',
+        )
+      } finally {
+        if (!anexar) {
+          setCargandoPublicaciones(false)
+        }
+        setCargandoMasPublicaciones(false)
+      }
+    },
+    [usuario.id],
+  )
+
+  useEffect(() => {
+    setSeguimientoLocal(seguimiento)
+  }, [
+    seguimiento?.usuarioId,
+    seguimiento?.usuarioASeguidoId,
+    seguimiento?.siguiendo,
+  ])
+
+  useEffect(() => {
+    setCarpetasActuales([])
+    setPublicacionesActuales([])
+    setPaginacionCarpetas(undefined)
+    setPaginacionPublicaciones(undefined)
+    void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(() => undefined)
+    void cargarPublicaciones(TAMANIO_PAGINA, 0, false)
+  }, [cargarCarpetas, cargarPublicaciones])
+
+  const handleSeguimiento = async (nuevoEstado: SeguimientoRelacion) => {
+    setError(undefined)
+    setEnviando(true)
+    try {
+      await onSeguimiento?.(nuevoEstado)
+      setSeguimientoLocal(nuevoEstado)
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : 'No se pudo actualizar el seguimiento.',
+      )
+      throw error
+    } finally {
+      setEnviando(false)
+    }
+  }
 
   /**
    * T046: Handler para cargar más carpetas en modo consulta (sin acciones).
    * En perfil ajeno, solo permite visualización sin edición.
    */
   const handleCargarMasCarpetasAjeno = async (limit: number, offset: number) => {
-    // En modo consulta, solo cargamos más carpetas para visualización
-    // Sin acciones de edición
-    setCargandoCarpetas(true)
-    try {
-      // TODO: Implementar llamada a carpetaService.listarCarpetas(usuarioId, limit, offset)
-    } finally {
-      setCargandoCarpetas(false)
-    }
+    await cargarCarpetas(limit, offset, true)
   }
 
   /**
@@ -147,9 +256,19 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
    * Navega a la lista de posts de la carpeta (sin permisos de edición).
    */
   const handleSeleccionarCarpetaAjena = (carpeta: CarpetaPost) => {
-    // Navegar a carpeta en modo lectura
-    // TODO: Implementar navegación
-    console.log('Ver carpeta ajena:', carpeta.nombre)
+    navigate(`/carpeta/${encodeURIComponent(carpeta.id)}`)
+  }
+
+  const handleCargarMasPublicaciones = () => {
+    if (!paginacionPublicaciones?.hasMore || cargandoMasPublicaciones) {
+      return
+    }
+    setCargandoMasPublicaciones(true)
+    void cargarPublicaciones(
+      paginacionPublicaciones.limit,
+      paginacionPublicaciones.offset + paginacionPublicaciones.limit,
+      true,
+    )
   }
 
   if (cargando) {
@@ -229,10 +348,10 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             <div style={{ marginTop: '1rem' }}>
               {/* AC-03.4: NO mostrar acciones de edición (a diferencia de PerfilPropio) */}
               {/* AC-04.1: En perfil ajeno se muestra opción de seguir */}
-              {seguimientoLocal && usuario.debeeMostrarBotonSeguir(usuarioActual.id) && (
+              {seguimientoLocal && usuario.debeMostrarBotonSeguir(usuarioActual.id) && (
                 <FollowButton
                   seguimiento={seguimientoLocal}
-                  onToggleSeguimiento={onSeguimiento}
+                  onToggleSeguimiento={handleSeguimiento}
                   enviando={enviando}
                   error={error}
                   onErrorClear={() => setError(undefined)}
@@ -342,8 +461,11 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         ) : (
           <PublicacionList
             publicaciones={publicacionesActuales}
+            paginacion={paginacionPublicaciones}
             esPerfilPropio={false}
             cargando={cargandoPublicaciones}
+            cargandoMas={cargandoMasPublicaciones}
+            onCargarMas={handleCargarMasPublicaciones}
           />
         )}
       </section>

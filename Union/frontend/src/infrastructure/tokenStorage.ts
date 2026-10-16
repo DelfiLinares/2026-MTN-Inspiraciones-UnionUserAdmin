@@ -1,102 +1,35 @@
-/**
- * Almacenamiento seguro del token de sesión (frontend).
- *
- * Fuente de verdad:
- * - Union/specs/001-plataforma-unificada/spec.md (RF-06)
- * - Union/specs/001-plataforma-unificada/plan.md (sección 3.2, 3.4)
- * - Union/specs/001-plataforma-unificada/tasks.md (T036, T037)
- * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md (Sección A)
- *
- * Responsabilidades:
- * - Guardar/leer/borrar el token de sesión de forma segura.
- * - Persiste el token en localStorage y lo mantiene también en memoria durante la sesión.
- * - Provee `getToken()`, `setToken(token)`, `clearToken()` y `hasToken()`.
- * - Compatible con verificación de sesión (`verificarSesion`) consultando `GET /usuarios/me`.
- */
-
-import { httpClient, ApiError } from './httpClient'
-import { Usuario, type UsuarioProps } from '../domain/Usuario'
+import { Usuario } from '../domain/Usuario'
 import { RolUsuario } from '../domain/enums/RolUsuario'
+import { ApiError, httpClient } from './httpClient'
+import { apiEndpoints } from './apiEndpoints'
+import type { PerfilPropioDto } from './dto/perfilDtos'
+import { mapearUsuarioAutenticado } from './mappers/perfilMappers'
 
-const TOKEN_STORAGE_KEY = 'inspiraciones.auth.token'
-const EMAIL_STORAGE_KEY = 'inspiraciones.auth.email'
-const USERNAME_STORAGE_KEY = 'inspiraciones.auth.username'
-const USER_STORAGE_KEY = 'inspiraciones.auth.user'
+const CLAVE_TOKEN = 'inspiraciones.auth.token'
+const CLAVE_USUARIO = 'inspiraciones.auth.user'
+const CLAVE_EMAIL = 'inspiraciones.auth.email'
+const CLAVE_USERNAME = 'inspiraciones.auth.username'
 
-let memoryToken: string | null = null
+interface UsuarioPersistidoDto {
+  id: string
+  nombre: string
+  apellido: string
+  bio?: string
+  fotoUrl?: string
+  rol: RolUsuario
+  siguiendoAlUsuarioActual: boolean
+  cantidadSeguidores: number
+}
+
+let tokenEnMemoria: string | null = null
+let usuarioEnMemoria: Usuario | null = null
 
 function obtenerStorage(): Storage | null {
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage
-    }
-  } catch {
-    // Entornos sin acceso a localStorage (ej. SSR o modo restringido)
-  }
-  return null
+  return typeof window === 'undefined' ? null : window.localStorage
 }
 
-function obtenerStorageAnterior(): Storage | null {
-  try {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      return window.sessionStorage
-    }
-  } catch {
-    // Entornos sin acceso a sessionStorage
-  }
-  return null
-}
-
-export function getToken(): string | null {
-  if (memoryToken) {
-    return memoryToken
-  }
-  const storage = obtenerStorage()
-  if (storage) {
-    const guardado = storage.getItem(TOKEN_STORAGE_KEY)
-    if (guardado) {
-      memoryToken = guardado
-      return guardado
-    }
-  }
-
-  const storageAnterior = obtenerStorageAnterior()
-  const tokenAnterior = storageAnterior?.getItem(TOKEN_STORAGE_KEY)
-  if (tokenAnterior) {
-    if (storage) {
-      storage.setItem(TOKEN_STORAGE_KEY, tokenAnterior)
-      storageAnterior?.removeItem(TOKEN_STORAGE_KEY)
-    }
-    memoryToken = tokenAnterior
-    return tokenAnterior
-  }
-
-  return null
-}
-
-export function setToken(token: string | null): void {
-  memoryToken = token
-  const storage = obtenerStorage()
-  const storageAnterior = obtenerStorageAnterior()
-  if (storage) {
-    if (token) {
-      storage.setItem(TOKEN_STORAGE_KEY, token)
-    } else {
-      storage.removeItem(TOKEN_STORAGE_KEY)
-    }
-  }
-  storageAnterior?.removeItem(TOKEN_STORAGE_KEY)
-}
-
-export function setLoginData(email: string, username: string, usuario: Usuario): void {
-  const storage = obtenerStorage()
-  if (!storage) {
-    return
-  }
-
-  storage.setItem(EMAIL_STORAGE_KEY, email)
-  storage.setItem(USERNAME_STORAGE_KEY, username)
-  storage.setItem(USER_STORAGE_KEY, JSON.stringify({
+function serializarUsuario(usuario: Usuario): string {
+  const dto: UsuarioPersistidoDto = {
     id: usuario.id,
     nombre: usuario.nombre,
     apellido: usuario.apellido,
@@ -105,102 +38,155 @@ export function setLoginData(email: string, username: string, usuario: Usuario):
     rol: usuario.rol,
     siguiendoAlUsuarioActual: usuario.siguiendoAlUsuarioActual,
     cantidadSeguidores: usuario.cantidadSeguidores,
-  }))
+  }
+  return JSON.stringify(dto)
 }
 
-export function obtenerUsuarioPersistido(): Usuario | null {
-  if (!hasToken()) {
-    return null
+function esUsuarioPersistidoDto(value: unknown): value is UsuarioPersistidoDto {
+  if (!value || typeof value !== 'object') {
+    return false
   }
 
-  const storage = obtenerStorage()
-  const guardado = storage?.getItem(USER_STORAGE_KEY)
-  if (!storage || !guardado) {
-    return null
-  }
+  const dto = value as Partial<UsuarioPersistidoDto>
+  return (
+    typeof dto.id === 'string' &&
+    typeof dto.nombre === 'string' &&
+    typeof dto.apellido === 'string' &&
+    (dto.bio === undefined || typeof dto.bio === 'string') &&
+    (dto.fotoUrl === undefined || typeof dto.fotoUrl === 'string') &&
+    (dto.rol === RolUsuario.USER || dto.rol === RolUsuario.ADMIN) &&
+    typeof dto.siguiendoAlUsuarioActual === 'boolean' &&
+    typeof dto.cantidadSeguidores === 'number'
+  )
+}
 
+function deserializarUsuario(json: string): Usuario | null {
+  let value: unknown
   try {
-    const datos = JSON.parse(guardado) as UsuarioProps
-    if (
-      typeof datos.id !== 'string' ||
-      typeof datos.nombre !== 'string' ||
-      typeof datos.apellido !== 'string' ||
-      !Object.values(RolUsuario).includes(datos.rol)
-    ) {
-      storage.removeItem(USER_STORAGE_KEY)
-      return null
-    }
-
-    return new Usuario(datos)
+    value = JSON.parse(json)
   } catch {
-    storage.removeItem(USER_STORAGE_KEY)
     return null
   }
-}
 
-export function clearToken(): void {
-  setToken(null)
-  const storage = obtenerStorage()
-  storage?.removeItem(EMAIL_STORAGE_KEY)
-  storage?.removeItem(USERNAME_STORAGE_KEY)
-  storage?.removeItem(USER_STORAGE_KEY)
-}
-
-export function hasToken(): boolean {
-  return getToken() !== null
-}
-
-export interface UsuarioActualDto {
-  id: string
-  username: string
-  nombreCompleto?: string | null
-  avatarUrl?: string | null
-  role?: RolUsuario | string
-  cantidadSeguidores?: number
-}
-
-function mapearUsuarioActual(dto: UsuarioActualDto): Usuario {
-  const nombreCompleto = dto.nombreCompleto?.trim() || dto.username
-  const [nombre, ...apellidos] = nombreCompleto.split(/\s+/)
+  if (!esUsuarioPersistidoDto(value)) {
+    return null
+  }
 
   return new Usuario({
-    id: dto.id,
-    nombre,
-    apellido: apellidos.join(' '),
-    fotoUrl: dto.avatarUrl ?? undefined,
-    rol: dto.role === RolUsuario.ADMIN ? RolUsuario.ADMIN : RolUsuario.USER,
-    cantidadSeguidores: dto.cantidadSeguidores ?? 0,
-    siguiendoAlUsuarioActual: false,
+    id: value.id,
+    nombre: value.nombre,
+    apellido: value.apellido,
+    bio: value.bio,
+    fotoUrl: value.fotoUrl,
+    rol: value.rol,
+    siguiendoAlUsuarioActual: value.siguiendoAlUsuarioActual,
+    cantidadSeguidores: value.cantidadSeguidores,
   })
 }
 
-/**
- * Consulta `GET /usuarios/me` para verificar si existe una sesión activa y obtener el usuario.
- * Retorna el `Usuario` autenticado, o `null` si la sesión no es válida (401), sin propagar error 401.
- */
+function limpiarDatosLegados(storage: Storage): void {
+  storage.removeItem(CLAVE_EMAIL)
+  storage.removeItem(CLAVE_USERNAME)
+}
+
+function guardarUsuario(usuario: Usuario): void {
+  usuarioEnMemoria = usuario
+  obtenerStorage()?.setItem(CLAVE_USUARIO, serializarUsuario(usuario))
+}
+
+function obtenerToken(): string | null {
+  const storage = obtenerStorage()
+  if (!storage) {
+    return tokenEnMemoria
+  }
+
+  const tokenPersistido = storage.getItem(CLAVE_TOKEN)
+  if (tokenPersistido) {
+    tokenEnMemoria = tokenPersistido
+    return tokenPersistido
+  }
+
+  const tokenAnterior = window.sessionStorage.getItem(CLAVE_TOKEN)
+  if (tokenAnterior) {
+    storage.setItem(CLAVE_TOKEN, tokenAnterior)
+    window.sessionStorage.removeItem(CLAVE_TOKEN)
+    tokenEnMemoria = tokenAnterior
+    return tokenAnterior
+  }
+
+  return tokenEnMemoria
+}
+
+export const tokenStorage = {
+  getToken(): string | null {
+    return obtenerToken()
+  },
+
+  setToken(token: string): void {
+    tokenEnMemoria = token
+    const storage = obtenerStorage()
+    if (storage) {
+      storage.setItem(CLAVE_TOKEN, token)
+      window.sessionStorage.removeItem(CLAVE_TOKEN)
+    }
+  },
+
+  setLoginData(_email: string, _username: string, usuario: Usuario): void {
+    guardarUsuario(usuario)
+    const storage = obtenerStorage()
+    if (storage) {
+      limpiarDatosLegados(storage)
+    }
+  },
+
+  obtenerUsuarioPersistido(): Usuario | null {
+    if (!obtenerToken()) {
+      return null
+    }
+    if (usuarioEnMemoria) {
+      return usuarioEnMemoria
+    }
+
+    const json = obtenerStorage()?.getItem(CLAVE_USUARIO)
+    if (!json) {
+      return null
+    }
+
+    const usuario = deserializarUsuario(json)
+    if (!usuario) {
+      obtenerStorage()?.removeItem(CLAVE_USUARIO)
+      return null
+    }
+    usuarioEnMemoria = usuario
+    return usuario
+  },
+
+  clearToken(): void {
+    tokenEnMemoria = null
+    usuarioEnMemoria = null
+    const storage = obtenerStorage()
+    if (storage) {
+      storage.removeItem(CLAVE_TOKEN)
+      storage.removeItem(CLAVE_USUARIO)
+      limpiarDatosLegados(storage)
+      window.sessionStorage.removeItem(CLAVE_TOKEN)
+    }
+  },
+}
 export async function verificarSesion(): Promise<Usuario | null> {
-  if (!hasToken()) {
+  if (!tokenStorage.getToken()) {
     return null
   }
 
   try {
-    const dto = await httpClient.get<UsuarioActualDto>('/usuarios/me')
-    return mapearUsuarioActual(dto)
+    const dto = await httpClient.get<PerfilPropioDto>(apiEndpoints.me())
+    const usuario = mapearUsuarioAutenticado(dto)
+    guardarUsuario(usuario)
+    return usuario
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
-      clearToken()
-      return null
+      tokenStorage.clearToken()
     }
     throw error
   }
-}
-
-export const tokenStorage = {
-  getToken,
-  setToken,
-  setLoginData,
-  obtenerUsuarioPersistido,
-  clearToken,
-  hasToken,
-  verificarSesion,
 }

@@ -38,6 +38,23 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
   }
 })
 
+function crearUsuario(
+  id: string,
+  _username: string,
+  nombreCompleto: string,
+  cantidadSeguidores = 0,
+): Usuario {
+  const [nombre, ...apellidos] = nombreCompleto.split(/\s+/)
+  return new Usuario({
+    id,
+    nombre,
+    apellido: apellidos.join(' '),
+    rol: RolUsuario.USER,
+    siguiendoAlUsuarioActual: false,
+    cantidadSeguidores,
+  })
+}
+
 describe('authService & AuthContext (T069)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -49,14 +66,7 @@ describe('authService & AuthContext (T069)', () => {
 
   describe('login', () => {
     it('inicia sesión exitosamente cuando las credenciales son válidas (RF-13)', async () => {
-      const mockUsuario = new Usuario({
-        id: 'u1',
-        nombre: 'Ana',
-        apellido: 'Pérez',
-        rol: RolUsuario.USER,
-        siguiendoAlUsuarioActual: false,
-        cantidadSeguidores: 5,
-      })
+      const mockUsuario = crearUsuario('u1', 'ana', 'Ana Pérez', 5)
 
       const mockResult = {
         token: 'token-valido-123',
@@ -78,18 +88,16 @@ describe('authService & AuthContext (T069)', () => {
       const apiError = new ApiError('Acceso denegado', 403, { error: 'CUENTA_BANEADA' })
       vi.mocked(mailPasswordProvider.iniciarSesion).mockRejectedValueOnce(apiError)
 
-      await expect(
-        authService.login({ email: 'baneado@ejemplo.com', password: 'password123' })
-      ).rejects.toThrow(CuentaBloqueadaError)
+      const intentoLogin = authService.login({
+        email: 'baneado@ejemplo.com',
+        password: 'password123',
+      })
 
-      try {
-        await authService.login({ email: 'baneado@ejemplo.com', password: 'password123' })
-      } catch (err) {
-        if (err instanceof CuentaBloqueadaError) {
-          expect(err.codigo).toBe('CUENTA_BANEADA')
-          expect(err.message).toBe(MENSAJE_CUENTA_BANEADA)
-        }
-      }
+      await expect(intentoLogin).rejects.toBeInstanceOf(CuentaBloqueadaError)
+      await expect(intentoLogin).rejects.toMatchObject({
+        codigo: 'CUENTA_BANEADA',
+        message: MENSAJE_CUENTA_BANEADA,
+      })
 
       expect(tokenStorage.clearToken).toHaveBeenCalled()
     })
@@ -98,18 +106,16 @@ describe('authService & AuthContext (T069)', () => {
       const forbiddenError = new HttpForbiddenError({ error: 'CUENTA_ELIMINADA' })
       vi.mocked(mailPasswordProvider.iniciarSesion).mockRejectedValueOnce(forbiddenError)
 
-      await expect(
-        authService.login({ email: 'eliminado@ejemplo.com', password: 'password123' })
-      ).rejects.toThrow(CuentaBloqueadaError)
+      const intentoLogin = authService.login({
+        email: 'eliminado@ejemplo.com',
+        password: 'password123',
+      })
 
-      try {
-        await authService.login({ email: 'eliminado@ejemplo.com', password: 'password123' })
-      } catch (err) {
-        if (err instanceof CuentaBloqueadaError) {
-          expect(err.codigo).toBe('CUENTA_ELIMINADA')
-          expect(err.message).toBe(MENSAJE_CUENTA_ELIMINADA)
-        }
-      }
+      await expect(intentoLogin).rejects.toBeInstanceOf(CuentaBloqueadaError)
+      await expect(intentoLogin).rejects.toMatchObject({
+        codigo: 'CUENTA_ELIMINADA',
+        message: MENSAJE_CUENTA_ELIMINADA,
+      })
 
       expect(tokenStorage.clearToken).toHaveBeenCalled()
     })
@@ -126,14 +132,7 @@ describe('authService & AuthContext (T069)', () => {
 
   describe('verificarSesionActual', () => {
     it('retorna la entidad Usuario si la sesión es válida (GET /auth/me)', async () => {
-      const mockUsuario = new Usuario({
-        id: 'u1',
-        nombre: 'Ana',
-        apellido: 'Pérez',
-        rol: RolUsuario.USER,
-        siguiendoAlUsuarioActual: false,
-        cantidadSeguidores: 10,
-      })
+      const mockUsuario = crearUsuario('u1', 'ana', 'Ana Pérez', 10)
 
       vi.mocked(verificarSesion).mockResolvedValueOnce(mockUsuario)
 
@@ -152,38 +151,32 @@ describe('authService & AuthContext (T069)', () => {
       expect(usuarioActual).toBeNull()
     })
 
-    it('restaura el usuario persistido cuando falla la verificación remota y el token sigue guardado', async () => {
-      const usuarioPersistido = new Usuario({
-        id: 'u1',
-        nombre: 'Ana',
-        apellido: 'Pérez',
-        rol: RolUsuario.USER,
-        siguiendoAlUsuarioActual: false,
-        cantidadSeguidores: 0,
-      })
-      vi.mocked(verificarSesion).mockRejectedValueOnce(new ApiError('Error interno', 500, null))
-      vi.mocked(tokenStorage.obtenerUsuarioPersistido).mockReturnValueOnce(usuarioPersistido)
+    it('propaga errores remotos y conserva el token para reintentar', async () => {
+      const errorRemoto = new ApiError('Error interno', 500, null)
+      vi.mocked(verificarSesion).mockRejectedValueOnce(errorRemoto)
+      vi.mocked(tokenStorage.getToken).mockReturnValue('jwt-persistente')
 
-      await expect(authService.verificarSesionActual()).resolves.toBe(usuarioPersistido)
+      await expect(authService.verificarSesionActual()).rejects.toBe(errorRemoto)
+
+      expect(tokenStorage.getToken()).toBe('jwt-persistente')
+      expect(tokenStorage.clearToken).not.toHaveBeenCalled()
     })
   })
 
   describe('logout', () => {
-    it('invoca el endpoint de logout y limpia el token local', async () => {
-      vi.mocked(httpClient.post).mockResolvedValueOnce({})
-
+    it('limpia la sesión local sin llamar a un endpoint inexistente', async () => {
       await authService.logout()
 
-      expect(httpClient.post).toHaveBeenCalledWith('/auth/logout')
+      expect(httpClient.post).not.toHaveBeenCalled()
       expect(tokenStorage.clearToken).toHaveBeenCalled()
     })
 
-    it('limpia el token local de todas formas aunque la petición de red falle', async () => {
-      vi.mocked(httpClient.post).mockRejectedValueOnce(new Error('Fallo de red'))
-
+    it('permite cerrar sesión más de una vez sin depender de la red', async () => {
+      await authService.logout()
       await authService.logout()
 
-      expect(tokenStorage.clearToken).toHaveBeenCalled()
+      expect(httpClient.post).not.toHaveBeenCalled()
+      expect(tokenStorage.clearToken).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -191,14 +184,7 @@ describe('authService & AuthContext (T069)', () => {
     it('registra con el contrato del API y luego inicia sesión para obtener el token', async () => {
       const mockResult = {
         token: 'token-nuevo-123',
-        usuario: new Usuario({
-          id: 'u2',
-          nombre: 'Carlos',
-          apellido: 'Gómez',
-          rol: RolUsuario.USER,
-          siguiendoAlUsuarioActual: false,
-          cantidadSeguidores: 0,
-        }),
+        usuario: crearUsuario('u2', 'carlosg', 'Carlos Gómez'),
       }
 
       vi.mocked(httpClient.post).mockResolvedValueOnce({
@@ -232,6 +218,29 @@ describe('authService & AuthContext (T069)', () => {
       expect(res).toEqual(mockResult)
       expect(res.usuario).toBeInstanceOf(Usuario)
       expect(res.usuario.nombre).toBe('Carlos')
+      expect(res.usuario.apellido).toBe('Gómez')
+    })
+
+    it('indica que la cuenta ya se creó si falla el inicio de sesión automático', async () => {
+      vi.mocked(httpClient.post).mockResolvedValueOnce({})
+      vi.mocked(mailPasswordProvider.iniciarSesion).mockRejectedValueOnce(
+        new ApiError('Error HTTP 401 al solicitar /auth/login', 401, {
+          code: 'UNAUTHORIZED',
+          message: 'Credenciales inválidas',
+        }),
+      )
+
+      await expect(
+        authService.registrar({
+          nombre: 'Ana',
+          apellido: 'Test',
+          username: 'ana',
+          email: 'ana@test.com',
+          password: 'Passw0rd!123',
+        }),
+      ).rejects.toThrow(
+        'La cuenta se creó, pero no se pudo iniciar sesión automáticamente. Iniciá sesión con tus credenciales.',
+      )
     })
   })
 })

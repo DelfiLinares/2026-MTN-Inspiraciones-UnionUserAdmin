@@ -11,9 +11,7 @@
  * - Solicitud de Nombre, Apellido, Email, Contraseña y Confirmación de contraseña.
  * - Validación en tiempo real de la fortaleza y criterios de la contraseña:
  *   - Mínimo 8 caracteres
- *   - Al menos una letra mayúscula
- *   - Al menos una letra minúscula
- *   - Al menos un número o carácter especial
+ *   - Al menos una letra, un número y un carácter especial (reglas de la API).
  * - Muestra coincidencia de contraseñas.
  * - Requiere aceptar los términos y condiciones antes de registrarse.
  * - Opciones de registro OAuth (Google, GitHub) que autentican en un solo paso.
@@ -24,13 +22,14 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../services/AuthContext'
 import { authService } from '../../services/authService'
+import { adaptarApiError } from '../../infrastructure/apiErrorAdapter'
+import { ApiError } from '../../infrastructure/httpClient'
 import '../login/login.css'
 import './registro.css'
 
 export interface CriteriosPassword {
   longitudMinima: boolean
-  tieneMayuscula: boolean
-  tieneMinuscula: boolean
+  tieneLetra: boolean
   tieneNumero: boolean
   tieneCaracterEspecial: boolean
 }
@@ -38,8 +37,7 @@ export interface CriteriosPassword {
 export const validarPasswordEnTiempoReal = (pass: string): CriteriosPassword => {
   return {
     longitudMinima: pass.length >= 8,
-    tieneMayuscula: /[A-Z]/.test(pass),
-    tieneMinuscula: /[a-z]/.test(pass),
+    tieneLetra: /[A-Za-z]/.test(pass),
     tieneNumero: /\d/.test(pass),
     tieneCaracterEspecial: /[^A-Za-z0-9]/.test(pass),
   }
@@ -63,13 +61,14 @@ export const RegistroPage: React.FC = () => {
   const criterios = validarPasswordEnTiempoReal(password)
   const passwordEsValida =
     criterios.longitudMinima &&
-    criterios.tieneMayuscula &&
-    criterios.tieneMinuscula &&
+    criterios.tieneLetra &&
     criterios.tieneNumero &&
     criterios.tieneCaracterEspecial
 
   const nombreUsuarioLimpio = nombreUsuario.trim()
   const nombreUsuarioEsValido = nombreUsuarioLimpio.length >= 3 && nombreUsuarioLimpio.length <= 50
+  const emailLimpio = mail.trim()
+  const emailEsValido = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailLimpio)
 
   const contrasenasCoinciden = password.length > 0 && password === passwordConfirmacion
 
@@ -77,7 +76,7 @@ export const RegistroPage: React.FC = () => {
     nombre.trim().length > 0 &&
     apellido.trim().length > 0 &&
     nombreUsuarioEsValido &&
-    mail.trim().length > 0 &&
+    emailEsValido &&
     passwordEsValida &&
     contrasenasCoinciden &&
     aceptaTerminos
@@ -90,6 +89,8 @@ export const RegistroPage: React.FC = () => {
         setErrorMensaje('Debés aceptar los términos y condiciones para continuar.')
       } else if (!nombreUsuarioEsValido) {
         setErrorMensaje('El nombre de usuario debe tener entre 3 y 50 caracteres.')
+      } else if (!emailEsValido) {
+        setErrorMensaje('Ingresá un correo electrónico válido.')
       } else if (!contrasenasCoinciden) {
         setErrorMensaje('Las contraseñas no coinciden.')
       } else if (!passwordEsValida) {
@@ -116,7 +117,24 @@ export const RegistroPage: React.FC = () => {
       iniciarSesion(resultado.usuario)
       navigate('/feed')
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (err instanceof ApiError) {
+        if (err.status >= 500 && (typeof err.body !== 'object' || err.body === null)) {
+          setErrorMensaje(
+            'No se pudo conectar con la API. Verificá que el backend esté iniciado en http://localhost:8080.',
+          )
+          return
+        }
+        const errorAdaptado = adaptarApiError(err)
+        setErrorMensaje(
+          errorAdaptado.codigo === 'CONFLICT' && errorAdaptado.detalleTecnico
+            ? errorAdaptado.detalleTecnico
+            : errorAdaptado.message,
+        )
+      } else if (err instanceof TypeError) {
+        setErrorMensaje(
+          'No se pudo conectar con el servidor. Verificá que el backend esté iniciado en http://localhost:8080.',
+        )
+      } else if (err instanceof Error) {
         setErrorMensaje(err.message)
       } else {
         setErrorMensaje('No se pudo completar el registro. Intentalo de nuevo más tarde.')
@@ -231,13 +249,9 @@ export const RegistroPage: React.FC = () => {
                 <span>{criterios.longitudMinima ? '✓' : '•'}</span>
                 <span>Al menos 8 caracteres</span>
               </li>
-              <li className={criterios.tieneMayuscula ? 'cumple' : ''}>
-                <span>{criterios.tieneMayuscula ? '✓' : '•'}</span>
-                <span>Al menos una letra mayúscula</span>
-              </li>
-              <li className={criterios.tieneMinuscula ? 'cumple' : ''}>
-                <span>{criterios.tieneMinuscula ? '✓' : '•'}</span>
-                <span>Al menos una letra minúscula</span>
+              <li className={criterios.tieneLetra ? 'cumple' : ''}>
+                <span>{criterios.tieneLetra ? '✓' : '•'}</span>
+                <span>Al menos una letra</span>
               </li>
               <li className={criterios.tieneNumero ? 'cumple' : ''}>
                 <span>{criterios.tieneNumero ? '✓' : '•'}</span>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
 
 /**
@@ -61,6 +61,18 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
   const [enviandoLocal, setEnviandoLocal] = useState(false)
   const [errorLocal, setErrorLocal] = useState<string | undefined>(error)
   const [mostrarExito, setMostrarExito] = useState(false)
+
+  useEffect(() => {
+    setSeguimientoLocal(seguimiento)
+  }, [
+    seguimiento.usuarioId,
+    seguimiento.usuarioASeguidoId,
+    seguimiento.siguiendo,
+  ])
+
+  useEffect(() => {
+    setErrorLocal(error)
+  }, [error])
 
   /**
    * AC-04: Handle toggle follow/unfollow.

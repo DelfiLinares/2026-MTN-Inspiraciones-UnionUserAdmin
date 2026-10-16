@@ -29,14 +29,14 @@ export interface ActualizarPerfilPayload {
    * - Max 80 caracteres (AC-02.4)
    * - Espacios permitidos (AC-02.4)
    */
-  sobreMi?: string
+  sobreMi?: string | null
 
   /**
    * Descripción más larga.
    * - Max 200 caracteres (AC-02.5)
    * - Espacios permitidos (AC-02.5)
    */
-  descripcion?: string
+  descripcion?: string | null
 }
 
 /**
@@ -46,10 +46,10 @@ export interface ActualizarPerfilPayload {
 export const tieneAlgunCampoActualizar = (
   payload: ActualizarPerfilPayload,
 ): boolean => {
-  return !!(
-    payload.nombreUsuario ||
-    payload.sobreMi ||
-    payload.descripcion
+  return (
+    payload.nombreUsuario !== undefined ||
+    payload.sobreMi !== undefined ||
+    payload.descripcion !== undefined
   )
 }
 

@@ -266,7 +266,7 @@ describe('CarpetaPost — Validaciones de dominio (T077)', () => {
     })
 
     it('nombre con 16 caracteres es inválido', () => {
-      const carpeta = crearCarpetaPost({ nombre: '12345 67890 12345' })
+      const carpeta = crearCarpetaPost({ nombre: '12345 67890 1234' })
       expect(carpeta.esNombreValido()).toBe(false)
     })
 

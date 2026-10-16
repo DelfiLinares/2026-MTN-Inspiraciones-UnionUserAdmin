@@ -269,20 +269,20 @@ describe('Usuario — Validaciones de dominio (T076)', () => {
     })
   })
 
-  describe('debeeMostrarBotonSeguir() — Helper para visibilidad de botón Seguir', () => {
+  describe('debeMostrarBotonSeguir() — Helper para visibilidad de botón Seguir', () => {
     it('retorna false si es el perfil del usuario actual', () => {
       const usuario = crearUsuario({ id: 'user-1' })
-      expect(usuario.debeeMostrarBotonSeguir('user-1')).toBe(false)
+      expect(usuario.debeMostrarBotonSeguir('user-1')).toBe(false)
     })
 
     it('retorna true si es el perfil de otro usuario', () => {
       const usuario = crearUsuario({ id: 'user-1' })
-      expect(usuario.debeeMostrarBotonSeguir('user-2')).toBe(true)
+      expect(usuario.debeMostrarBotonSeguir('user-2')).toBe(true)
     })
 
     it('retorna true si usuarioActualId es vacío', () => {
       const usuario = crearUsuario({ id: 'user-1' })
-      expect(usuario.debeeMostrarBotonSeguir('')).toBe(true)
+      expect(usuario.debeMostrarBotonSeguir('')).toBe(true)
     })
   })
 })
