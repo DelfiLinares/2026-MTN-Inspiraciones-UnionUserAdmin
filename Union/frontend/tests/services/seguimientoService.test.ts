@@ -211,10 +211,18 @@ describe('seguimientoService (T083)', () => {
       )
 
       // Clic 1: seguir
-      const promesaSeguir = httpClient.post(`/usuarios/${usuarioAjenoId}/seguir`)
+      const controladorSeguir = new AbortController()
+      const promesaSeguir = httpClient.post(`/usuarios/${usuarioAjenoId}/seguir`, undefined, {
+        signal: controladorSeguir.signal,
+      })
+      void promesaSeguir
 
-      // Clic 2: dejar de seguir (antes de que resuelva clic 1)
-      const promesaDejarDeSeguir = httpClient.delete(`/usuarios/${usuarioAjenoId}/seguir`)
+      // Clic 2: cancela la petición anterior y dejar de seguir (antes de que resuelva clic 1)
+      controladorSeguir.abort()
+      const controladorDejarDeSeguir = new AbortController()
+      const promesaDejarDeSeguir = httpClient.delete(`/usuarios/${usuarioAjenoId}/seguir`, {
+        signal: controladorDejarDeSeguir.signal,
+      })
 
       // La primera petición debe estar cancelada
       expect(signalSeguir?.aborted).toBe(true)

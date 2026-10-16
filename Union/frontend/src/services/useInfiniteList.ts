@@ -122,11 +122,13 @@ export function useInfiniteList<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Reinicio ante cambios en resetKey
+  // Reinicio ante cambios en resetKey (el montaje inicial ya lo cubre la carga inicial)
+  const resetKeyPrevioRef = useRef<unknown>(resetKey)
   useEffect(() => {
-    if (resetKey === undefined) {
+    if (resetKey === undefined || resetKeyPrevioRef.current === resetKey) {
       return
     }
+    resetKeyPrevioRef.current = resetKey
     recargar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey])

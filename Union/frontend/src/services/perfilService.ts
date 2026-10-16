@@ -9,8 +9,8 @@
  *
  * Responsabilidades:
  * - `obtenerUsuario(id)`: Consulta los datos públicos de un usuario vía `GET /usuarios/{id}`.
- * - `actualizarPerfil(datos)`: Actualiza el perfil vía `PATCH /perfil`.
- *   Si incluye `foto`, envía `multipart/form-data`; de lo contrario, envía JSON.
+ * - `actualizarPerfil(datos)`: Actualiza el perfil vía `PATCH /usuarios/me`.
+ *   Si incluye `foto`, la sube con `multipart/form-data` a `POST /usuarios/me/avatar`.
  *   NO incluye contraseña (RF-16).
  * - `seguirUsuario(id)`: Llama a `PUT /usuarios/{usuarioId}/seguimiento`.
  * - `dejarDeSeguir(id)`: Llama a `DELETE /usuarios/{usuarioId}/seguimiento`.
@@ -27,12 +27,18 @@ import { RolUsuario } from '../domain/enums/RolUsuario'
 
 export interface UsuarioDto {
   id: string
-  nombre: string
-  apellido: string
+  nombre?: string
+  apellido?: string
+  nombreCompleto?: string | null
+  username?: string
   bio?: string | null
+  sobreMi?: string | null
   fotoUrl?: string | null
+  avatarUrl?: string | null
   rol?: string
+  role?: string
   siguiendoAlUsuarioActual?: boolean
+  siguiendoPorUsuarioActual?: boolean
   cantidadSeguidores?: number
 }
 
@@ -44,14 +50,18 @@ export interface DatosActualizarPerfil {
 }
 
 function mapearUsuario(dto: UsuarioDto): Usuario {
+  // El backend entrega `nombreCompleto`; se separa en nombre/apellido para la UI.
+  const nombreCompleto = dto.nombreCompleto?.trim() || dto.username || ''
+  const [primerNombre, ...apellidos] = nombreCompleto.split(/\s+/)
   return new Usuario({
     id: dto.id,
-    nombre: dto.nombre,
-    apellido: dto.apellido,
-    bio: dto.bio ?? undefined,
-    fotoUrl: dto.fotoUrl ?? undefined,
-    rol: (dto.rol as RolUsuario) || RolUsuario.USER,
-    siguiendoAlUsuarioActual: dto.siguiendoAlUsuarioActual ?? false,
+    nombre: dto.nombre ?? primerNombre ?? '',
+    apellido: dto.apellido ?? apellidos.join(' '),
+    bio: dto.bio ?? dto.sobreMi ?? undefined,
+    fotoUrl: dto.fotoUrl ?? dto.avatarUrl ?? undefined,
+    rol: ((dto.rol ?? dto.role) as RolUsuario) || RolUsuario.USER,
+    siguiendoAlUsuarioActual:
+      dto.siguiendoAlUsuarioActual ?? dto.siguiendoPorUsuarioActual ?? false,
     cantidadSeguidores: dto.cantidadSeguidores ?? 0,
   })
 }
@@ -68,39 +78,38 @@ export async function obtenerUsuario(
 }
 
 /**
- * Actualiza los datos de perfil del usuario actual (`PATCH /perfil`).
+ * Actualiza los datos de perfil del usuario actual (`PATCH /usuarios/me`).
  *
  * Nota RF-16: La edición de perfil NO incluye cambio ni manejo de contraseña.
- * Si se adjunta un archivo en `foto`, se envía como `multipart/form-data`.
+ * Si se adjunta un archivo en `foto`, se sube aparte como `multipart/form-data`
+ * a `POST /usuarios/me/avatar` (parte `avatar`).
  */
 export async function actualizarPerfil(
   datos: DatosActualizarPerfil,
   options?: HttpRequestOptions
 ): Promise<Usuario> {
-  let cuerpo: FormData | Record<string, unknown>
+  const cuerpo: Record<string, unknown> = {}
+  if (datos.nombre !== undefined || datos.apellido !== undefined) {
+    cuerpo.nombreCompleto = `${datos.nombre ?? ''} ${datos.apellido ?? ''}`.trim()
+  }
+  if (datos.bio !== undefined) {
+    cuerpo.sobreMi = datos.bio
+  }
+
+  let dto: UsuarioDto | undefined
+  if (Object.keys(cuerpo).length > 0) {
+    dto = await httpClient.patch<UsuarioDto>(apiEndpoints.actualizarPerfil(), cuerpo, options)
+  }
 
   if (datos.foto) {
     const formData = new FormData()
-    if (datos.nombre !== undefined) {
-      formData.append('nombre', datos.nombre)
-    }
-    if (datos.apellido !== undefined) {
-      formData.append('apellido', datos.apellido)
-    }
-    if (datos.bio !== undefined) {
-      formData.append('bio', datos.bio)
-    }
-    formData.append('foto', datos.foto)
-    cuerpo = formData
-  } else {
-    cuerpo = {
-      ...(datos.nombre !== undefined ? { nombre: datos.nombre } : {}),
-      ...(datos.apellido !== undefined ? { apellido: datos.apellido } : {}),
-      ...(datos.bio !== undefined ? { bio: datos.bio } : {}),
-    }
+    formData.append('avatar', datos.foto)
+    dto = await httpClient.post<UsuarioDto>(apiEndpoints.cambiarFotoPerfil(), formData, options)
   }
 
-  const dto = await httpClient.patch<UsuarioDto>('/perfil', cuerpo, options)
+  if (!dto) {
+    dto = await httpClient.get<UsuarioDto>(apiEndpoints.perfilActual(), options)
+  }
   return mapearUsuario(dto)
 }
 

@@ -219,7 +219,7 @@ describe('FlujoPerfilPropio — Tests de integración (T084)', () => {
       // Username válido debe pasar validación
       const usuarioValido = new Usuario(
         'user-actual',
-        'usuario_123', // Válido: sin espacios, 10 chars
+        'usuario_12', // Válido: sin espacios, 10 chars
         'https://example.com/avatar.jpg',
         'Artista',
         'Comparto obras',
@@ -484,6 +484,9 @@ describe('FlujoPerfilPropio — Tests de integración (T084)', () => {
       )
 
       // Crear URL de preview (blob URL)
+      // jsdom no implementa URL.createObjectURL
+      URL.createObjectURL = vi.fn(() => 'blob:http://localhost/preview-foto')
+      URL.revokeObjectURL = vi.fn()
       const previewUrl = URL.createObjectURL(archivo)
       expect(previewUrl).toBeDefined()
       expect(previewUrl).toContain('blob:')

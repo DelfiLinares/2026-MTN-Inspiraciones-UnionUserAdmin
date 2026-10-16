@@ -35,7 +35,7 @@ function crearPublicacion(
     overrides.texto ?? 'Excelente inspiración',
     overrides.fechaCreacion ?? new Date(),
     overrides.fechaActualizacion,
-    overrides.autorFotoUrl ?? 'https://example.com/avatar.jpg',
+    'autorFotoUrl' in overrides ? overrides.autorFotoUrl : 'https://example.com/avatar.jpg',
   )
 }
 

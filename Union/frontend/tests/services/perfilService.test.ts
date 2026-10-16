@@ -88,57 +88,54 @@ describe('perfilService & useSeguirUsuario (T074)', () => {
     })
   })
 
-  describe('actualizarPerfil (PATCH /perfil, RF-16)', () => {
+  describe('actualizarPerfil (PATCH /usuarios/me, RF-16)', () => {
     it('envía un objeto JSON sin contraseña cuando no hay foto (RF-16)', async () => {
       vi.mocked(httpClient.patch).mockResolvedValueOnce({
         id: 'usr-mi-perfil',
-        nombre: 'NuevoNombre',
-        apellido: 'García',
-        bio: 'Nueva Bio',
-        rol: 'USER',
+        nombreCompleto: 'NuevoNombre García',
+        sobreMi: 'Nueva Bio',
+        role: 'USER',
       })
 
       const usuario = await actualizarPerfil({
         nombre: 'NuevoNombre',
+        apellido: 'García',
         bio: 'Nueva Bio',
       })
 
       expect(httpClient.patch).toHaveBeenCalledWith(
-        '/perfil',
+        '/usuarios/me',
         {
-          nombre: 'NuevoNombre',
-          bio: 'Nueva Bio',
+          nombreCompleto: 'NuevoNombre García',
+          sobreMi: 'Nueva Bio',
         },
         undefined
       )
 
       expect(usuario.nombre).toBe('NuevoNombre')
+      expect(usuario.apellido).toBe('García')
       expect(usuario.bio).toBe('Nueva Bio')
     })
 
-    it('envía FormData cuando se adjunta un archivo de foto', async () => {
-      vi.mocked(httpClient.patch).mockResolvedValueOnce({
+    it('sube la foto como multipart (parte "avatar") a POST /usuarios/me/avatar', async () => {
+      vi.mocked(httpClient.post).mockResolvedValueOnce({
         id: 'usr-mi-perfil',
-        nombre: 'Ana',
-        apellido: 'García',
-        fotoUrl: 'https://example.com/nueva-foto.png',
-        rol: 'USER',
+        nombreCompleto: 'Ana García',
+        avatarUrl: 'https://example.com/nueva-foto.png',
+        role: 'USER',
       })
 
       const archivoFoto = new File(['contenido-imagen'], 'avatar.png', { type: 'image/png' })
-      const usuario = await actualizarPerfil({
-        nombre: 'Ana',
-        foto: archivoFoto,
-      })
+      const usuario = await actualizarPerfil({ foto: archivoFoto })
 
-      expect(httpClient.patch).toHaveBeenCalledTimes(1)
-      const callArgs = vi.mocked(httpClient.patch).mock.calls[0]
-      expect(callArgs[0]).toBe('/perfil')
+      expect(httpClient.patch).not.toHaveBeenCalled()
+      expect(httpClient.post).toHaveBeenCalledTimes(1)
+      const callArgs = vi.mocked(httpClient.post).mock.calls[0]
+      expect(callArgs[0]).toBe('/usuarios/me/avatar')
       expect(callArgs[1]).toBeInstanceOf(FormData)
 
       const formData = callArgs[1] as FormData
-      expect(formData.get('nombre')).toBe('Ana')
-      expect(formData.get('foto')).toBe(archivoFoto)
+      expect((formData.get('avatar') as File).name).toBe('avatar.png')
       expect(usuario.fotoUrl).toBe('https://example.com/nueva-foto.png')
     })
   })

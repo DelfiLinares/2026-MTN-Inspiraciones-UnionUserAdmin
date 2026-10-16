@@ -137,9 +137,9 @@ describe('AuthAdminService & sessionGuard (T075)', () => {
     })
 
     it('lanza CuentaBloqueadaError con mensaje de baneo cuando la API responde 403 CUENTA_BANEADA (RF-77)', async () => {
-      vi.mocked(httpClientAdmin.post).mockRejectedValueOnce(
-        new HttpForbiddenError({ error: 'CUENTA_BANEADA' })
-      )
+      vi.mocked(httpClientAdmin.post)
+        .mockRejectedValueOnce(new HttpForbiddenError({ error: 'CUENTA_BANEADA' }))
+        .mockRejectedValueOnce(new HttpForbiddenError({ error: 'CUENTA_BANEADA' }))
 
       await expect(login({ mail: mailAdmin, password: passwordValido })).rejects.toThrow(
         CuentaBloqueadaError

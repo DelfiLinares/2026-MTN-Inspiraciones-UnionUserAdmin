@@ -38,7 +38,7 @@ function crearCarpetaPost(
 describe('CarpetaPost — Validaciones de dominio (T077)', () => {
   describe('esNombreValido() — Regla 4 (nombre de carpeta)', () => {
     it('retorna true para nombre válido con letras', () => {
-      const carpeta = crearCarpetaPost({ nombre: 'Mis inspiraciones' })
+      const carpeta = crearCarpetaPost({ nombre: 'Mis ideas' })
       expect(carpeta.esNombreValido()).toBe(true)
     })
 
@@ -261,7 +261,7 @@ describe('CarpetaPost — Validaciones de dominio (T077)', () => {
     })
 
     it('nombre con exactamente 15 caracteres es válido', () => {
-      const carpeta = crearCarpetaPost({ nombre: '12345 67890 1234' })
+      const carpeta = crearCarpetaPost({ nombre: '12345 67890 123' })
       expect(carpeta.esNombreValido()).toBe(true)
     })
 

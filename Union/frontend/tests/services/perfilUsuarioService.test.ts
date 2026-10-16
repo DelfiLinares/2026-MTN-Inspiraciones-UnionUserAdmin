@@ -51,7 +51,7 @@ function crearUsuarioResponse(
   return {
     id: overrides.id ?? 'user-1',
     username: overrides.username ?? 'artista123',
-    foto: overrides.foto ?? 'https://example.com/avatar.jpg',
+    foto: 'foto' in overrides ? overrides.foto : 'https://example.com/avatar.jpg',
     sobreMi: overrides.sobreMi ?? 'Artista visual',
     descripcion: overrides.descripcion ?? 'Comparto mis obras',
     estado: overrides.estado ?? EstadoCuentaUsuario.ACTIVO,

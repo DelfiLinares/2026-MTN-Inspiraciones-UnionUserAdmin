@@ -94,7 +94,9 @@ describe('useDescubrirFiltros (T072)', () => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
     })
 
-    expect(result.current.items).toHaveLength(1)
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(1)
+    })
   })
 
   it('dispara una nueva consulta a la API ante cada cambio de filtro (nunca filtrado en memoria)', async () => {
@@ -146,13 +148,14 @@ describe('useDescubrirFiltros (T072)', () => {
       result.current.establecerDistancia(10)
     })
 
-    await waitFor(() => {
-      expect(buscarPublicacionesMock).toHaveBeenCalledTimes(2)
+    // Sin geolocalización activa la distancia no forma parte de los criterios enviados,
+    // por lo que no corresponde una nueva consulta a la API.
+    await act(async () => {
+      await Promise.resolve()
     })
+    expect(buscarPublicacionesMock).toHaveBeenCalledTimes(1)
 
-    // Aunque se establece un valor de distancia, sin geolocalización activa el filtro
-    // no debe habilitarse ni enviarse a la API como criterio de búsqueda.
-    const filtroEnviado = buscarPublicacionesMock.mock.calls[1][0] as Filtro
+    const filtroEnviado = buscarPublicacionesMock.mock.calls[0][0] as Filtro
     expect(filtroEnviado.distanciaHabilitada()).toBe(false)
     expect(result.current.geolocalizacionHabilitada).toBe(false)
   })
@@ -176,12 +179,18 @@ describe('useDescubrirFiltros (T072)', () => {
     expect(result.current.geolocalizacionHabilitada).toBe(true)
     expect(result.current.mensajeGeolocalizacion).toBeNull()
 
+    // Con geolocalización activa, la distancia sí se envía en una nueva consulta.
+    act(() => {
+      result.current.establecerDistancia(10)
+    })
+
     await waitFor(() => {
       expect(buscarPublicacionesMock).toHaveBeenCalledTimes(2)
     })
 
     const filtroConGeo = buscarPublicacionesMock.mock.calls[1][0] as Filtro
     expect(filtroConGeo.geolocalizacionActiva).toBe(true)
+    expect(filtroConGeo.distanciaHabilitada()).toBe(true)
   })
 
   it('deshabilita el filtro de distancia y notifica al usuario si falla la obtención de posición', async () => {

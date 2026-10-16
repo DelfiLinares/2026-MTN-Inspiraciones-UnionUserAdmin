@@ -22,13 +22,14 @@ export const apiEndpoints = {
   logout: () => '/auth/logout',
 
   // Módulo 004-inspiraciones-perfil — Perfiles (HU-01, HU-02, HU-03)
+  perfilActual: () => '/usuarios/me',
   obtenerPerfil: (usuarioId: string) => `/usuarios/${usuarioId}`,
-  actualizarPerfil: () => '/perfil',
-  cambiarFotoPerfil: () => '/perfil/foto',
+  actualizarPerfil: () => '/usuarios/me',
+  cambiarFotoPerfil: () => '/usuarios/me/avatar',
 
   // Módulo 004-inspiraciones-perfil — Seguimiento (HU-04)
-  seguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguir`,
-  dejarDeSeguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguir`,
+  seguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguimiento`,
+  dejarDeSeguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguimiento`,
 
   // Módulo 004-inspiraciones-perfil — Carpetas (HU-05, HU-06, HU-07, HU-08)
   listarCarpetasDePerfil: (usuarioId: string) => `/usuarios/${usuarioId}/carpetas`,

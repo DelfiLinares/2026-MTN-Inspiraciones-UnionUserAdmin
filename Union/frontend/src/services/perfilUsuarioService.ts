@@ -43,37 +43,54 @@ interface UsuarioResponseDto {
   id: string
   username: string
   foto?: string | null
-  sobreMi?: string
-  descripcion?: string
+  avatarUrl?: string | null
+  sobreMi?: string | null
+  descripcion?: string | null
   estado?: string // EstadoCuentaUsuario
+  status?: string // ACTIVE | BANNED | DELETED (contrato del backend)
   rol?: string // RolUsuario
+  role?: string
+  createdAt?: string
+  siguiendoPorUsuarioActual?: boolean
   cantidadSeguidores?: number
 }
 
 /**
- * DTO del API HTTP para actualizar perfil (PATCH /perfil).
+ * DTO del API HTTP para actualizar perfil (PATCH /usuarios/me).
  * Mapea el payload local a formato del API.
  */
 interface ActualizarPerfilRequestDto {
-  nombreUsuario?: string
+  username?: string
   sobreMi?: string
   descripcion?: string
 }
 
+const ESTADO_DESDE_BACKEND: Record<string, EstadoCuentaUsuario> = {
+  ACTIVE: EstadoCuentaUsuario.ACTIVO,
+  BANNED: EstadoCuentaUsuario.BANEADO,
+  DELETED: EstadoCuentaUsuario.ELIMINADO,
+}
+
 /**
  * Mapear DTO HTTP a entidad Usuario de dominio.
+ * Acepta tanto el contrato del backend (`avatarUrl`, `status`, `role`) como el histórico del módulo.
  */
 function mapearUsuarioDelDto(dto: UsuarioResponseDto): Usuario {
+  const estado =
+    (dto.estado as EstadoCuentaUsuario | undefined) ??
+    (dto.status ? ESTADO_DESDE_BACKEND[dto.status] : undefined) ??
+    EstadoCuentaUsuario.ACTIVO
+  const rol = ((dto.rol ?? dto.role) as RolUsuario | undefined) || RolUsuario.USER
   return new Usuario(
     dto.id,
     dto.username,
-    dto.foto || undefined,
+    dto.foto || dto.avatarUrl || undefined,
     dto.sobreMi || '',
     dto.descripcion || '',
-    (dto.estado as EstadoCuentaUsuario) || EstadoCuentaUsuario.ACTIVO,
-    (dto.rol as RolUsuario) || RolUsuario.USER,
-    new Date(), // Fecha de creación no viene en respuesta
-    false, // siguiendoPorUsuarioActual no viene aquí
+    estado,
+    rol,
+    dto.createdAt ? new Date(dto.createdAt) : new Date(),
+    dto.siguiendoPorUsuarioActual ?? false,
     dto.cantidadSeguidores || 0,
   )
 }
@@ -83,7 +100,7 @@ function mapearUsuarioDelDto(dto: UsuarioResponseDto): Usuario {
  */
 function mapearPayloadAlDto(payload: ActualizarPerfilPayload): ActualizarPerfilRequestDto {
   return {
-    nombreUsuario: payload.nombreUsuario,
+    username: payload.nombreUsuario,
     sobreMi: payload.sobreMi,
     descripcion: payload.descripcion,
   }
@@ -136,12 +153,12 @@ function manejarErrorHttp(status: number, mensaje?: string): never {
 class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
   /**
    * Obtener usuario autenticado actual.
-   * Endpoint: GET /auth/me
+   * Endpoint: GET /usuarios/me
    */
   async obtenerUsuarioActual(): Promise<Usuario> {
     try {
       const response = await httpClient.get<UsuarioResponseDto>(
-        apiEndpoints.me()
+        apiEndpoints.perfilActual()
       )
       return mapearUsuarioDelDto(response)
     } catch (error) {
@@ -170,7 +187,7 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
 
   /**
    * Actualizar datos del perfil propio (sin foto).
-   * Endpoint: PATCH /perfil
+   * Endpoint: PATCH /usuarios/me
    * A1: Retorna 409 si username ya existe.
    */
   async actualizarPerfil(payload: ActualizarPerfilPayload): Promise<Usuario> {
@@ -190,15 +207,21 @@ class HttpUsuarioPerfilRepository implements UsuarioPerfilRepository {
 
   /**
    * Cambiar foto de perfil propia.
-   * Endpoint: POST /perfil/foto
-   * Content-Type: multipart/form-data
+   * Endpoint: POST /usuarios/me/avatar
+   * Content-Type: multipart/form-data (parte `avatar`)
    * A2: Retorna 400/413/415 para errores de foto.
    */
   async cambiarFotoPerfil(fotoData: FormData): Promise<Usuario> {
     try {
+      // El backend espera la parte multipart `avatar`; el payload de aplicación usa `foto`.
+      const archivo = fotoData.get('avatar') ?? fotoData.get('foto')
+      const cuerpo = new FormData()
+      if (archivo !== null) {
+        cuerpo.append('avatar', archivo)
+      }
       const response = await httpClient.post<UsuarioResponseDto>(
         apiEndpoints.cambiarFotoPerfil(),
-        fotoData,
+        cuerpo,
         {
           // No establecer Content-Type; el navegador lo hará automáticamente con boundary
         }

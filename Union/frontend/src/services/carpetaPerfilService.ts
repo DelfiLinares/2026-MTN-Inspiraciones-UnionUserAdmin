@@ -50,8 +50,10 @@ interface CarpetaPostResponseDto {
   usuarioId: string
   nombre: string
   descripcion?: string
-  fechaCreacion: string
+  fechaCreacion?: string
+  createdAt?: string
   postCount?: number
+  cantidadPosts?: number
 }
 
 /**
@@ -59,13 +61,19 @@ interface CarpetaPostResponseDto {
  */
 interface PublicacionResponseDto {
   id: string
-  autorId: string
+  autorId?: string
+  usuarioId?: string
+  autor?: { id?: string; username?: string; avatarUrl?: string | null }
   autorNombreUsuario?: string
   autorFotoUrl?: string
-  imagenUrl: string
-  texto: string
-  fechaCreacion: string
+  imagenUrl?: string
+  fotoUrl?: string | null
+  texto?: string
+  contenido?: string
+  fechaCreacion?: string
+  createdAt?: string
   fechaActualizacion?: string
+  updatedAt?: string
 }
 
 /**
@@ -97,6 +105,7 @@ interface GuardarPostResponseDto {
   carpetaId: string
   publicacionId: string
   creada?: boolean
+  yaEstabaGuardado?: boolean
   mensaje?: string
 }
 
@@ -131,8 +140,8 @@ function mapearCarpetaDelDto(dto: CarpetaPostResponseDto): CarpetaPost {
     dto.usuarioId,
     dto.nombre,
     dto.descripcion || '',
-    new Date(dto.fechaCreacion),
-    dto.postCount || 0,
+    new Date(dto.fechaCreacion ?? dto.createdAt ?? Date.now()),
+    dto.postCount ?? dto.cantidadPosts ?? 0,
   )
 }
 
@@ -142,13 +151,15 @@ function mapearCarpetaDelDto(dto: CarpetaPostResponseDto): CarpetaPost {
 function mapearPublicacionDelDto(dto: PublicacionResponseDto): PublicacionPerfil {
   return new PublicacionPerfil(
     dto.id,
-    dto.autorId,
-    dto.autorNombreUsuario ?? '',
-    dto.imagenUrl,
-    dto.texto,
-    new Date(dto.fechaCreacion),
-    dto.fechaActualizacion ? new Date(dto.fechaActualizacion) : undefined,
-    dto.autorFotoUrl,
+    dto.autorId ?? dto.usuarioId ?? dto.autor?.id ?? '',
+    dto.autorNombreUsuario ?? dto.autor?.username ?? '',
+    dto.imagenUrl ?? dto.fotoUrl ?? '',
+    dto.texto ?? dto.contenido ?? '',
+    new Date(dto.fechaCreacion ?? dto.createdAt ?? Date.now()),
+    dto.fechaActualizacion ?? dto.updatedAt
+      ? new Date((dto.fechaActualizacion ?? dto.updatedAt) as string)
+      : undefined,
+    dto.autorFotoUrl ?? dto.autor?.avatarUrl ?? undefined,
   )
 }
 
@@ -350,7 +361,7 @@ class HttpCarpetaRepository implements CarpetaRepository {
       // A8: Diferenciar entre 200 (existía) y 201 (nueva)
       // El backend indica esto en la respuesta (creada/esNueva)
       return {
-        esNueva: response.creada ?? true, // Default: true si no viene el campo
+        esNueva: response.creada ?? (response.yaEstabaGuardado !== undefined ? !response.yaEstabaGuardado : true),
         carpetaId: response.carpetaId,
         publicacionId: response.publicacionId,
         mensaje: response.mensaje,

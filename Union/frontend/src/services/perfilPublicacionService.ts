@@ -38,21 +38,27 @@ import { apiEndpoints } from '../infrastructure/apiEndpoints'
  */
 interface PublicacionResponseDto {
   id: string
-  autorId: string
+  autorId?: string
+  usuarioId?: string
+  autor?: { id?: string; username?: string; avatarUrl?: string | null }
   autorNombreUsuario?: string
   autorFotoUrl?: string
-  imagenUrl: string
-  texto: string
-  fechaCreacion: string
+  imagenUrl?: string
+  fotoUrl?: string | null
+  texto?: string
+  contenido?: string
+  fechaCreacion?: string
+  createdAt?: string
   fechaActualizacion?: string
+  updatedAt?: string
 }
 
 /**
- * DTO del API HTTP para editar publicación (PATCH /publicaciones/{publicacionId}).
- * A5: Solo texto es editable; imagen es inmutable.
+ * DTO del API HTTP para editar publicación (PUT /publicaciones/{publicacionId}).
+ * A5: Solo el contenido es editable; imagen es inmutable.
  */
 interface EditarPublicacionRequestDto {
-  texto: string
+  contenido: string
 }
 
 /**
@@ -70,6 +76,7 @@ interface GuardarPublicacionEnCarpetaResponseDto {
   carpetaId: string
   publicacionId: string
   creada?: boolean
+  yaEstabaGuardado?: boolean
   mensaje?: string
 }
 
@@ -90,13 +97,15 @@ interface PaginaPublicacionesResponseDto {
 function mapearPublicacionDelDto(dto: PublicacionResponseDto): PublicacionPerfil {
   return new PublicacionPerfil(
     dto.id,
-    dto.autorId,
-    dto.autorNombreUsuario ?? '',
-    dto.imagenUrl,
-    dto.texto,
-    new Date(dto.fechaCreacion),
-    dto.fechaActualizacion ? new Date(dto.fechaActualizacion) : undefined,
-    dto.autorFotoUrl,
+    dto.autorId ?? dto.usuarioId ?? dto.autor?.id ?? '',
+    dto.autorNombreUsuario ?? dto.autor?.username ?? '',
+    dto.imagenUrl ?? dto.fotoUrl ?? '',
+    dto.texto ?? dto.contenido ?? '',
+    new Date(dto.fechaCreacion ?? dto.createdAt ?? Date.now()),
+    dto.fechaActualizacion ?? dto.updatedAt
+      ? new Date((dto.fechaActualizacion ?? dto.updatedAt) as string)
+      : undefined,
+    dto.autorFotoUrl ?? dto.autor?.avatarUrl ?? undefined,
   )
 }
 
@@ -186,8 +195,8 @@ class HttpPublicacionRepository implements PublicacionRepository {
     texto: string,
   ): Promise<PublicacionPerfil> {
     try {
-      const payload: EditarPublicacionRequestDto = { texto }
-      const response = await httpClient.patch<PublicacionResponseDto>(
+      const payload: EditarPublicacionRequestDto = { contenido: texto }
+      const response = await httpClient.put<PublicacionResponseDto>(
         apiEndpoints.editarPublicacion(publicacionId),
         payload,
       )
@@ -257,7 +266,7 @@ class HttpPublicacionRepository implements PublicacionRepository {
       // A8: Diferenciar entre 200 (existía) y 201 (nueva)
       // El backend indica esto en la respuesta (creada/esNueva)
       return {
-        esNueva: response.creada ?? true, // Default: true si no viene el campo
+        esNueva: response.creada ?? (response.yaEstabaGuardado !== undefined ? !response.yaEstabaGuardado : true),
         carpetaId: response.carpetaId,
         publicacionId: response.publicacionId,
         mensaje: response.mensaje,
