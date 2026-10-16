@@ -21,6 +21,32 @@ export const apiEndpoints = {
   me: () => '/auth/me',
   logout: () => '/auth/logout',
 
+  // Módulo 004-inspiraciones-perfil — Perfiles (HU-01, HU-02, HU-03)
+  obtenerPerfil: (usuarioId: string) => `/usuarios/${usuarioId}`,
+  actualizarPerfil: () => '/perfil',
+  cambiarFotoPerfil: () => '/perfil/foto',
+
+  // Módulo 004-inspiraciones-perfil — Seguimiento (HU-04)
+  seguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguir`,
+  dejarDeSeguirUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/seguir`,
+
+  // Módulo 004-inspiraciones-perfil — Carpetas (HU-05, HU-06, HU-07, HU-08)
+  listarCarpetasDePerfil: (usuarioId: string) => `/usuarios/${usuarioId}/carpetas`,
+  crearCarpeta: () => '/carpetas',
+  renombrarCarpeta: (carpetaId: string) => `/carpetas/${carpetaId}`,
+  eliminarCarpeta: (carpetaId: string) => `/carpetas/${carpetaId}`,
+
+  // Módulo 004-inspiraciones-perfil — Publicaciones en Carpetas (HU-09, HU-10)
+  listarPostsDeCarpeta: (carpetaId: string) => `/carpetas/${carpetaId}/posts`,
+  guardarPostEnCarpeta: (carpetaId: string) => `/carpetas/${carpetaId}/posts`,
+  quitarPostDeCarpeta: (carpetaId: string, publicacionId: string) =>
+    `/carpetas/${carpetaId}/posts/${publicacionId}`,
+
+  // Módulo 004-inspiraciones-perfil — Publicaciones Propias (HU-11, HU-12, HU-13)
+  listarPublicacionesDePerfil: (usuarioId: string) => `/usuarios/${usuarioId}/publicaciones`,
+  editarPublicacion: (publicacionId: string) => `/publicaciones/${publicacionId}`,
+  eliminarPublicacion: (publicacionId: string) => `/publicaciones/${publicacionId}`,
+
   // Dashboard administrativo (RF-54, RF-55)
   dashboard: () => '/admin/dashboard',
   dashboardLegacy: () => '/dashboard',

@@ -97,6 +97,14 @@ export const AppRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/perfil"
+        element={
+          <RutaProtegida>
+            <PerfilPage />
+          </RutaProtegida>
+        }
+      />
+      <Route
         path="/perfil/:id"
         element={
           <RutaProtegida>

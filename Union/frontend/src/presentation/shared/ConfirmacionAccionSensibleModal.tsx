@@ -1,24 +1,27 @@
 /**
- * `ConfirmacionAccionSensibleModal`: Modal de confirmación explícita reutilizable para toda acción
- * sensible del módulo administrativo (banear, eliminar, promover, degradar, eliminar publicación,
- * resolver reporte, aprobar/rechazar desafío).
+ * `ConfirmacionAccionSensibleModal`: Modal de confirmación explícita reutilizable para acciones
+ * sensibles en múltiples módulos.
  *
- * Nota de ubicación: `Union/specs/001-plataforma-unificada/tasks.md` (T096B) define este componente
- * dentro de `Admin/my-proyect/frontend-admin/src/presentation/shared/`. Es una dependencia dura de
- * T097B (`UsuarioAccionesSensibles`), por lo que se crea aquí, dentro de
- * `Union/frontend/src/presentation/shared/`, siguiendo la misma
- * instrucción explícita autorizada para T095/T096/T097A (implementar dentro de Union frontend, sin
- * leer ni modificar ningún archivo del proyecto `Admin/`).
+ * Módulos:
+ * - 001-plataforma-unificada (T096B): Banear, eliminar, promover, degradar, eliminar publicación,
+ *   resolver reporte, aprobar/rechazar desafío.
+ * - 004-inspiraciones-perfil (T065): Cambiar nombre de usuario, renombrar carpeta, eliminar
+ *   carpeta (con advertencias), editar publicación, eliminar publicación.
  *
  * Fuente de verdad:
  * - Union/specs/001-plataforma-unificada/spec.md (RNF-07, RF-60/RNF-08)
  * - Union/specs/001-plataforma-unificada/tasks.md (T096B)
+ * - Union/specs/004-inspiraciones-perfil/spec.md (RNF-03, RNF-04, AC-02.6, AC-06.2, AC-07.1-3, AC-11.2, AC-12.2)
+ * - Union/specs/004-inspiraciones-perfil/tasks.md (T065)
  *
  * Responsabilidades:
- * - RNF-07: Centraliza la confirmación explícita del 100% de las acciones destructivas/sensibles
+ * - RNF-07 (001): Centraliza la confirmación explícita del 100% de las acciones destructivas/sensibles
  *   en un único componente, en vez de duplicar el modal por pantalla.
- * - RF-60 / RNF-08: Diferenciación visual de las acciones sensibles (variante `peligro` con colores
+ * - RNF-03, RNF-04 (004): Diferenciación visual de acciones sensibles y confirmación explícita.
+ * - RF-60 / RNF-08 (001): Diferenciación visual de las acciones sensibles (variante `peligro` con colores
  *   de advertencia, ícono distintivo) respecto de acciones no sensibles.
+ *
+ * Acepta variantes: 'peligro', 'advertencia', 'informativa'.
  */
 
 import React from 'react'
