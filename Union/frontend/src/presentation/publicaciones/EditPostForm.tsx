@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import {
   ResultadoValidacion,
   validacionOk,
@@ -15,7 +15,7 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-11, AC-11.1–AC-11.4, A5)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", publicaciones/)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T050, T072)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (PublicacionPerfil entity)
  *
  * Responsabilidades:
  * 1. Formulario de edición de publicación (HU-11):
@@ -34,7 +34,7 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  *
  * 3. Integración con servicios (PublicacionService, T048/T049):
  *    - Invoca publicacionService.editarPublicacion(publicacionId, nuevoTexto)
- *    - Callback onSuccess: (publicacion: Publicacion) => void
+ *    - Callback onSuccess: (publicacion: PublicacionPerfil) => void
  *    - Callback onCancel: () => void
  *
  * 4. Confirmación explícita (T072):
@@ -43,8 +43,8 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  *    - AC-11.2: Requiere confirmación antes de guardar
  *
  * Props:
- * - `publicacion: Publicacion` — Publicación a editar (contiene texto actual e imagen)
- * - `onSuccess: (publicacion: Publicacion) => void` — Callback tras editar exitosamente
+ * - `publicacion: PublicacionPerfil` — Publicación a editar (contiene texto actual e imagen)
+ * - `onSuccess: (publicacion: PublicacionPerfil) => void` — Callback tras editar exitosamente
  * - `onCancel: () => void` — Callback de cancelación
  * - `deshabilitado?: boolean` — Opcional, deshabilitar si no está autenticado
  *
@@ -70,8 +70,8 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  */
 
 export interface EditPostFormProps {
-  publicacion: Publicacion
-  onSuccess: (publicacion: Publicacion) => void
+  publicacion: PublicacionPerfil
+  onSuccess: (publicacion: PublicacionPerfil) => void
   onCancel: () => void
   deshabilitado?: boolean
 }

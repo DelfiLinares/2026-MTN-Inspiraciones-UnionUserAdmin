@@ -54,11 +54,12 @@ export async function obtenerMotivos(
 export async function enviarReporte(
   publicacionId: string,
   motivoCodigo: string,
-  options?: HttpRequestOptions
+  options?: HttpRequestOptions,
+  textoLibre?: string
 ): Promise<EnviarReporteRespuestaDto> {
   const respuesta = await httpClient.post<EnviarReporteRespuestaDto>(
     `/publicaciones/${encodeURIComponent(publicacionId)}/reportes`,
-    { motivoCodigo },
+    { motivo: motivoCodigo, ...(textoLibre ? { textoLibre } : {}) },
     options
   )
   return respuesta

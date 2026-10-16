@@ -256,9 +256,25 @@
 }
 
 .home-post-media {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   width: 100%;
   height: 381px;
   background: #eee;
+}
+
+.home-post-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-post-media-fallback {
+  color: #817b77;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .home-post-card--tall .home-post-media {

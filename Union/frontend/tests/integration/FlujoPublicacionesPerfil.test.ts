@@ -22,12 +22,12 @@
  *
  * Depende de:
  * - T082: publicacionService tests
- * - T075: Publicacion domain tests
+ * - T075: PublicacionPerfil domain tests
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { httpClient } from '../../src/infrastructure/httpClient'
-import { Publicacion } from '../../src/domain/Publicacion'
+import { PublicacionPerfil } from '../../src/domain/PublicacionPerfil'
 
 vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Promise<unknown>) => {
   const actual = (await importOriginal()) as Record<string, unknown>

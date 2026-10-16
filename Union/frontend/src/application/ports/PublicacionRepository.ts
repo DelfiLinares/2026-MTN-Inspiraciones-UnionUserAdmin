@@ -1,4 +1,4 @@
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 
 /**
  * `PublicacionRepository`: Puerto para operaciones de publicaciones.
@@ -6,7 +6,7 @@ import { Publicacion } from '../../domain/Publicacion'
  * Fuente de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-10, HU-11, HU-12, HU-13, A5, A8)
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 6, capa application)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (PublicacionPerfil entity)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (endpoints publicaciones)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T047)
  *
@@ -41,7 +41,7 @@ import { Publicacion } from '../../domain/Publicacion'
  * DTO para respuesta de paginación de publicaciones.
  */
 export interface ResultadoPublicacionesPaginado {
-  items: Publicacion[]
+  items: PublicacionPerfil[]
   total: number
   limit: number
   offset: number
@@ -109,7 +109,7 @@ export interface PublicacionRepository {
   editarPublicacion(
     publicacionId: string,
     texto: string
-  ): Promise<Publicacion>
+  ): Promise<PublicacionPerfil>
 
   /**
    * HU-12: Eliminar una publicación propia.

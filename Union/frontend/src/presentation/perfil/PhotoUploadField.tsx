@@ -4,7 +4,7 @@ import {
   validarArchivo,
   crearFormDataFoto,
 } from '../../application/dto/SubirFotoPayload'
-import { usuarioPerfilService } from '../../services/perfilService'
+import { usuarioPerfilService } from '../../services/perfilUsuarioService'
 
 /**
  * `PhotoUploadField`: Componente de subida de foto de perfil.
@@ -60,7 +60,7 @@ import { usuarioPerfilService } from '../../services/perfilService'
  * - T033: Integración con UsuarioPerfilService
  */
 
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 
 export interface PhotoUploadFieldProps {
   fotoActual?: string

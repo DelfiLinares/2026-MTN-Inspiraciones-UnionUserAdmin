@@ -149,7 +149,13 @@ export const HomePage: React.FC = () => {
                         className={`home-post-card home-post-card--${variante}`}
                         key={publicacion.id}
                       >
-                        <div className="home-post-media" aria-hidden="true" />
+                        <div className="home-post-media">
+                          {publicacion.fotoUrl ? (
+                            <img src={publicacion.fotoUrl} alt={`Imagen de publicación: ${publicacion.contenido ?? contenido}`} />
+                          ) : (
+                            <span className="home-post-media-fallback" aria-hidden="true">{contenido}</span>
+                          )}
+                        </div>
                         <div className="home-post-copy">
                           <div className="home-post-author">
                             <span className="home-post-avatar" aria-hidden="true">A</span>
@@ -159,7 +165,7 @@ export const HomePage: React.FC = () => {
                             </div>
                           </div>
 
-                          <h2>Publicación de {contenido}</h2>
+                          <h2>{publicacion.contenido || `Publicación de ${contenido}`}</h2>
 
                           {publicacion.tags.length > 0 && (
                             <p className="home-post-tags">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { Publicacion } from '../../domain/Publicacion'
-import { carpetaService } from '../../services/carpetaService'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
+import { carpetaService } from '../../services/carpetaPerfilService'
 import { publicacionService } from '../../services/perfilPublicacionService'
 import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
 
@@ -12,7 +12,7 @@ import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, AC-09.1–AC-09.5, A8)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", publicaciones/)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T052)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (CarpetaPost, Publicacion)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (CarpetaPost, PublicacionPerfil)
  *
  * Responsabilidades:
  * 1. Flujo de guardado de publicación (HU-09):
@@ -34,7 +34,7 @@ import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
  *    - Callback onCancel: () => void
  *
  * Props:
- * - `publicacion: Publicacion` — Publicación a guardar
+ * - `publicacion: PublicacionPerfil` — Publicación a guardar
  * - `usuarioId: string` — ID del usuario propietario de carpetas
  * - `onSuccess: (resultado) => void` — Callback tras guardar exitosamente
  * - `onCancel: () => void` — Callback de cancelación
@@ -62,7 +62,7 @@ import { CreateCarpetaDialog } from '../carpetas/CreateCarpetaDialog'
  */
 
 export interface SavePostToCarpetaDialogProps {
-  publicacion: Publicacion
+  publicacion: PublicacionPerfil
   usuarioId: string
   onSuccess: (resultado: any) => void
   onCancel: () => void

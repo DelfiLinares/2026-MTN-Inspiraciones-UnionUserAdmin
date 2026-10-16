@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { EstadoCuentaUsuario } from '../../domain/enums/EstadoCuentaUsuario'
 
 /**

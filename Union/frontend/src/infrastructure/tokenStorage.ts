@@ -11,7 +11,7 @@
  * - Guardar/leer/borrar el token de sesión de forma segura.
  * - Persiste el token en localStorage y lo mantiene también en memoria durante la sesión.
  * - Provee `getToken()`, `setToken(token)`, `clearToken()` y `hasToken()`.
- * - Compatible con verificación de sesión (`verificarSesion`) consultando `GET /auth/me`.
+ * - Compatible con verificación de sesión (`verificarSesion`) consultando `GET /usuarios/me`.
  */
 
 import { httpClient, ApiError } from './httpClient'
@@ -152,30 +152,30 @@ export function hasToken(): boolean {
 
 export interface UsuarioActualDto {
   id: string
-  nombre: string
-  apellido?: string
-  bio?: string | null
-  fotoUrl?: string | null
-  rol?: RolUsuario | string
+  username: string
+  nombreCompleto?: string | null
+  avatarUrl?: string | null
+  role?: RolUsuario | string
   cantidadSeguidores?: number
-  estadoCuenta?: string
 }
 
 function mapearUsuarioActual(dto: UsuarioActualDto): Usuario {
+  const nombreCompleto = dto.nombreCompleto?.trim() || dto.username
+  const [nombre, ...apellidos] = nombreCompleto.split(/\s+/)
+
   return new Usuario({
     id: dto.id,
-    nombre: dto.nombre,
-    apellido: dto.apellido ?? '',
-    bio: dto.bio ?? undefined,
-    fotoUrl: dto.fotoUrl ?? undefined,
-    rol: RolUsuario.USER,
+    nombre,
+    apellido: apellidos.join(' '),
+    fotoUrl: dto.avatarUrl ?? undefined,
+    rol: dto.role === RolUsuario.ADMIN ? RolUsuario.ADMIN : RolUsuario.USER,
     cantidadSeguidores: dto.cantidadSeguidores ?? 0,
     siguiendoAlUsuarioActual: false,
   })
 }
 
 /**
- * Consulta `GET /auth/me` para verificar si existe una sesión activa y obtener el usuario.
+ * Consulta `GET /usuarios/me` para verificar si existe una sesión activa y obtener el usuario.
  * Retorna el `Usuario` autenticado, o `null` si la sesión no es válida (401), sin propagar error 401.
  */
 export async function verificarSesion(): Promise<Usuario | null> {
@@ -184,7 +184,7 @@ export async function verificarSesion(): Promise<Usuario | null> {
   }
 
   try {
-    const dto = await httpClient.get<UsuarioActualDto>('/auth/me')
+    const dto = await httpClient.get<UsuarioActualDto>('/usuarios/me')
     return mapearUsuarioActual(dto)
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {

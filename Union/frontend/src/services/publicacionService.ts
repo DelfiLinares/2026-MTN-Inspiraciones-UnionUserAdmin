@@ -10,21 +10,26 @@
  * Responsabilidades:
  * - Crear publicación (`POST /publicaciones`, multipart/form-data) soportando reintento manual
  *   ante error de red sin perder los datos ya adjuntados (CB-01).
- * - Like/Unlike (`POST`/`DELETE /publicaciones/{id}/like`) con reversión ante error y
+ * - Alternar reacción (`POST /publicaciones/{id}/reacciones`) con reversión ante error y
  *   serialización/debounce de clics consecutivos rápidos para evitar inconsistencias (CB-02).
  * - Reportar publicación (`POST /publicaciones/{id}/reportes`).
  * - Consultar estado de reporte del usuario actual (`GET /publicaciones/{id}/reportes/mio`).
  */
 
 import { httpClient, ApiError } from '../infrastructure/httpClient'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { config } from '../infrastructure/config'
+import { tokenStorage } from '../infrastructure/tokenStorage'
 import { Publicacion } from '../domain/Publicacion'
 import { TipoContenido } from '../domain/enums/TipoContenido'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 
 export interface LikeResponseDto {
-  cantidadLikes: number
-  likeDelUsuarioActual: boolean
+  cantidadLikes?: number
+  reaccionesCount?: number
+  likeadaPorMi?: boolean
+  likeDelUsuarioActual?: boolean
+  activa?: boolean
 }
 
 export interface ReporteResponseDto {
@@ -34,6 +39,12 @@ export interface ReporteResponseDto {
 
 export interface EstadoReporteMioDto {
   reportado: boolean
+}
+
+export interface CategoriaPublicacionDto {
+  codigo: string
+  grupo: string
+  etiqueta: string
 }
 
 export interface PublicacionDto {
@@ -112,24 +123,19 @@ export async function alternarLike(
 
   const ejecutarRequest = async (): Promise<Publicacion> => {
     try {
-      const endpoint = `/publicaciones/${publicacionId}/like`
-      let resultadoDto: LikeResponseDto
-
-      if (dioLike) {
-        resultadoDto = await httpClient.post<LikeResponseDto>(endpoint, undefined, {
+      const resultadoDto = await httpClient.post<LikeResponseDto>(
+        apiEndpoints.reaccionesPublicacion(publicacionId),
+        { tipo: 'LIKE' },
+        {
           signal: controller.signal,
-        })
-      } else {
-        resultadoDto = await httpClient.delete<LikeResponseDto>(endpoint, {
-          signal: controller.signal,
-        })
-      }
+        },
+      )
 
       // Si la llamada fue exitosa y no fue abortada por una acción posterior
       return new Publicacion({
         ...publicacionOptimista,
-        cantidadLikes: resultadoDto.cantidadLikes ?? publicacionOptimista.cantidadLikes,
-        likeDelUsuarioActual: resultadoDto.likeDelUsuarioActual ?? dioLike,
+        cantidadLikes: resultadoDto.reaccionesCount ?? resultadoDto.cantidadLikes ?? publicacionOptimista.cantidadLikes,
+        likeDelUsuarioActual: resultadoDto.likeadaPorMi ?? resultadoDto.likeDelUsuarioActual ?? resultadoDto.activa ?? dioLike,
       })
     } catch (error) {
       if (controller.signal.aborted) {
@@ -166,7 +172,7 @@ export async function reportarPublicacion(
 
   const respuesta = await httpClient.post<ReporteResponseDto>(
     `/publicaciones/${publicacion.id}/reportes`,
-    { motivoCodigo },
+    { motivo: motivoCodigo },
   )
 
   return respuesta
@@ -182,6 +188,48 @@ export async function consultarEstadoReporteMio(publicacionId: string): Promise<
   } catch {
     return false
   }
+}
+
+export async function obtenerCategoriasPublicacion(): Promise<CategoriaPublicacionDto[]> {
+  return httpClient.get<CategoriaPublicacionDto[]>(apiEndpoints.categoriasPublicaciones())
+}
+
+export async function actualizarPublicacion(
+  publicacionId: string,
+  datos: unknown,
+): Promise<PublicacionDto> {
+  return httpClient.put<PublicacionDto>(apiEndpoints.publicacionUsuario(publicacionId), datos)
+}
+
+export async function eliminarPublicacion(publicacionId: string): Promise<void> {
+  await httpClient.delete<void>(apiEndpoints.publicacionUsuario(publicacionId))
+}
+
+export async function listarComentarios(publicacionId: string): Promise<unknown> {
+  return httpClient.get<unknown>(apiEndpoints.comentariosPublicacion(publicacionId))
+}
+
+export async function crearComentario(publicacionId: string, datos: unknown): Promise<unknown> {
+  return httpClient.post<unknown>(apiEndpoints.comentariosPublicacion(publicacionId), datos)
+}
+
+export async function eliminarComentario(publicacionId: string, commentId: string): Promise<void> {
+  await httpClient.delete<void>(apiEndpoints.comentarioPublicacion(publicacionId, commentId))
+}
+
+export async function invitarCoautor(publicacionId: string, datos: unknown): Promise<unknown> {
+  return httpClient.post<unknown>(apiEndpoints.coautoresPublicacion(publicacionId), datos)
+}
+
+export async function obtenerInvitacionesCoautoria(): Promise<unknown> {
+  return httpClient.get<unknown>(apiEndpoints.invitacionesCoautoria())
+}
+
+export async function responderInvitacionCoautoria(
+  invitacionId: string,
+  datos: unknown,
+): Promise<unknown> {
+  return httpClient.patch<unknown>(apiEndpoints.invitacionCoautoria(invitacionId), datos)
 }
 
 /**
@@ -215,10 +263,14 @@ export async function crearPublicacion(
     return new Promise<ResultadoCreacionPublicacion>((resolve, reject) => {
       const xhr = new XMLHttpRequest()
       const baseUrl = config.apiBaseUrl ?? ''
-      const url = `${baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl}/publicaciones`
+      const url = `${baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl}${apiEndpoints.publicaciones()}`
 
       xhr.open('POST', url)
       xhr.withCredentials = true
+      const token = tokenStorage.getToken()
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+      }
 
       xhr.upload.addEventListener('progress', (evento) => {
         if (evento.lengthComputable) {
@@ -262,7 +314,7 @@ export async function crearPublicacion(
   }
 
   // Fallback con httpClient estándar
-  const dto = await httpClient.post<PublicacionDto>('/publicaciones', formData)
+  const dto = await httpClient.post<PublicacionDto>(apiEndpoints.publicaciones(), formData)
   return {
     publicacion: mapearPublicacion(dto),
     exito: true,
@@ -273,6 +325,15 @@ export const publicacionService = {
   alternarLike,
   reportarPublicacion,
   consultarEstadoReporteMio,
+  obtenerCategoriasPublicacion,
+  actualizarPublicacion,
+  eliminarPublicacion,
+  listarComentarios,
+  crearComentario,
+  eliminarComentario,
+  invitarCoautor,
+  obtenerInvitacionesCoautoria,
+  responderInvitacionCoautoria,
   crearPublicacion,
 }
 

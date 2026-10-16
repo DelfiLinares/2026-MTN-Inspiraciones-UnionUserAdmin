@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
@@ -35,7 +35,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  *    - T074: Estados de loading/empty/error (CB-17: mostrar vacío si sin carpetas)
  *
  * 4. Muestra publicaciones propias del usuario (AC-01.3, HU-11/12/13, T057):
- *    - Lista de publicaciones (Publicacion[])
+ *    - Lista de publicaciones (PublicacionPerfil[])
  *    - Componente PublicacionList con acciones de edición/eliminación (T053/T054)
  *    - Opción para guardar en carpeta (T055)
  *    - Callbacks para notificar cambios: onEditarExitosamente, onEliminarExitosamente, onGuardarEnCarpeta
@@ -48,7 +48,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
  * Props:
  * - `usuario: Usuario` — Objeto usuario autenticado con datos de perfil
  * - `carpetas?: CarpetaPost[]` — Carpetas públicas del usuario (opcional, para T020)
- * - `publicaciones?: Publicacion[]` — Publicaciones propias (opcional, para T020)
+ * - `publicaciones?: PublicacionPerfil[]` — Publicaciones propias (opcional, para T020)
  * - `cargando?: boolean` — true si se están cargando datos (opcional, para skeleton)
  * - `onPerfilActualizado?: (usuario: Usuario) => void` — Callback después de actualizar (T034)
  *
@@ -80,7 +80,7 @@ import { PublicacionList } from '../publicaciones/PublicacionList'
 export interface PerfilPropioProps {
   usuario: Usuario
   carpetas?: CarpetaPost[]
-  publicaciones?: Publicacion[]
+  publicaciones?: PublicacionPerfil[]
   cargando?: boolean
   onPerfilActualizado?: (usuario: Usuario) => void
 }
@@ -210,7 +210,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   }
 
   // T057: Handlers para gestión de publicaciones propias
-  const handleEditarPublicacionExitosamente = (publicacionEditada: Publicacion) => {
+  const handleEditarPublicacionExitosamente = (publicacionEditada: PublicacionPerfil) => {
     // HU-11: Actualizar publicación en la lista tras edición exitosa
     setPublicacionesActuales((prev) =>
       prev.map((p) => (p.id === publicacionEditada.id ? publicacionEditada : p))
@@ -222,7 +222,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     setPublicacionesActuales((prev) => prev.filter((p) => p.id !== publicacionId))
   }
 
-  const handleGuardarPublicacionEnCarpeta = (publicacionGuardada: Publicacion) => {
+  const handleGuardarPublicacionEnCarpeta = (publicacionGuardada: PublicacionPerfil) => {
     // HU-09: Notificar que la publicación se guardó en carpeta
     // No modificamos la lista de publicaciones propias (la publicación sigue siendo propia)
     // Solo notificamos el evento; el padre podría actualizar carpetas si lo desea

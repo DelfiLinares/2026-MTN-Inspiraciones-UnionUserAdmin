@@ -5,7 +5,7 @@ import {
   validacionOk,
   validacionError,
 } from '../../application/dto/ResultadoValidacion'
-import { carpetaService } from '../../services/carpetaService'
+import { carpetaService } from '../../services/carpetaPerfilService'
 
 /**
  * `CreateCarpetaDialog`: Diálogo de creación de carpeta de posts guardados.

@@ -1,5 +1,5 @@
 import { CarpetaPost } from '../domain/CarpetaPost'
-import { Publicacion } from '../domain/Publicacion'
+import { PublicacionPerfil } from '../domain/PublicacionPerfil'
 import { CarpetaRepository } from './ports/CarpetaRepository'
 import {
   ResultadoCarpetasPaginado,

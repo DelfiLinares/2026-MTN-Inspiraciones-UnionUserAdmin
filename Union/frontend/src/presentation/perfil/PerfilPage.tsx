@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../services/AuthContext'
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { EstadoCuentaUsuario } from '../../domain/enums/EstadoCuentaUsuario'
 import { PerfilPropio } from './PerfilPropio'
 import { PerfilAjeno } from './PerfilAjeno'
 import { ProfileNotFoundView } from './ProfileNotFoundView'
-import { usuarioPerfilService } from '../../services/perfilService'
+import { usuarioPerfilService } from '../../services/perfilUsuarioService'
 
 /**
  * `PerfilPage`: Contenedor root que decide entre perfil propio y ajeno.

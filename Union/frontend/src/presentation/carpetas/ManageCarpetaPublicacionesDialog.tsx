@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { publicacionService } from '../../services/perfilPublicacionService'
 
 /**
@@ -10,7 +10,7 @@ import { publicacionService } from '../../services/perfilPublicacionService'
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-10, AC-10.1–AC-10.3)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", carpetas/)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T056)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (CarpetaPost, Publicacion)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (CarpetaPost, PublicacionPerfil)
  *
  * Responsabilidades:
  * 1. Mostrar publicaciones guardadas en una carpeta (HU-10):
@@ -64,7 +64,7 @@ export const ManageCarpetaPublicacionesDialog: React.FC<ManageCarpetaPublicacion
   deshabilitado = false,
 }) => {
   // State para publicaciones
-  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([])
+  const [publicaciones, setPublicaciones] = useState<PublicacionPerfil[]>([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string>('')
 

@@ -19,6 +19,7 @@
  */
 
 import { httpClient, HttpRequestOptions } from '../infrastructure/httpClient'
+import { apiEndpoints } from '../infrastructure/apiEndpoints'
 import { Publicacion } from '../domain/Publicacion'
 import { SeguimientoRelacion } from '../domain/SeguimientoRelacion'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
@@ -130,7 +131,7 @@ export async function buscarPublicaciones(
   }
 
   const respuesta = await httpClient.get<BusquedaPublicacionesRespuestaDto>(
-    '/publicaciones',
+    apiEndpoints.publicaciones(),
     {
       ...requestOptions,
       params: {

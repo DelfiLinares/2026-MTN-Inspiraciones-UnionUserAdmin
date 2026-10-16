@@ -59,6 +59,27 @@ export const apiEndpoints = {
   promoverUsuario: (usuarioId: string) => `/admin/usuarios/${usuarioId}/promover`,
   degradarUsuario: (usuarioId: string) => `/admin/usuarios/${usuarioId}/degradar`,
 
+  // Publicaciones, interacciones, coautoría y feed (rutas relativas a /api)
+  publicaciones: () => '/publicaciones',
+  categoriasPublicaciones: () => '/publicaciones/categorias',
+  publicacionUsuario: (publicacionId: string) => `/publicaciones/${encodeURIComponent(publicacionId)}`,
+  comentariosPublicacion: (publicacionId: string) =>
+    `/publicaciones/${encodeURIComponent(publicacionId)}/comentarios`,
+  comentarioPublicacion: (publicacionId: string, commentId: string) =>
+    `/publicaciones/${encodeURIComponent(publicacionId)}/comentarios/${encodeURIComponent(commentId)}`,
+  reaccionesPublicacion: (publicacionId: string) =>
+    `/publicaciones/${encodeURIComponent(publicacionId)}/reacciones`,
+  coautoresPublicacion: (publicacionId: string) =>
+    `/publicaciones/${encodeURIComponent(publicacionId)}/coautores`,
+  invitacionesCoautoria: () => '/usuarios/me/invitaciones-coautoria',
+  invitacionCoautoria: (invitacionId: string) =>
+    `/usuarios/me/invitaciones-coautoria/${encodeURIComponent(invitacionId)}`,
+  feedRecomendaciones: () => '/feed/recomendaciones',
+  consentimientoFeedPiloto: () => '/feed/piloto/consentimiento',
+  preferenciasFeed: () => '/usuarios/me/preferencias',
+  seguimientoUsuario: (usuarioId: string) =>
+    `/usuarios/${encodeURIComponent(usuarioId)}/seguimiento`,
+
   // Moderación de publicaciones y reportes (RF-61 a RF-65)
   publicacionesReportadas: () => '/admin/publicaciones/reportadas',
   eliminarPublicacionModeracion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}`,

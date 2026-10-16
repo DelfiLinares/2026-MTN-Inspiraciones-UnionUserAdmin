@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { carpetaService } from '../../services/carpetaService'
+import { carpetaService } from '../../services/carpetaPerfilService'
 import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**

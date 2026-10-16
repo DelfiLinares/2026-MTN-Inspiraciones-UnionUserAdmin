@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { publicacionService } from '../../services/perfilPublicacionService'
 import { ConfirmacionAccionSensibleModal } from '../shared'
 
@@ -10,7 +10,7 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-12, AC-12.1–AC-12.4)
  * - Union/specs/004-inspiraciones-perfil/plan.md (sección "Project Structure", publicaciones/)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T051, T073)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (PublicacionPerfil entity)
  *
  * Responsabilidades:
  * 1. Confirmación explícita de eliminación (HU-12, AC-12.2):
@@ -33,7 +33,7 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  *    - Callback onCancel: () => void
  *
  * Props:
- * - `publicacion: Publicacion` — Publicación a eliminar
+ * - `publicacion: PublicacionPerfil` — Publicación a eliminar
  * - `onSuccess: () => void` — Callback tras eliminar
  * - `onCancel: () => void` — Callback de cancelación
  * - `deshabilitado?: boolean` — Opcional, deshabilitar si no propietario
@@ -56,7 +56,7 @@ import { ConfirmacionAccionSensibleModal } from '../shared'
  */
 
 export interface ConfirmDeletePostDialogProps {
-  publicacion: Publicacion
+  publicacion: PublicacionPerfil
   onSuccess: () => void
   onCancel: () => void
   deshabilitado?: boolean

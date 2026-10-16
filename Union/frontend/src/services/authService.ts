@@ -12,7 +12,7 @@
  * - Manejo explícito de respuestas 403 con `CUENTA_BANEADA` o `CUENTA_ELIMINADA` (RF-77, A10).
  * - Registro y login de nuevos usuarios (`POST /auth/register`, `POST /auth/login`).
  * - Delegación de OAuth Google / GitHub (`googleProvider`, `githubProvider`).
- * - Verificación de sesión (`GET /auth/me`) mediante `tokenStorage.verificarSesion()`.
+ * - Verificación de sesión (`GET /usuarios/me`) mediante `tokenStorage.verificarSesion()`.
  * - Cierre de sesión (`POST /auth/logout` y `tokenStorage.clearToken()`).
  */
 
@@ -117,7 +117,7 @@ export async function procesarCallbackOAuth(
 }
 
 /**
- * Verifica la sesión actual contra `GET /auth/me`.
+ * Verifica la sesión actual contra `GET /usuarios/me`.
  */
 export async function verificarSesionActual(): Promise<Usuario | null> {
   try {

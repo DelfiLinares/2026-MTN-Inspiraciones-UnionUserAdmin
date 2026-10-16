@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { EditPostForm } from './EditPostForm'
 import { ConfirmDeletePostDialog } from './ConfirmDeletePostDialog'
 import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
@@ -11,7 +11,7 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * Fuente de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-11, HU-12, HU-13, AC-03.2, AC-03.3)
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 3, componentes de presentación)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: Publicacion)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (Entidad: PublicacionPerfil)
  * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml (schema: PaginaPublicaciones)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T025, T053, T054, T055, T063, T075)
  *
@@ -37,24 +37,24 @@ import { SavePostToCarpetaDialog } from './SavePostToCarpetaDialog'
  * - T075: Estados loading/empty/error mejorados
  *
  * Props:
- * - publicaciones: Publicacion[] — Array de publicaciones en la página actual
+ * - publicaciones: PublicacionPerfil[] — Array de publicaciones en la página actual
  * - paginacion?: { items, total, limit, offset, hasMore } — Metadatos de paginación (A6)
  * - esPerfilPropio: boolean — Si true, muestra botones de editar/eliminar
  * - usuarioActualId?: string — ID del usuario actual (para verificación esPropia() y guardar en carpeta)
- * - onEditar?: (publicacion: Publicacion) => void — Callback para editar (AC-11.2) [T053]
- * - onEliminar?: (publicacion: Publicacion) => void — Callback para eliminar (AC-12.2) [T054]
+ * - onEditar?: (publicacion: PublicacionPerfil) => void — Callback para editar (AC-11.2) [T053]
+ * - onEliminar?: (publicacion: PublicacionPerfil) => void — Callback para eliminar (AC-12.2) [T054]
  * - onCargarMas?: () => void — Callback para cargar siguiente página (A6)
  * - cargando?: boolean — Indica si se está cargando la página actual (T075)
  * - cargandoMas?: boolean — Indica si se está cargando la siguiente página
- * - onEditarExitosamente?: (publicacion: Publicacion) => void — Callback tras edición exitosa [T053]
+ * - onEditarExitosamente?: (publicacion: PublicacionPerfil) => void — Callback tras edición exitosa [T053]
  * - onEliminarExitosamente?: (publicacionId: string) => void — Callback tras eliminación exitosa [T054]
- * - onGuardarEnCarpeta?: (publicacion: Publicacion) => void — Callback para guardar en carpeta (AC-09.1–AC-09.5, A8) [T055]
+ * - onGuardarEnCarpeta?: (publicacion: PublicacionPerfil) => void — Callback para guardar en carpeta (AC-09.1–AC-09.5, A8) [T055]
  */
 
 interface PublicacionListProps {
-  publicaciones: Publicacion[]
+  publicaciones: PublicacionPerfil[]
   paginacion?: {
-    items: Publicacion[]
+    items: PublicacionPerfil[]
     total: number
     limit: number
     offset: number
@@ -62,14 +62,14 @@ interface PublicacionListProps {
   }
   esPerfilPropio: boolean
   usuarioActualId?: string
-  onEditar?: (publicacion: Publicacion) => void
+  onEditar?: (publicacion: PublicacionPerfil) => void
   onEliminar?: (publicacionId: string) => void
   onCargarMas?: () => void
   cargando?: boolean
   cargandoMas?: boolean
-  onEditarExitosamente?: (publicacion: Publicacion) => void
+  onEditarExitosamente?: (publicacion: PublicacionPerfil) => void
   onEliminarExitosamente?: (publicacionId: string) => void
-  onGuardarEnCarpeta?: (publicacion: Publicacion) => void
+  onGuardarEnCarpeta?: (publicacion: PublicacionPerfil) => void
 }
 
 /**
@@ -92,16 +92,16 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
 }) => {
   const navigate = useNavigate()
   const [cargandoAccion, setCargandoAccion] = useState<string | null>(null)
-  const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<Publicacion | null>(null)
-  const [publicacionEnEliminacion, setPublicacionEnEliminacion] = useState<Publicacion | null>(null)
-  const [publicacionEnGuardado, setPublicacionEnGuardado] = useState<Publicacion | null>(null)
+  const [publicacionEnEdicion, setPublicacionEnEdicion] = useState<PublicacionPerfil | null>(null)
+  const [publicacionEnEliminacion, setPublicacionEnEliminacion] = useState<PublicacionPerfil | null>(null)
+  const [publicacionEnGuardado, setPublicacionEnGuardado] = useState<PublicacionPerfil | null>(null)
 
   /**
    * Manejador para editar publicación.
    * HU-11: Abre formulario de edición con confirmación (AC-11.2, AC-11.3).
    * T053: Integra EditPostForm en la lista.
    */
-  const handleEditar = (publicacion: Publicacion) => {
+  const handleEditar = (publicacion: PublicacionPerfil) => {
     if (onEditar) {
       setCargandoAccion(publicacion.id)
       // Simular delay de carga; en implementación real, el servicio maneja esto
@@ -125,7 +125,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
    * AC-11.3: Actualiza la publicación en la UI tras editar exitosamente.
    * T053: Actualiza la lista con la publicación editada.
    */
-  const handleEdicionExitosa = (publicacionEditada: Publicacion) => {
+  const handleEdicionExitosa = (publicacionEditada: PublicacionPerfil) => {
     // Actualizar la publicación en la lista local
     const indice = publicaciones.findIndex((p) => p.id === publicacionEditada.id)
     if (indice !== -1) {
@@ -149,7 +149,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
    * HU-12: Abre diálogo de confirmación (AC-12.2, AC-12.3).
    * T054: Integra ConfirmDeletePostDialog en la lista.
    */
-  const handleEliminar = (publicacion: Publicacion) => {
+  const handleEliminar = (publicacion: PublicacionPerfil) => {
     if (onEliminar) {
       setCargandoAccion(publicacion.id)
       // Simular delay de carga; en implementación real, el servicio maneja esto
@@ -190,7 +190,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
    * HU-09: Abre diálogo para seleccionar/crear carpeta (AC-09.1, AC-09.2).
    * T055: Integra SavePostToCarpetaDialog en la lista.
    */
-  const handleGuardar = (publicacion: Publicacion) => {
+  const handleGuardar = (publicacion: PublicacionPerfil) => {
     if (onGuardarEnCarpeta) {
       setCargandoAccion(publicacion.id)
       // Simular delay de carga; en implementación real, el servicio maneja esto

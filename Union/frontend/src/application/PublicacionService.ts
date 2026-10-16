@@ -1,4 +1,4 @@
-import { Publicacion } from '../domain/Publicacion'
+import { PublicacionPerfil } from '../domain/PublicacionPerfil'
 import { PublicacionRepository, ResultadoPublicacionesPaginado, ResultadoGuardadoPublicacion } from './ports/PublicacionRepository'
 
 /**
@@ -7,7 +7,7 @@ import { PublicacionRepository, ResultadoPublicacionesPaginado, ResultadoGuardad
  * Fuente de verdad:
  * - Union/specs/004-inspiraciones-perfil/spec.md (HU-09, HU-10, HU-11, HU-12, HU-13, A5, A8)
  * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 6, capa application)
- * - Union/specs/004-inspiraciones-perfil/data-model.md (Publicacion entity, validaciones)
+ * - Union/specs/004-inspiraciones-perfil/data-model.md (PublicacionPerfil entity, validaciones)
  * - Union/specs/004-inspiraciones-perfil/tasks.md (T048)
  *
  * Servicio de aplicación que orquesta casos de uso de publicaciones propias.
@@ -67,7 +67,7 @@ export class PublicacionService {
    *
    * Retorna:
    * - ResultadoPublicacionesPaginado con array de publicaciones
-   *   - items: Array de Publicacion (hasta `limit` items)
+   *   - items: Array de PublicacionPerfil (hasta `limit` items)
    *   - total: Número total de publicaciones del usuario
    *   - limit: Cantidad retornada en esta página
    *   - offset: Posición de inicio de esta página
@@ -81,7 +81,7 @@ export class PublicacionService {
    * Referencias:
    * - spec.md HU-13, AC-13.1–AC-13.3
    * - openapi.yaml GET /usuarios/{usuarioId}/publicaciones?limit={limit}&offset={offset}
-   * - data-model.md Publicacion entity
+   * - data-model.md PublicacionPerfil entity
    */
   async listarPublicaciones(
     usuarioId: string,
@@ -123,7 +123,7 @@ export class PublicacionService {
    * - nuevoTexto: string — Nuevo contenido de texto (max 2000 chars)
    *
    * Retorna:
-   * - Publicacion editada con timestamp actualizado
+   * - PublicacionPerfil editada con timestamp actualizado
    *
    * Errores:
    * - 400: Texto inválido (vacío, > 2000 chars)
@@ -134,9 +134,9 @@ export class PublicacionService {
    * Referencias:
    * - spec.md HU-11, AC-11.1–AC-11.4, A5
    * - openapi.yaml PATCH /publicaciones/{publicacionId}
-   * - domain/Publicacion.ts esTextoValido()
+   * - domain/PublicacionPerfil.ts esTextoValido()
    */
-  async editarPublicacion(publicacionId: string, nuevoTexto: string): Promise<Publicacion> {
+  async editarPublicacion(publicacionId: string, nuevoTexto: string): Promise<PublicacionPerfil> {
     if (!publicacionId || publicacionId.trim() === '') {
       throw new Error('ID de publicación requerido')
     }
@@ -150,9 +150,10 @@ export class PublicacionService {
     }
 
     // A5: Validar que el texto sea válido usando la regla de dominio
-    const publicacionTemp = new Publicacion(
+    const publicacionTemp = new PublicacionPerfil(
       publicacionId,
       '', // autorId no se valida aquí (backend valida autorización)
+      '', // autorNombreUsuario no se valida aquí
       '', // imagenUrl no se edita (A5)
       nuevoTexto
     )
@@ -193,7 +194,7 @@ export class PublicacionService {
    * Referencias:
    * - spec.md HU-12, AC-12.1–AC-12.4
    * - openapi.yaml DELETE /publicaciones/{publicacionId}
-   * - domain/Publicacion.ts puedeSerEliminada()
+   * - domain/PublicacionPerfil.ts puedeSerEliminada()
    */
   async eliminarPublicacion(publicacionId: string): Promise<void> {
     if (!publicacionId || publicacionId.trim() === '') {

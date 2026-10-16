@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 import { SeguimientoRelacion } from '../../domain/SeguimientoRelacion'
 import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpetasPaginado'
 import { CarpetaList } from '../carpetas/CarpetaList'
@@ -56,7 +56,7 @@ import { FollowButton } from '../seguimiento/FollowButton'
  * - `usuarioActual: Usuario` — Usuario autenticado actual (para determinar si puede seguir)
  * - `seguimiento?: SeguimientoRelacion` — Estado de seguimiento (opcional, para HU-04)
  * - `carpetas?: CarpetaPost[]` — Carpetas públicas del usuario ajeno (opcional)
- * - `publicaciones?: Publicacion[]` — Publicaciones propias del usuario ajeno (opcional)
+ * - `publicaciones?: PublicacionPerfil[]` — Publicaciones propias del usuario ajeno (opcional)
  * - `cargando?: boolean` — true si se están cargando datos (opcional, para skeleton)
  * - `onSeguimiento?: (seguimiento: SeguimientoRelacion) => Promise<void>` — Callback para toggle de seguimiento (HU-04, T061)
  *
@@ -81,10 +81,10 @@ import { FollowButton } from '../seguimiento/FollowButton'
 
 export interface PerfilAjenoProps {
   usuario: Usuario
-  usuarioActual: Usuario
+  usuarioActual: Pick<Usuario, 'id'>
   seguimiento?: SeguimientoRelacion
   carpetas?: CarpetaPost[]
-  publicaciones?: Publicacion[]
+  publicaciones?: PublicacionPerfil[]
   cargando?: boolean
   onSeguimiento?: (seguimiento: SeguimientoRelacion) => Promise<void>
 }

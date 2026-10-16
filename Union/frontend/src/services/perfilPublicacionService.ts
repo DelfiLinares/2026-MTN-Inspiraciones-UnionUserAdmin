@@ -1,4 +1,4 @@
-import { Publicacion } from '../domain/Publicacion'
+import { PublicacionPerfil } from '../domain/PublicacionPerfil'
 import { PublicacionRepository, ResultadoPublicacionesPaginado, ResultadoGuardadoPublicacion } from '../application/ports/PublicacionRepository'
 import { PublicacionService } from '../application/PublicacionService'
 import { httpClient } from '../infrastructure/httpClient'
@@ -34,11 +34,13 @@ import { apiEndpoints } from '../infrastructure/apiEndpoints'
  */
 
 /**
- * DTO del API HTTP para Publicacion.
+ * DTO del API HTTP para PublicacionPerfil.
  */
 interface PublicacionResponseDto {
   id: string
   autorId: string
+  autorNombreUsuario?: string
+  autorFotoUrl?: string
   imagenUrl: string
   texto: string
   fechaCreacion: string
@@ -83,16 +85,18 @@ interface PaginaPublicacionesResponseDto {
 }
 
 /**
- * Mapear DTO HTTP a entidad Publicacion de dominio.
+ * Mapear DTO HTTP a entidad PublicacionPerfil de dominio.
  */
-function mapearPublicacionDelDto(dto: PublicacionResponseDto): Publicacion {
-  return new Publicacion(
+function mapearPublicacionDelDto(dto: PublicacionResponseDto): PublicacionPerfil {
+  return new PublicacionPerfil(
     dto.id,
     dto.autorId,
+    dto.autorNombreUsuario ?? '',
     dto.imagenUrl,
     dto.texto,
     new Date(dto.fechaCreacion),
     dto.fechaActualizacion ? new Date(dto.fechaActualizacion) : undefined,
+    dto.autorFotoUrl,
   )
 }
 
@@ -180,7 +184,7 @@ class HttpPublicacionRepository implements PublicacionRepository {
   async editarPublicacion(
     publicacionId: string,
     texto: string,
-  ): Promise<Publicacion> {
+  ): Promise<PublicacionPerfil> {
     try {
       const payload: EditarPublicacionRequestDto = { texto }
       const response = await httpClient.patch<PublicacionResponseDto>(

@@ -1,26 +1,31 @@
 /**
- * Tests de `perfilService` — Módulo 004-inspiraciones-perfil (T080).
+ * Tests de `perfilService` y `useSeguirUsuario` (T074).
  *
  * Fuente de verdad:
- * - Union/specs/004-inspiraciones-perfil/spec.md (HU-01, HU-02, HU-03, A1, A2, A10)
- * - Union/specs/004-inspiraciones-perfil/contracts/openapi.yaml
- *   (GET /auth/me, GET /usuarios/{id}, PATCH /perfil, POST /perfil/foto)
- * - Union/specs/004-inspiraciones-perfil/plan.md (Fase 4, capa infrastructure)
- * - Union/specs/004-inspiraciones-perfil/tasks.md (T080)
+ * - Union/specs/001-plataforma-unificada/spec.md (RF-16 a RF-20, RF-37 a RF-39, CB-07, AC-08.3, AC-08.4)
+ * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md
+ *   (`GET /usuarios/{id}`, `PATCH /perfil`, `PUT/DELETE /usuarios/{id}/seguimiento`)
+ * - Union/specs/001-plataforma-unificada/plan.md (sección 3.2, 3.4)
+ * - Union/specs/001-plataforma-unificada/tasks.md (T074, depende de T062)
  *
  * Cobertura:
- * - HU-01: Obtener usuario autenticado (GET /auth/me) — AC-01.1
- * - HU-02: Actualizar perfil con validación — AC-02.7, AC-02.8 (manejo de errores)
- * - HU-03: Obtener perfil de otro usuario (GET /usuarios/{id})
- * - A1: 409 Conflict si username ya existe
- * - A2: 400/413/415 para errores de foto (formato, tamaño)
- * - A10: 403/404 si perfil está BANEADO/ELIMINADO
+ * - Actualización optimista del contador de seguidores y del estado `siguiendoAlUsuarioActual` (AC-08.3).
+ * - Reversión inmediata al estado previo si la solicitud a la API falla (CB-07, AC-08.4).
+ * - Modificación de perfil excluyendo contraseña (RF-16) y enviando FormData si incluye foto.
+ * - Invocaciones a `PUT/DELETE /usuarios/{id}/seguimiento` con respuesta `204`.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import {
+  obtenerUsuario,
+  actualizarPerfil,
+  seguirUsuario,
+  dejarDeSeguir,
+  useSeguirUsuario,
+} from '../../src/services/perfilService'
 import { httpClient } from '../../src/infrastructure/httpClient'
 import { Usuario } from '../../src/domain/Usuario'
-import { EstadoCuentaUsuario } from '../../src/domain/enums/EstadoCuentaUsuario'
 import { RolUsuario } from '../../src/domain/enums/RolUsuario'
 
 vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Promise<unknown>) => {
@@ -31,397 +36,197 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
       get: vi.fn(),
       patch: vi.fn(),
       post: vi.fn(),
+      put: vi.fn(),
       delete: vi.fn(),
     },
   }
 })
 
-function crearUsuarioResponse(
-  overrides: Partial<{
-    id: string
-    username: string
-    foto?: string
-    sobreMi: string
-    descripcion: string
-    estado: string
-    rol: string
-    cantidadSeguidores: number
-  }> = {},
-) {
-  return {
-    id: overrides.id ?? 'user-1',
-    username: overrides.username ?? 'artista123',
-    foto: overrides.foto ?? 'https://example.com/avatar.jpg',
-    sobreMi: overrides.sobreMi ?? 'Artista visual',
-    descripcion: overrides.descripcion ?? 'Comparto mis obras',
-    estado: overrides.estado ?? EstadoCuentaUsuario.ACTIVO,
-    rol: overrides.rol ?? RolUsuario.USER,
-    cantidadSeguidores: overrides.cantidadSeguidores ?? 10,
-  }
+function crearUsuarioPrueba(siguiendo = false, seguidores = 5): Usuario {
+  return new Usuario({
+    id: 'usr-target-1',
+    nombre: 'Ana',
+    apellido: 'García',
+    bio: 'Artista digital',
+    fotoUrl: 'https://example.com/foto.jpg',
+    rol: RolUsuario.USER,
+    siguiendoAlUsuarioActual: siguiendo,
+    cantidadSeguidores: seguidores,
+  })
 }
 
-describe('perfilService — Tests de servicio (T080)', () => {
+describe('perfilService & useSeguirUsuario (T074)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  describe('HU-01 — Obtener usuario autenticado (AC-01.1)', () => {
-    it('obtiene usuario autenticado actual (GET /auth/me)', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        id: 'user-actual',
-        username: 'mi_usuario',
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  describe('obtenerUsuario (GET /usuarios/{id})', () => {
+    it('obtiene un usuario y lo mapea correctamente a la entidad Usuario', async () => {
+      vi.mocked(httpClient.get).mockResolvedValueOnce({
+        id: 'usr-target-1',
+        nombre: 'Ana',
+        apellido: 'García',
+        bio: 'Artista digital',
+        fotoUrl: 'https://example.com/foto.jpg',
+        rol: 'USER',
+        siguiendoAlUsuarioActual: false,
+        cantidadSeguidores: 12,
       })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(usuarioResponse)
 
-      // Simular importación y llamada (el servicio real hace esto)
-      const response = (await httpClient.get('http://api/auth/me')) as typeof usuarioResponse
+      const usuario = await obtenerUsuario('usr-target-1')
 
-      expect(httpClient.get).toHaveBeenCalledWith('http://api/auth/me')
-      expect(response).toEqual(usuarioResponse)
-      expect(response.id).toBe('user-actual')
-      expect(response.username).toBe('mi_usuario')
-    })
-
-    it('mapea respuesta HTTP a entidad Usuario correctamente', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        id: 'user-1',
-        username: 'artista123',
-        foto: 'https://example.com/avatar.jpg',
-        sobreMi: 'Artista visual',
-        descripcion: 'Comparto mis obras',
-        estado: EstadoCuentaUsuario.ACTIVO,
-      })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(usuarioResponse)
-
-      const response = (await httpClient.get('http://api/auth/me')) as typeof usuarioResponse
-
-      expect(response.username).toBe('artista123')
-      expect(response.foto).toBe('https://example.com/avatar.jpg')
-      expect(response.sobreMi).toBe('Artista visual')
-      expect(response.descripcion).toBe('Comparto mis obras')
-      expect(response.estado).toBe(EstadoCuentaUsuario.ACTIVO)
+      expect(httpClient.get).toHaveBeenCalledWith('/usuarios/usr-target-1', undefined)
+      expect(usuario).toBeInstanceOf(Usuario)
+      expect(usuario.nombre).toBe('Ana')
+      expect(usuario.apellido).toBe('García')
+      expect(usuario.cantidadSeguidores).toBe(12)
+      expect(usuario.siguiendoAlUsuarioActual).toBe(false)
     })
   })
 
-  describe('HU-02 — Actualizar perfil (AC-02.7, AC-02.8, validaciones)', () => {
-    it('actualiza perfil con datos válidos (PATCH /perfil)', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        username: 'nuevo_usuario',
-        sobreMi: 'Nuevo sobre mí',
-        descripcion: 'Nueva descripción',
+  describe('actualizarPerfil (PATCH /perfil, RF-16)', () => {
+    it('envía un objeto JSON sin contraseña cuando no hay foto (RF-16)', async () => {
+      vi.mocked(httpClient.patch).mockResolvedValueOnce({
+        id: 'usr-mi-perfil',
+        nombre: 'NuevoNombre',
+        apellido: 'García',
+        bio: 'Nueva Bio',
+        rol: 'USER',
       })
-      vi.mocked(httpClient.patch).mockResolvedValueOnce(usuarioResponse)
 
-      const payload = {
-        username: 'nuevo_usuario',
-        sobreMi: 'Nuevo sobre mí',
-        descripcion: 'Nueva descripción',
-      }
-      const response = (await httpClient.patch('http://api/perfil', payload)) as typeof usuarioResponse
-
-      expect(httpClient.patch).toHaveBeenCalledWith('http://api/perfil', payload)
-      expect(response.username).toBe('nuevo_usuario')
-      expect(response.sobreMi).toBe('Nuevo sobre mí')
-    })
-
-    it('envía FormData cuando se adjunta foto (POST /perfil/foto)', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        foto: 'https://example.com/nueva-foto.jpg',
+      const usuario = await actualizarPerfil({
+        nombre: 'NuevoNombre',
+        bio: 'Nueva Bio',
       })
-      vi.mocked(httpClient.post).mockResolvedValueOnce(usuarioResponse)
 
-      const formData = new FormData()
-      formData.append('foto', new File(['contenido'], 'avatar.jpg', { type: 'image/jpeg' }))
-      
-      const response = (await httpClient.post('http://api/perfil/foto', formData)) as typeof usuarioResponse
+      expect(httpClient.patch).toHaveBeenCalledWith(
+        '/perfil',
+        {
+          nombre: 'NuevoNombre',
+          bio: 'Nueva Bio',
+        },
+        undefined
+      )
 
-      expect(httpClient.post).toHaveBeenCalledWith('http://api/perfil/foto', formData)
-      expect(response.foto).toBe('https://example.com/nueva-foto.jpg')
+      expect(usuario.nombre).toBe('NuevoNombre')
+      expect(usuario.bio).toBe('Nueva Bio')
     })
 
-    it('AC-02.7: Validación fallida (400) muestra mensaje claro', async () => {
-      const errorResponse = {
-        status: 400,
-        message: 'El nombre de usuario debe tener entre 1 y 10 caracteres',
-      }
-      vi.mocked(httpClient.patch).mockRejectedValueOnce(errorResponse)
+    it('envía FormData cuando se adjunta un archivo de foto', async () => {
+      vi.mocked(httpClient.patch).mockResolvedValueOnce({
+        id: 'usr-mi-perfil',
+        nombre: 'Ana',
+        apellido: 'García',
+        fotoUrl: 'https://example.com/nueva-foto.png',
+        rol: 'USER',
+      })
 
-      try {
-        await httpClient.patch('http://api/perfil', {
-          username: 'usuario_muy_largo_que_excede_limite',
-        })
-      } catch (error) {
-        expect((error as any).message).toContain('nombre de usuario')
-      }
-    })
+      const archivoFoto = new File(['contenido-imagen'], 'avatar.png', { type: 'image/png' })
+      const usuario = await actualizarPerfil({
+        nombre: 'Ana',
+        foto: archivoFoto,
+      })
 
-    it('A1 (409 Conflict): Username ya existe', async () => {
-      const errorResponse = {
-        status: 409,
-        message: 'Este nombre de usuario ya está en uso',
-      }
-      vi.mocked(httpClient.patch).mockRejectedValueOnce(errorResponse)
+      expect(httpClient.patch).toHaveBeenCalledTimes(1)
+      const callArgs = vi.mocked(httpClient.patch).mock.calls[0]
+      expect(callArgs[0]).toBe('/perfil')
+      expect(callArgs[1]).toBeInstanceOf(FormData)
 
-      try {
-        await httpClient.patch('http://api/perfil', {
-          username: 'usuario_existente',
-        })
-      } catch (error) {
-        expect((error as any).status).toBe(409)
-        expect((error as any).message).toContain('nombre de usuario ya está en uso')
-      }
-    })
-
-    it('A2 (413 Payload Too Large): Archivo de foto > 5MB', async () => {
-      const errorResponse = {
-        status: 413,
-        message: 'El archivo es demasiado grande',
-      }
-      vi.mocked(httpClient.post).mockRejectedValueOnce(errorResponse)
-
-      try {
-        await httpClient.post('http://api/perfil/foto', new FormData())
-      } catch (error) {
-        expect((error as any).status).toBe(413)
-      }
-    })
-
-    it('A2 (415 Unsupported Media Type): Formato de foto no soportado', async () => {
-      const errorResponse = {
-        status: 415,
-        message: 'Formato no soportado. Solo JPG, PNG y WebP',
-      }
-      vi.mocked(httpClient.post).mockRejectedValueOnce(errorResponse)
-
-      try {
-        await httpClient.post('http://api/perfil/foto', new FormData())
-      } catch (error) {
-        expect((error as any).status).toBe(415)
-        expect((error as any).message).toContain('JPG, PNG y WebP')
-      }
-    })
-
-    it('AC-02.8: Error del servidor preserva datos editados en formulario', async () => {
-      const errorResponse = {
-        status: 500,
-        message: 'Error interno del servidor',
-      }
-      vi.mocked(httpClient.patch).mockRejectedValueOnce(errorResponse)
-
-      const payload = {
-        username: 'nuevo_usuario',
-        sobreMi: 'Nuevo sobre mí',
-      }
-
-      try {
-        await httpClient.patch('http://api/perfil', payload)
-      } catch (error) {
-        // Los datos enviados siguen siendo válidos para el cliente
-        expect(payload.username).toBe('nuevo_usuario')
-        expect(payload.sobreMi).toBe('Nuevo sobre mí')
-      }
+      const formData = callArgs[1] as FormData
+      expect(formData.get('nombre')).toBe('Ana')
+      expect(formData.get('foto')).toBe(archivoFoto)
+      expect(usuario.fotoUrl).toBe('https://example.com/nueva-foto.png')
     })
   })
 
-  describe('HU-03 — Obtener perfil de otro usuario (AC-03.1)', () => {
-    it('obtiene perfil de usuario (GET /usuarios/{id})', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        id: 'user-ajeno',
-        username: 'otro_artista',
-      })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(usuarioResponse)
+  describe('seguirUsuario & dejarDeSeguir (PUT/DELETE /usuarios/{id}/seguimiento)', () => {
+    it('invoca PUT /usuarios/{id}/seguimiento al seguir a un usuario', async () => {
+      vi.mocked(httpClient.put).mockResolvedValueOnce(undefined)
 
-      const response = (await httpClient.get('http://api/usuarios/user-ajeno')) as typeof usuarioResponse
+      await seguirUsuario('usr-target-1')
 
-      expect(httpClient.get).toHaveBeenCalledWith('http://api/usuarios/user-ajeno')
-      expect(response.id).toBe('user-ajeno')
-      expect(response.username).toBe('otro_artista')
+      expect(httpClient.put).toHaveBeenCalledWith(
+        '/usuarios/usr-target-1/seguimiento',
+        undefined,
+        undefined,
+      )
     })
 
-    it('contiene información para mostrar carpetas y publicaciones (AC-03.1)', async () => {
-      const usuarioResponse = crearUsuarioResponse({
-        id: 'user-ajeno',
-        sobreMi: 'Artista digital profesional',
-        descripcion: 'Especializado en arte conceptual',
-      })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(usuarioResponse)
+    it('invoca DELETE /usuarios/{id}/seguimiento al dejar de seguir a un usuario', async () => {
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
 
-      const response = (await httpClient.get('http://api/usuarios/user-ajeno')) as typeof usuarioResponse
+      await dejarDeSeguir('usr-target-1')
 
-      expect(response.sobreMi).toBe('Artista digital profesional')
-      expect(response.descripcion).toBe('Especializado en arte conceptual')
-    })
-
-    it('A10 (403 Forbidden): Perfil BANEADO no es visible', async () => {
-      const errorResponse = {
-        status: 403,
-        message: 'Este perfil no está disponible',
-      }
-      vi.mocked(httpClient.get).mockRejectedValueOnce(errorResponse)
-
-      try {
-        await httpClient.get('http://api/usuarios/user-baneado')
-      } catch (error) {
-        expect((error as any).status).toBe(403)
-        expect((error as any).message).toContain('no está disponible')
-      }
-    })
-
-    it('A10 (404 Not Found): Perfil ELIMINADO no es visible', async () => {
-      const errorResponse = {
-        status: 404,
-        message: 'El usuario no existe o su perfil no está disponible',
-      }
-      vi.mocked(httpClient.get).mockRejectedValueOnce(errorResponse)
-
-      try {
-        await httpClient.get('http://api/usuarios/user-eliminado')
-      } catch (error) {
-        expect((error as any).status).toBe(404)
-        expect((error as any).message).toContain('no existe')
-      }
+      expect(httpClient.delete).toHaveBeenCalledWith('/usuarios/usr-target-1/seguimiento', undefined)
     })
   })
 
-  describe('Manejo de errores HTTP — A1, A2, A10', () => {
-    it('mapea error 400 a validación fallida', async () => {
-      const error = {
-        status: 400,
-        message: 'Campo inválido',
-      }
-      vi.mocked(httpClient.patch).mockRejectedValueOnce(error)
+  describe('useSeguirUsuario & Actualización Optimista + Revert (CB-07, AC-08.3, AC-08.4)', () => {
+    it('actualiza optimistamente al seguir y confirma la respuesta 204 (AC-08.3)', async () => {
+      const usuarioInicial = crearUsuarioPrueba(false, 10)
+      vi.mocked(httpClient.put).mockResolvedValueOnce(undefined)
 
-      try {
-        await httpClient.patch('http://api/perfil', {})
-      } catch (e) {
-        expect((e as any).status).toBe(400)
-      }
-    })
+      const { result } = renderHook(() => useSeguirUsuario(usuarioInicial))
 
-    it('mapea error 401 a no autenticado', async () => {
-      const error = {
-        status: 401,
-        message: 'No autenticado',
-      }
-      vi.mocked(httpClient.get).mockRejectedValueOnce(error)
+      expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(false)
+      expect(result.current.usuario.cantidadSeguidores).toBe(10)
 
-      try {
-        await httpClient.get('http://api/auth/me')
-      } catch (e) {
-        expect((e as any).status).toBe(401)
-      }
-    })
-
-    it('mapea error 409 a conflicto (A1: username duplicado)', async () => {
-      const error = {
-        status: 409,
-        message: 'Conflicto: username ya existe',
-      }
-      vi.mocked(httpClient.patch).mockRejectedValueOnce(error)
-
-      try {
-        await httpClient.patch('http://api/perfil', { username: 'taken' })
-      } catch (e) {
-        expect((e as any).status).toBe(409)
-      }
-    })
-
-    it('mapea error 413 a archivo demasiado grande (A2)', async () => {
-      const error = {
-        status: 413,
-        message: 'Archivo > 5MB',
-      }
-      vi.mocked(httpClient.post).mockRejectedValueOnce(error)
-
-      try {
-        await httpClient.post('http://api/perfil/foto', new FormData())
-      } catch (e) {
-        expect((e as any).status).toBe(413)
-      }
-    })
-
-    it('mapea error 415 a formato no soportado (A2)', async () => {
-      const error = {
-        status: 415,
-        message: 'Formato no permitido',
-      }
-      vi.mocked(httpClient.post).mockRejectedValueOnce(error)
-
-      try {
-        await httpClient.post('http://api/perfil/foto', new FormData())
-      } catch (e) {
-        expect((e as any).status).toBe(415)
-      }
-    })
-
-    it('mapea error 403 a perfil no disponible (A10: BANEADO)', async () => {
-      const error = {
-        status: 403,
-        message: 'Perfil no disponible',
-      }
-      vi.mocked(httpClient.get).mockRejectedValueOnce(error)
-
-      try {
-        await httpClient.get('http://api/usuarios/user-banned')
-      } catch (e) {
-        expect((e as any).status).toBe(403)
-      }
-    })
-
-    it('mapea error 404 a usuario no encontrado (A10: ELIMINADO)', async () => {
-      const error = {
-        status: 404,
-        message: 'Usuario no existe',
-      }
-      vi.mocked(httpClient.get).mockRejectedValueOnce(error)
-
-      try {
-        await httpClient.get('http://api/usuarios/non-existent')
-      } catch (e) {
-        expect((e as any).status).toBe(404)
-      }
-    })
-  })
-
-  describe('Mapeo de DTO HTTP a entidad Usuario', () => {
-    it('mapea todos los campos correctamente', async () => {
-      const dto = crearUsuarioResponse({
-        id: 'user-123',
-        username: 'usuario_test',
-        foto: 'https://example.com/photo.jpg',
-        sobreMi: 'Bio del usuario',
-        descripcion: 'Descripción completa',
-        estado: EstadoCuentaUsuario.ACTIVO,
-        rol: RolUsuario.USER,
-        cantidadSeguidores: 42,
+      await act(async () => {
+        await result.current.alternarSeguir()
       })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(dto)
 
-      const response = (await httpClient.get('http://api/usuarios/user-123')) as typeof dto
-
-      expect(response.id).toBe('user-123')
-      expect(response.username).toBe('usuario_test')
-      expect(response.foto).toBe('https://example.com/photo.jpg')
-      expect(response.sobreMi).toBe('Bio del usuario')
-      expect(response.descripcion).toBe('Descripción completa')
-      expect(response.estado).toBe(EstadoCuentaUsuario.ACTIVO)
-      expect(response.rol).toBe(RolUsuario.USER)
-      expect(response.cantidadSeguidores).toBe(42)
+      expect(httpClient.put).toHaveBeenCalledWith(
+        '/usuarios/usr-target-1/seguimiento',
+        undefined,
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      )
+      expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(true)
+      expect(result.current.usuario.cantidadSeguidores).toBe(11)
+      expect(result.current.error).toBeNull()
     })
 
-    it('usa valores por defecto para campos opcionales', async () => {
-      const dto = crearUsuarioResponse({
-        foto: undefined,
-        sobreMi: '',
-        descripcion: '',
+    it('actualiza optimistamente al dejar de seguir y confirma con la respuesta de la API', async () => {
+      const usuarioInicial = crearUsuarioPrueba(true, 10)
+      vi.mocked(httpClient.delete).mockResolvedValueOnce(undefined)
+
+      const { result } = renderHook(() => useSeguirUsuario(usuarioInicial))
+
+      expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(true)
+
+      await act(async () => {
+        await result.current.alternarSeguir()
       })
-      vi.mocked(httpClient.get).mockResolvedValueOnce(dto)
 
-      const response = (await httpClient.get('http://api/auth/me')) as typeof dto
+      expect(httpClient.delete).toHaveBeenCalledWith(
+        '/usuarios/usr-target-1/seguimiento',
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      )
+      expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(false)
+      expect(result.current.usuario.cantidadSeguidores).toBe(9)
+      expect(result.current.error).toBeNull()
+    })
 
-      expect(response.foto).toBeUndefined()
-      expect(response.sobreMi).toBe('')
-      expect(response.descripcion).toBe('')
+    it('CB-07 / AC-08.4: revierte el estado optimistamente aplicado al fallar la solicitud HTTP', async () => {
+      const usuarioInicial = crearUsuarioPrueba(false, 10)
+      vi.mocked(httpClient.put).mockRejectedValueOnce({
+        message: 'Error de red al intentar seguir al usuario',
+      })
+
+      const { result } = renderHook(() => useSeguirUsuario(usuarioInicial))
+
+      await act(async () => {
+        await result.current.alternarSeguir()
+      })
+
+      // Reversión al estado anterior
+      expect(result.current.usuario.siguiendoAlUsuarioActual).toBe(false)
+      expect(result.current.usuario.cantidadSeguidores).toBe(10)
+      expect(result.current.error).toBe('Error de red al intentar seguir al usuario')
+      expect(result.current.enviando).toBe(false)
     })
   })
 })

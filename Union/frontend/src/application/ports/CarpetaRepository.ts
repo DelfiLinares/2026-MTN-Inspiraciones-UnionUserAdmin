@@ -1,5 +1,5 @@
 import { CarpetaPost } from '../../domain/CarpetaPost'
-import { Publicacion } from '../../domain/Publicacion'
+import { PublicacionPerfil } from '../../domain/PublicacionPerfil'
 
 /**
  * `CarpetaRepository`: Puerto para operaciones de carpetas.
@@ -58,7 +58,7 @@ export interface ResultadoCarpetasPaginado {
  * DTO para respuesta de paginación de publicaciones.
  */
 export interface ResultadoPublicacionesPaginado {
-  publicaciones: Publicacion[]
+  publicaciones: PublicacionPerfil[]
   total: number
   limit: number
   offset: number

@@ -1,4 +1,4 @@
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { ActualizarPerfilPayload } from '../dto/ActualizarPerfilPayload'
 
 /**

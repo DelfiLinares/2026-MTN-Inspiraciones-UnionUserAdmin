@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react'
-import { Usuario } from '../../domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { ResultadoValidacion, validacionOk, validacionError } from '../../application/dto/ResultadoValidacion'
 import { ActualizarPerfilPayload, tieneAlgunCampoActualizar } from '../../application/dto/ActualizarPerfilPayload'
-import { usuarioPerfilService } from '../../services/perfilService'
+import { usuarioPerfilService } from '../../services/perfilUsuarioService'
 import { ConfirmacionAccionSensibleModal } from '../shared'
 
 /**

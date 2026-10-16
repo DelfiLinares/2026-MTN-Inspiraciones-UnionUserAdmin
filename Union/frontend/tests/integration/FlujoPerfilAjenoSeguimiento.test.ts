@@ -26,7 +26,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { httpClient } from '../../src/infrastructure/httpClient'
-import { Usuario } from '../../src/domain/Usuario'
+import { UsuarioPerfil as Usuario } from '../../src/domain/UsuarioPerfil'
 import { SeguimientoRelacion } from '../../src/domain/SeguimientoRelacion'
 import { EstadoCuentaUsuario } from '../../src/domain/enums/EstadoCuentaUsuario'
 import { RolUsuario } from '../../src/domain/enums/RolUsuario'
