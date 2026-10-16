@@ -1,0 +1,158 @@
+.desafios-listado-page {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: 24px;
+  color: #2f2f2f;
+}
+
+.desafios-listado-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.desafios-listado-header p {
+  margin-top: 8px;
+  color: #666;
+}
+
+.desafios-listado-filtros {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtro-grupo select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.filtro-ambitos {
+  border: 0;
+  padding: 0;
+}
+
+.filtro-ambitos-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.filtro-ambitos-opciones label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.filtro-ayuda {
+  color: #767676;
+  font-size: 0.9rem;
+}
+
+.desafios-listado-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.desafio-card {
+  border: 1px solid #e3e3e3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.desafio-card-media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f1f1f1;
+}
+
+.desafio-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.desafio-card-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f2f2f2, #e5e5e5);
+}
+
+.desafio-card-contenido {
+  padding: 12px;
+}
+
+.desafio-card-contenido h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.desafio-card-contenido p {
+  margin: 4px 0;
+  font-size: 0.94rem;
+}
+
+.desafio-card-ambitos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.desafio-card-ambitos span {
+  font-size: 0.85rem;
+  color: #4f46e5;
+}
+
+.desafios-listado-loading,
+.desafios-listado-vacio,
+.desafios-listado-error {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.desafios-listado-error {
+  border-color: #f5b4b4;
+  background: #fff5f5;
+}
+
+.desafios-listado-mas {
+  margin: 24px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.desafios-listado-mas button,
+.desafios-listado-error button,
+.desafios-listado-vacio button {
+  border: 0;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: #fff;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.desafios-listado-error button,
+.desafios-listado-vacio button {
+  margin-top: 8px;
+}

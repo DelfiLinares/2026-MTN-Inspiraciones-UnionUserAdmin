@@ -1,0 +1,1 @@
+export { NuevaSolicitudPage } from './NuevaSolicitudPage'
