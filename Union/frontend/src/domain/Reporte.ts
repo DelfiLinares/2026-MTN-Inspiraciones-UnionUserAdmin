@@ -21,6 +21,12 @@ const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000
  * - Union/specs/001-plataforma-unificada/data-model.md
  * - Union/specs/001-plataforma-unificada/tasks.md (T023, T031B, T033)
  * - Union/specs/001-plataforma-unificada/spec.md (RF-64, RF-65)
+ *
+ * Trazabilidad adicional (T019, `Union/specs/002-frontend-admin/tasks.md`):
+ * Esta clase hace pasar los tests de T016 (`tests/domain/Reporte.test.ts`): `estaPendiente()` (ya
+ * existente), `puedeAceptarse()`, `puedeRechazarse()` y `esEstadoFinal()`, implementando RF-15,
+ * RF-16, RF-17 de `Union/specs/002-frontend-admin/spec.md` y la regla de negocio crítica 9 de §6:
+ * un reporte en estado final (`RESUELTO`/`DESESTIMADO`) no puede volver a aceptarse ni rechazarse.
  */
 export class Reporte {
   readonly id: string
@@ -52,6 +58,33 @@ export class Reporte {
       this.estado === EstadoModeracion.PENDIENTE ||
       this.estado === EstadoModeracion.EN_REVISION
     )
+  }
+
+  /**
+   * Regla de negocio crítica 9 (`spec.md` §6): un reporte en estado `RESUELTO` o `DESESTIMADO`
+   * alcanzó un estado final y ya no puede transicionar a ningún otro estado.
+   */
+  esEstadoFinal(): boolean {
+    return (
+      this.estado === EstadoModeracion.RESUELTO ||
+      this.estado === EstadoModeracion.DESESTIMADO
+    )
+  }
+
+  /**
+   * RF-16: un reporte puede aceptarse únicamente mientras no haya alcanzado un estado final
+   * (`PENDIENTE` o `EN_REVISION`).
+   */
+  puedeAceptarse(): boolean {
+    return !this.esEstadoFinal()
+  }
+
+  /**
+   * RF-17: un reporte puede rechazarse únicamente mientras no haya alcanzado un estado final
+   * (`PENDIENTE` o `EN_REVISION`).
+   */
+  puedeRechazarse(): boolean {
+    return !this.esEstadoFinal()
   }
 
   puedeResolverseSinEliminar(): boolean {

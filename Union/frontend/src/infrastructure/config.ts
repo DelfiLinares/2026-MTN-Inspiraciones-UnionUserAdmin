@@ -5,6 +5,9 @@
  * - Union/specs/001-plataforma-unificada/spec.md
  * - Union/specs/001-plataforma-unificada/plan.md
  * - Union/specs/001-plataforma-unificada/tasks.md (T003, T036)
+ * - Union/specs/002-frontend-admin/tasks.md (T007): `apiBaseUrl` es también la URL base de la
+ *   futura API Java consumida por el módulo administrativo (sin endpoints hardcodeados,
+ *   Principio III de la constitución). Ver `.env.example` / `.env.admin.example`.
  */
 
 export const config = {

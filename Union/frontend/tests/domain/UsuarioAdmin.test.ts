@@ -3,6 +3,20 @@ import { UsuarioAdmin } from '../../src/domain/UsuarioAdmin'
 import { RolUsuarioAdmin as RolUsuario } from '../../src/domain/enums/RolUsuarioAdmin'
 import { EstadoCuentaUsuario } from '../../src/domain/enums/EstadoCuentaUsuario'
 
+/**
+ * Trazabilidad adicional (T014, `Union/specs/002-frontend-admin/tasks.md`):
+ * Esta suite ya cubre íntegramente el requisito de T014 — tests de `puedeSerBaneado()`,
+ * `puedeSerEliminado()` y `puedeSerPromovidoAAdmin()` (RF-01, RF-02, RF-03, RF-06, RF-08; reglas de
+ * negocio críticas 7 y 8 de `Union/specs/002-frontend-admin/spec.md` §6: no banear/eliminar/degradar
+ * a un ADMIN ni a uno mismo, y no-op al promover a quien ya es ADMIN).
+ *
+ * No se creó un archivo separado `tests/domain/Usuario.test.ts` para esta regla porque ese path ya
+ * está ocupado por los tests de la entidad social `Usuario` de `001-plataforma-unificada` (seguir/
+ * dejar de seguir). Mismo criterio de colisión de nombres aplicado en T012 (`MotivoReporteAdmin`):
+ * la entidad administrativa vive en `UsuarioAdmin.ts` / `UsuarioAdmin.test.ts`, consumiendo
+ * `RolUsuarioAdmin` (re-exportado como `RolUsuario`), estructuralmente idéntico al enum `RolUsuario`
+ * de T008 (mismos valores `USER`/`ADMIN`).
+ */
 describe('UsuarioAdmin (Entidad de dominio UI)', () => {
   const adminActualId = 'admin-actual-1'
 
