@@ -163,7 +163,7 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
         onNavigate('/feed');
       }
     } catch (error) {
-      console.error('Error al continuar:', error);
+      // Error handling: mostrar mensaje genérico sin loguear en consola
       setValidationErrors(
         new Map([
           [
