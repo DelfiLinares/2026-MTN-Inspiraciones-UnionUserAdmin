@@ -1,0 +1,202 @@
+/**
+ * Estilos para el módulo de Cuestionario de Intereses (006)
+ *
+ * Variables y estilos reutilizables para componentes:
+ * - BienvenidaHeader (T013)
+ * - PreguntaForm (T014)
+ * - OpcionSelector (T015)
+ * - CuestionarioContainer (T016+)
+ *
+ * Diseño: Responsive (mobile-first), coherente con identidad de Inspiraciones
+ */
+
+/* ============================================================================
+   VARIABLES CSS (Diseño sistemático)
+   ============================================================================ */
+
+:root {
+  /* Paleta de colores - Identidad Inspiraciones */
+  --color-primary: #7c3aed;        /* Púrpura principal */
+  --color-primary-light: #a78bfa;  /* Púrpura claro */
+  --color-primary-dark: #6d28d9;   /* Púrpura oscuro */
+  
+  --color-accent: #ec4899;         /* Rosa (secundario) */
+  --color-accent-light: #f472b6;   /* Rosa claro */
+  
+  --color-success: #10b981;        /* Verde (confirmación) */
+  --color-warning: #f59e0b;        /* Ámbar (atención) */
+  --color-error: #ef4444;          /* Rojo (error) */
+  
+  --color-neutral-50: #fafafa;     /* Blanco roto */
+  --color-neutral-100: #f3f4f6;    /* Gris muy claro */
+  --color-neutral-200: #e5e7eb;    /* Gris claro */
+  --color-neutral-300: #d1d5db;    /* Gris medio-claro */
+  --color-neutral-400: #9ca3af;    /* Gris medio */
+  --color-neutral-600: #4b5563;    /* Gris oscuro */
+  --color-neutral-700: #374151;    /* Gris muy oscuro */
+  --color-neutral-900: #111827;    /* Casi negro */
+  
+  /* Tipografía */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-family-mono: 'Courier New', monospace;
+  
+  --font-size-xs: 0.75rem;         /* 12px */
+  --font-size-sm: 0.875rem;        /* 14px */
+  --font-size-base: 1rem;          /* 16px */
+  --font-size-lg: 1.125rem;        /* 18px */
+  --font-size-xl: 1.25rem;         /* 20px */
+  --font-size-2xl: 1.5rem;         /* 24px */
+  --font-size-3xl: 1.875rem;       /* 30px */
+  
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Espaciado */
+  --spacing-xs: 0.25rem;           /* 4px */
+  --spacing-sm: 0.5rem;            /* 8px */
+  --spacing-md: 1rem;              /* 16px */
+  --spacing-lg: 1.5rem;            /* 24px */
+  --spacing-xl: 2rem;              /* 32px */
+  --spacing-2xl: 3rem;             /* 48px */
+  --spacing-3xl: 4rem;             /* 64px */
+  
+  /* Bordes */
+  --border-radius-sm: 0.25rem;     /* 4px */
+  --border-radius-md: 0.5rem;      /* 8px */
+  --border-radius-lg: 1rem;        /* 16px */
+  --border-radius-full: 9999px;    /* Circular */
+  
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transiciones */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+}
+
+/* ============================================================================
+   RESET Y BASE
+   ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.6;
+  color: var(--color-neutral-900);
+  background-color: var(--color-neutral-50);
+}
+
+/* ============================================================================
+   COMPONENTE: BienvenidaHeader (T013)
+   ============================================================================ */
+
+.bienvenida-header {
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+  color: white;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.bienvenida-header__content {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.bienvenida-header__eslogan {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.5px;
+}
+
+.bienvenida-header__subtitulo {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+/* Responsive: mobile */
+@media (max-width: 640px) {
+  .bienvenida-header {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+
+  .bienvenida-header__eslogan {
+    font-size: var(--font-size-xl);
+  }
+
+  .bienvenida-header__subtitulo {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Responsive: tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .bienvenida-header {
+    padding: var(--spacing-xl) var(--spacing-lg);
+  }
+
+  .bienvenida-header__eslogan {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+/* Responsive: desktop */
+@media (min-width: 1025px) {
+  .bienvenida-header {
+    padding: var(--spacing-2xl) var(--spacing-xl);
+  }
+
+  .bienvenida-header__eslogan {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+/* ============================================================================
+   UTILIDADES
+   ============================================================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-white {
+  color: white;
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.rounded {
+  border-radius: var(--border-radius-md);
+}
+
+.shadow {
+  box-shadow: var(--shadow-md);
+}
