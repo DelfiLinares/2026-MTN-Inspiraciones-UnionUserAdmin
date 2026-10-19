@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { BienvenidaHeader } from './BienvenidaHeader';
 import { PreguntaForm } from './PreguntaForm';
 import { BotonContinuar } from './BotonContinuar';
@@ -76,8 +76,13 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
   // Estado de carga (para el botón)
   const [isLoading, setIsLoading] = useState(false);
 
-  // Obtener cuestionario (3 preguntas)
-  const cuestionario: Pregunta[] = CuestionarioFactory.crearCuestionarioDefault();
+  // Estado del cuestionario (3 preguntas)
+  const [cuestionario, setCuestionario] = useState<Pregunta[]>([]);
+
+  // Cargar cuestionario al montar el componente
+  useEffect(() => {
+    setCuestionario(CuestionarioFactory.crearCuestionarioDefault());
+  }, []);
 
   /**
    * Maneja selección de una opción
