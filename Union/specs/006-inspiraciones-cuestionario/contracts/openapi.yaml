@@ -172,7 +172,9 @@ components:
           example: "cuestionario_intereses_v1"
         titulo:
           type: string
-          description: Título del cuestionario (ej: "Descubre tu feed personalizado").
+          description: |
+            Título del cuestionario.
+            Ejemplo: Descubre tu feed personalizado.
           example: "Cuestionario de Intereses"
         eslogan:
           type: string
@@ -292,39 +294,25 @@ components:
         estilosPintura: ["realismo"]
         timestamp: "2026-10-19T14:30:00Z"
 
----
-
-## Notas de integración futura
-
-### Opción 1: Consumir cuestionario desde backend (futuro)
-
-```
-GET /api/v1/cuestionarios/{id}
-Response: CuestionarioDTO
-```
-
-En MVP: Cuestionario es hardcoded en frontend (CuestionarioFactory).
-
-### Opción 2: Guardar respuestas en backend (futuro)
-
-```
-POST /api/v1/respuestas-cuestionario
-Request body: { respuestas: RespuestaCuestionario }
-Response: { id: string, preferencias: Preferencias }
-```
-
-En MVP: Sin persistencia; respuestas en memoria.
-
-### Opción 3: Obtener publicaciones personalizadas (futuro, módulo feed)
-
-```
-POST /api/v1/feed/personalizado
-Request body: { preferencias: Preferencias }
-Response: { publicaciones: Publicacion[] }
-```
-
-En MVP: El feed es un stub; no obtiene publicaciones.
-
----
-
-**Versión**: 1.0 | **Completado**: 2026-10-19
+# ============================================================================
+# FUTURAS INTEGRACIONES CON BACKEND
+# ============================================================================
+#
+# Opción 1: Consumir cuestionario desde backend (futuro)
+#   GET /api/v1/cuestionarios/{id}
+#   Response: CuestionarioDTO
+#   En MVP: Cuestionario es hardcoded en frontend (CuestionarioFactory)
+#
+# Opción 2: Guardar respuestas en backend (futuro)
+#   POST /api/v1/respuestas-cuestionario
+#   Request body: { respuestas: RespuestaCuestionario }
+#   Response: { id: string, preferencias: Preferencias }
+#   En MVP: Sin persistencia; respuestas en memoria
+#
+# Opción 3: Obtener publicaciones personalizadas (futuro, módulo feed)
+#   POST /api/v1/feed/personalizado
+#   Request body: { preferencias: Preferencias }
+#   Response: { publicaciones: Publicacion[] }
+#   En MVP: El feed es un stub; no obtiene publicaciones
+#
+# Versión: 1.0 | Completado: 2026-10-19
