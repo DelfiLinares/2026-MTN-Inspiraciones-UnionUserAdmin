@@ -23,21 +23,23 @@
  * interfaces de este módulo.
  */
 
+// Rutas relativas a `apiBaseUrl` (`/api`). Prefijo `/admin` según openapi.yaml (servers: /api/admin)
+// y al backend (`AdminUsuariosController`, `AdminPublicacionesController`, `AdminReportesController`).
 export const apiEndpointsAdmin = {
-  usuarios: () => '/usuarios',
-  banearUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/banear`,
-  eliminarUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/eliminar`,
-  promoverUsuario: (usuarioId: string) => `/usuarios/${usuarioId}/promover`,
+  usuarios: () => '/admin/usuarios',
+  banearUsuario: (usuarioId: string) => `/admin/usuarios/${usuarioId}/banear`,
+  eliminarUsuario: (usuarioId: string) => `/admin/usuarios/${usuarioId}/eliminar`,
+  promoverUsuario: (usuarioId: string) => `/admin/usuarios/${usuarioId}/promover`,
 
   // Gestión de publicaciones (RF-09 a RF-12, T040)
-  publicaciones: () => '/publicaciones',
-  publicacion: (publicacionId: string) => `/publicaciones/${publicacionId}`,
-  eliminarPublicacion: (publicacionId: string) => `/publicaciones/${publicacionId}/eliminar`,
+  publicaciones: () => '/admin/publicaciones',
+  publicacion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}`,
+  eliminarPublicacion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}/eliminar`,
 
   // Gestión de reportes (RF-13 a RF-20, T048)
-  reportes: () => '/reportes',
-  reporte: (reporteId: string) => `/reportes/${reporteId}`,
-  aceptarReporte: (reporteId: string) => `/reportes/${reporteId}/aceptar`,
-  rechazarReporte: (reporteId: string) => `/reportes/${reporteId}/rechazar`,
-  exportarReportes: () => '/reportes/exportar',
+  reportes: () => '/admin/reportes',
+  reporte: (reporteId: string) => `/admin/reportes/${reporteId}`,
+  aceptarReporte: (reporteId: string) => `/admin/reportes/${reporteId}/aceptar`,
+  rechazarReporte: (reporteId: string) => `/admin/reportes/${reporteId}/rechazar`,
+  exportarReportes: () => '/admin/reportes/exportar',
 } as const
