@@ -174,6 +174,113 @@ body {
 }
 
 /* ============================================================================
+   COMPONENTE: PreguntaForm (T014)
+   ============================================================================ */
+
+.pregunta-form {
+  border: none;
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.pregunta-form__titulo {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-900);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.5;
+}
+
+.pregunta-form__requerida {
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+  margin-left: var(--spacing-xs);
+}
+
+.pregunta-form__opciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.pregunta-form__opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.pregunta-form__opcion:hover {
+  background-color: var(--color-neutral-100);
+}
+
+.pregunta-form__checkbox {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.pregunta-form__checkbox:hover {
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.pregunta-form__checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.pregunta-form__checkbox:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pregunta-form__label {
+  flex: 1;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-neutral-900);
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.pregunta-form__checkbox:checked + .pregunta-form__label {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Responsive: mobile */
+@media (max-width: 640px) {
+  .pregunta-form {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+  }
+
+  .pregunta-form__titulo {
+    font-size: var(--font-size-base);
+  }
+
+  .pregunta-form__checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .pregunta-form__label {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ============================================================================
    UTILIDADES
    ============================================================================ */
 
