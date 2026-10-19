@@ -551,6 +551,70 @@ body {
 }
 
 /* ============================================================================
+   COMPONENTE: CuestionarioPage (T031)
+   ============================================================================ */
+
+.cuestionario-page {
+  min-height: 100vh;
+  background-color: var(--color-neutral-50);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.cuestionario-page__container {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.cuestionario-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.cuestionario-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive: tablet */
+@media (max-width: 768px) {
+  .cuestionario-page {
+    padding: var(--spacing-md);
+  }
+
+  .cuestionario-page__container {
+    gap: var(--spacing-lg);
+  }
+}
+
+/* Responsive: mobile */
+@media (max-width: 640px) {
+  .cuestionario-page {
+    padding: var(--spacing-sm);
+    align-items: stretch;
+  }
+
+  .cuestionario-page__container {
+    gap: var(--spacing-md);
+  }
+
+  .cuestionario-page__actions {
+    padding: var(--spacing-md);
+  }
+}
+
+/* ============================================================================
    UTILIDADES
    ============================================================================ */
 
