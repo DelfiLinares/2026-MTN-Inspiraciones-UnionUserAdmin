@@ -108,7 +108,7 @@ export async function crearCarpeta(
 
   const respuesta = await httpClient.post<CarpetaDto>(
     '/carpetas',
-    { nombre: nombreLimpio },
+    { nombre: nombreLimpio, visibilidad: 'PUBLICA' },
     options
   )
 

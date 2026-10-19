@@ -11,6 +11,7 @@ import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
 import { CarpetaList } from '../carpetas/CarpetaList'
 import { PublicacionList } from '../publicaciones/PublicacionList'
+import { CrearPublicacionDialog } from '../publicaciones/CrearPublicacionDialog'
 
 const TAMANIO_PAGINA = 20
 
@@ -129,6 +130,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     useState<ResultadoPublicacionesPaginado>()
   const [cargandoPublicaciones, setCargandoPublicaciones] = useState(true)
   const [cargandoMasPublicaciones, setCargandoMasPublicaciones] = useState(false)
+  const [mostrarCrearPublicacion, setMostrarCrearPublicacion] = useState(false)
 
   // T074: Error states for publicaciones
   const [errorPublicaciones, setErrorPublicaciones] = useState<string>('')
@@ -451,26 +453,8 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
             <p>Cargando carpetas...</p>
           </div>
-        ) : carpetasActuales.length === 0 ? (
-          // CB-17: Empty state when no carpetas
-          <div
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
-            }}
-          >
-            <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
-              No hay carpetas aún
-            </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
-              Crea una carpeta para organizar tus posts guardados
-            </p>
-          </div>
         ) : (
+          // CB-17: CarpetaList muestra su propio estado vacío y el botón de crear
           <CarpetaList
             carpetas={carpetasActuales}
             esPerfilPropio={true}
@@ -493,6 +477,34 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
       {/* AC-01.3: Publicaciones propias del usuario (T057: Integración con PublicacionList y callbacks) */}
       {/* T074: Estados de loading/empty/error para publicaciones */}
       <section>
+        <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1rem',
+            }}
+          >
+            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+              Publicaciones
+            </h2>
+            <button
+              type="button"
+              onClick={() => setMostrarCrearPublicacion(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              + Nueva publicación
+            </button>
+          </div>
         {errorPublicaciones && (
           <div
             style={{
@@ -549,6 +561,16 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           />
         )}
       </section>
+
+      {mostrarCrearPublicacion && (
+        <CrearPublicacionDialog
+          onSuccess={() => {
+            setMostrarCrearPublicacion(false)
+            void cargarPublicaciones(TAMANIO_PAGINA, 0, false)
+          }}
+          onCancel={() => setMostrarCrearPublicacion(false)}
+        />
+      )}
 
       {/* T034: Modal de edición de perfil con EditarPerfilForm integrado */}
       {mostrarModalEditar && (

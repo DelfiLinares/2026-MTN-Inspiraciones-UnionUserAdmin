@@ -44,7 +44,13 @@ export interface EstadoReporteMioDto {
 export interface CategoriaPublicacionDto {
   codigo: string
   grupo: string
-  etiqueta: string
+  nombre: string
+}
+
+export interface PublicUserSummaryDto {
+  id: string
+  username: string
+  nombreCompleto: string
 }
 
 export interface PublicacionDto {
@@ -191,7 +197,10 @@ export async function consultarEstadoReporteMio(publicacionId: string): Promise<
 }
 
 export async function obtenerCategoriasPublicacion(): Promise<CategoriaPublicacionDto[]> {
-  return httpClient.get<CategoriaPublicacionDto[]>(apiEndpoints.categoriasPublicaciones())
+  const respuesta = await httpClient.get<{ items: CategoriaPublicacionDto[] }>(
+    apiEndpoints.categoriasPublicaciones(),
+  )
+  return respuesta.items
 }
 
 export async function actualizarPublicacion(
@@ -319,6 +328,44 @@ export async function crearPublicacion(
     publicacion: mapearPublicacion(dto),
     exito: true,
   }
+}
+
+export interface NuevaPublicacionInput {
+  contenido: string
+  tipoContenido: 'TEXTO' | 'IMAGEN'
+  fotoUrl?: string
+  categorias: string[]
+  hashtags: string[]
+  cuentasEtiquetadas: string[]
+}
+
+/**
+ * Crea una publicación (`POST /publicaciones`, JSON). La imagen se indica por URL: el backend no recibe archivos.
+ */
+export async function crearPublicacionCompleta(datos: NuevaPublicacionInput): Promise<Publicacion> {
+  const contenido = datos.contenido.trim()
+  if (!contenido) {
+    throw new Error('El contenido de la publicación es obligatorio.')
+  }
+  const fotoUrl = datos.fotoUrl?.trim()
+  if (datos.tipoContenido === 'IMAGEN' && !fotoUrl) {
+    throw new Error('Las publicaciones con imagen necesitan una URL de foto.')
+  }
+
+  const dto = await httpClient.post<PublicacionDto>(apiEndpoints.publicaciones(), {
+    contenido,
+    tipoContenido: datos.tipoContenido,
+    fotoUrl: datos.tipoContenido === 'IMAGEN' ? fotoUrl : undefined,
+    categorias: datos.categorias,
+    hashtags: datos.hashtags,
+    cuentasEtiquetadas: datos.cuentasEtiquetadas,
+  })
+  return mapearPublicacion(dto)
+}
+
+/** Busca usuarios por prefijo de username para etiquetarlos (`POST /usuarios/buscar`). */
+export async function buscarUsuariosEtiquetables(texto: string): Promise<PublicUserSummaryDto[]> {
+  return httpClient.post<PublicUserSummaryDto[]>('/usuarios/buscar', { busqueda: texto.trim() })
 }
 
 export const publicacionService = {

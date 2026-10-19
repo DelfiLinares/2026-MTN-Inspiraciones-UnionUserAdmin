@@ -81,6 +81,7 @@ interface PublicacionResponseDto {
  */
 interface CrearCarpetaRequestDto {
   nombre: string
+  visibilidad: 'PUBLICA' | 'PRIVADA'
 }
 
 /**
@@ -254,7 +255,7 @@ class HttpCarpetaRepository implements CarpetaRepository {
    */
   async crearCarpeta(nombre: string): Promise<CarpetaPost> {
     try {
-      const payload: CrearCarpetaRequestDto = { nombre }
+      const payload: CrearCarpetaRequestDto = { nombre, visibilidad: 'PUBLICA' }
       const response = await httpClient.post<CarpetaPostResponseDto>(
         apiEndpoints.crearCarpeta(),
         payload,
