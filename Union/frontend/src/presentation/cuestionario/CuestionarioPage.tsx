@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BienvenidaHeader } from './BienvenidaHeader';
 import { PreguntaForm } from './PreguntaForm';
 import { BotonContinuar } from './BotonContinuar';
@@ -65,6 +66,16 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
   onCuestionarioCompleto,
   onNavigate,
 }) => {
+  // Hook para navegación React Router (con fallback graceful si no está disponible)
+  let navigate: ReturnType<typeof useNavigate> | null = null;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    // Si no estamos en un Router context, navigate será null
+    // y usaremos el fallback onNavigate callback
+    navigate = null;
+  }
+
   // Estado de respuestas
   const [respuestas, setRespuestas] = useState<RespuestaCuestionario>(
     RespuestaCuestionario.vacio()
@@ -142,7 +153,12 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
       // Llamar callback de completitud
       onCuestionarioCompleto?.(preferenciasJSON);
 
-      // Opcional: navegar a feed
+      // Navegar a feed con preferencias en state (React Router)
+      if (navigate) {
+        navigate('/feed', { state: { preferencias: preferenciasJSON } });
+      }
+
+      // Fallback: si no hay React Router, usar callback onNavigate
       if (onNavigate) {
         onNavigate('/feed');
       }
@@ -159,7 +175,7 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [respuestas, cuestionario, onCuestionarioCompleto, onNavigate]);
+  }, [respuestas, cuestionario, onCuestionarioCompleto, onNavigate, navigate]);
 
   /**
    * Obtener respuesta seleccionada para una pregunta
