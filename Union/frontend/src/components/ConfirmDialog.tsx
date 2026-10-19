@@ -11,7 +11,7 @@
  * - Mantener accesibilidad con roles ARIA.
  */
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export type VarianteConfirmacion = 'peligro' | 'advertencia' | 'informativa'
 
@@ -69,6 +69,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirmar,
   onCancelar,
 }) => {
+  const botonConfirmarRef = useRef<HTMLButtonElement>(null)
+
+  // T073: Foco automático en el diálogo al abrir (accesibilidad)
+  useEffect(() => {
+    if (abierto && botonConfirmarRef.current) {
+      // Pequeño delay para asegurar que el diálogo esté renderizado
+      setTimeout(() => {
+        botonConfirmarRef.current?.focus()
+      }, 0)
+    }
+  }, [abierto])
+
   if (!abierto) {
     return null
   }
@@ -81,11 +93,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-titulo"
+      aria-describedby="confirm-dialog-mensaje"
     >
       <div className={`bg-white rounded-2xl shadow-xl border ${clases.halo} max-w-md w-full p-6 space-y-4`}>
         <div className="flex items-start space-x-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${clases.icono}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -98,7 +111,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <h2 id="confirm-dialog-titulo" className="text-base font-semibold text-gray-900">
               {titulo}
             </h2>
-            <p className="mt-1 text-sm text-gray-600">{mensaje}</p>
+            <p id="confirm-dialog-mensaje" className="mt-1 text-sm text-gray-600">
+              {mensaje}
+            </p>
           </div>
         </div>
 
@@ -107,11 +122,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             type="button"
             onClick={onCancelar}
             disabled={confirmando}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             {textoCancelar}
           </button>
           <button
+            ref={botonConfirmarRef}
             type="button"
             onClick={onConfirmar}
             disabled={confirmando}

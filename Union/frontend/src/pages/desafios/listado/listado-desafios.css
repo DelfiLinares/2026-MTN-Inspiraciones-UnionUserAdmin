@@ -32,11 +32,25 @@
   gap: 8px;
 }
 
+.filtro-grupo label,
+.filtro-grupo legend {
+  font-weight: 500;
+  color: #333;
+}
+
 .filtro-grupo select {
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background: #fff;
+  font-family: inherit;
+}
+
+/* T073: Foco visible en filtros para navegación con teclado */
+.filtro-grupo select:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+  border-color: #4f46e5;
 }
 
 .filtro-ambitos {
@@ -50,16 +64,31 @@
   gap: 10px 14px;
 }
 
-.filtro-ambitos-opciones label {
+.filtro-ambito-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 0.95rem;
+  cursor: pointer;
 }
 
-.filtro-ayuda {
+.filtro-ambito-label input {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* T073: Foco visible en checkboxes */
+.filtro-ambito-label input:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.filtro-ayuda,
+.filtro-ayuda-legend {
   color: #767676;
   font-size: 0.9rem;
+  font-weight: normal;
 }
 
 .desafios-listado-grid {
@@ -73,6 +102,22 @@
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  /* T073: Tarjetas navegables por teclado */
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+/* T073: Estados visibles para navegación con teclado */
+.desafio-card:hover,
+.desafio-card:focus {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.desafio-card:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
 }
 
 .desafio-card-media {
@@ -106,6 +151,55 @@
 .desafio-card-contenido p {
   margin: 4px 0;
   font-size: 0.94rem;
+}
+
+/* T073: Badge de estado con color + texto (no solo color) */
+.estado-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-activo {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.estado-programado {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estado-finalizado {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.estado-eliminado {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.estado-desconocido {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* T073: Utility class para contenido solo para screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .desafio-card-ambitos {
