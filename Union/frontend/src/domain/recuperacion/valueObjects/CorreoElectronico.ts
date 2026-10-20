@@ -6,6 +6,10 @@ export class CorreoElectronico {
   private constructor(email: string) {
     const trimado = email.trim();
 
+    if (trimado.length > 255) {
+      throw new ErrorCorreoInvalido(`Correo excede máximo de 255 caracteres: ${email}`);
+    }
+
     if (!this.esValido(trimado)) {
       throw new ErrorCorreoInvalido(`Correo inválido: ${email}`);
     }
