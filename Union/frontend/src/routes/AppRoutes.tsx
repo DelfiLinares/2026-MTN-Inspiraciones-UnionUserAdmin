@@ -23,6 +23,7 @@ import { RutaProtegida } from './RutaProtegida'
 
 import { LoginPage } from '../pages/login'
 import { RegistroPage } from '../pages/registro'
+import { PaginaRecuperacion } from '../pages/recuperar-contrasena'
 import { HomePage } from '../pages/home'
 import { PerfilPage } from '../pages/perfil'
 import { EditarPerfilPage } from '../pages/editar-perfil'
@@ -62,6 +63,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaPublicaDeAutenticacion>
             <RegistroPage />
+          </RutaPublicaDeAutenticacion>
+        }
+      />
+      <Route
+        path="/recuperar-contrasena"
+        element={
+          <RutaPublicaDeAutenticacion>
+            <PaginaRecuperacion />
           </RutaPublicaDeAutenticacion>
         }
       />
