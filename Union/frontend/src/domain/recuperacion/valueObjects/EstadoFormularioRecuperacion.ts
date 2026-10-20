@@ -37,4 +37,20 @@ export class EstadoFormularioRecuperacion {
   obtenerMensaje(): string | undefined {
     return this.mensaje;
   }
+
+  esReposo(): boolean {
+    return this.estado === EstadoEnum.REPOSO;
+  }
+
+  esCargando(): boolean {
+    return this.estado === EstadoEnum.CARGANDO;
+  }
+
+  esExito(): boolean {
+    return this.estado === EstadoEnum.EXITO;
+  }
+
+  esError(): boolean {
+    return this.estado === EstadoEnum.ERROR;
+  }
 }
