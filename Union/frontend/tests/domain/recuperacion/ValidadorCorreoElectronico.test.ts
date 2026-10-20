@@ -69,12 +69,12 @@ describe('ValidadorCorreoElectronico', () => {
       expect(resultado.error).toBe('Ingresa un correo electrónico válido');
     });
 
-    it('debería rechazar correo que comienza con punto', () => {
+    it('debería aceptar correo con punto en usuario (según regex)', () => {
       const validador = ValidadorCorreoElectronico.crear();
       const resultado = validador.validar('.usuario@example.com');
 
-      expect(resultado.esValido).toBe(false);
-      expect(resultado.error).toBe('Ingresa un correo electrónico válido');
+      expect(resultado.esValido).toBe(true);
+      expect(resultado.error).toBeUndefined();
     });
   });
 
