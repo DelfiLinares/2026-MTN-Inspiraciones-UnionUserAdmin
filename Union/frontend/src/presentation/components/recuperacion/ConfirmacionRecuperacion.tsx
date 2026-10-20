@@ -30,12 +30,12 @@ export const ConfirmacionRecuperacion: React.FC<PropsConfirmacionRecuperacion> =
   alRegresar
 }) => {
   return (
-    <div className="confirmacion-recuperacion">
-      <div className="icono-exito">✓</div>
+    <div className="confirmacion-recuperacion" role="region" aria-label="Confirmación de recuperación de contraseña">
+      <div className="icono-exito" aria-hidden="false" role="status">✓</div>
 
       <h2>Solicitud Procesada</h2>
 
-      <p className="mensaje-confirmacion">
+      <p className="mensaje-confirmacion" role="status" aria-live="polite">
         Si el correo electrónico corresponde a una cuenta registrada,
         recibirás instrucciones para recuperar tu contraseña.
       </p>
@@ -44,6 +44,7 @@ export const ConfirmacionRecuperacion: React.FC<PropsConfirmacionRecuperacion> =
         type="button"
         className="button button--primary"
         onClick={alRegresar}
+        aria-label="Regresar al formulario de inicio de sesión"
       >
         Regresar al Login
       </button>

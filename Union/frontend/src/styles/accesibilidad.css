@@ -1,0 +1,385 @@
+/**
+ * accesibilidad.css
+ * 
+ * Estilos para mejorar la accesibilidad (a11y) en componentes.
+ * Implementa patrones WCAG 2.1 AA compliance.
+ * 
+ * Incluye:
+ * - Clases para screen readers
+ * - Mejoras visuales para navegación por teclado
+ * - Contraste de colores mejorado
+ * - Focus states claros
+ * - Skip links
+ */
+
+/**
+ * Screen Reader Only (sr-only)
+ * 
+ * Oculta elemento visualmente pero permanece disponible para lectores de pantalla.
+ * Patrón estándar recomendado por WebAIM.
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/**
+ * Focus Visible
+ * 
+ * Mejora visual del foco para navegación por teclado.
+ * Debe tener contraste alto para cumplir WCAG AA.
+ */
+button:focus-visible,
+input:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+}
+
+/**
+ * Input - Estados de validación
+ * 
+ * Combinación de color y icono/borde para máxima claridad.
+ */
+input[aria-invalid="true"] {
+  border-color: #d32f2f;
+  border-width: 2px;
+}
+
+input[aria-invalid="false"] {
+  border-color: #4caf50;
+  border-width: 2px;
+}
+
+/**
+ * Mensaje de Error - Accesibilidad
+ * 
+ * El atributo role="alert" combina con aria-live="polite"
+ * para notificar a usuarios de screen readers.
+ */
+[role="alert"] {
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.error-message[role="alert"] {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #d32f2f;
+}
+
+/**
+ * Buttons - Accesibilidad mejorada
+ * 
+ * Contraste mínimo 4.5:1 para cumplir WCAG AA.
+ * Estados claros: normal, hover, focus, disabled, aria-busy.
+ */
+button {
+  /* Asegura suficiente área de clickeo: 44x44px mínimo */
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+  
+  /* Transiciones suaves pero rápidas */
+  transition: all 150ms ease-in-out;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.8;
+}
+
+/**
+ * Formularios - Mejoras de accesibilidad
+ * 
+ * Labels siempre asociados con inputs via htmlFor.
+ * Suficiente espacio entre elementos para navegación.
+ */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"],
+textarea {
+  /* Asegura suficiente contraste */
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #999;
+  
+  /* Tamaño legible */
+  font-size: 16px;
+  padding: 10px 12px;
+}
+
+input[type="email"]:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/**
+ * Regiones ARIA
+ * 
+ * Elementos con role="region" y aria-label deberían ser visibles
+ * y tener suficiente contraste.
+ */
+[role="region"] {
+  padding: 16px;
+  border-radius: 4px;
+}
+
+[role="region"][aria-label="Formulario de recuperación de contraseña"],
+[role="region"][aria-label="Confirmación de recuperación de contraseña"] {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+/**
+ * Elementos de estado
+ * 
+ * Iconos con role="status" deben ser comprensibles para screen readers.
+ */
+[role="status"] {
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Skip Link
+ * 
+ * Permite usuarios de teclado saltar navegación repetitiva.
+ * Normalmente invisible pero accesible por foco de teclado.
+ */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #0066cc;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/**
+ * Tablas de datos (si aplicable)
+ * 
+ * Encabezados claros con scope para asociación correcta.
+ */
+th[scope="col"],
+th[scope="row"] {
+  text-align: left;
+  font-weight: 600;
+  padding: 12px;
+  background-color: #f9f9f9;
+}
+
+/**
+ * Listas
+ * 
+ * Estructura clara para screen readers.
+ */
+ul,
+ol {
+  list-style-position: outside;
+  margin-left: 20px;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+/**
+ * Enlaces
+ * 
+ * Suficiente contraste y no dependencia en color único.
+ */
+a {
+  color: #0066cc;
+  text-decoration: underline;
+  transition: color 150ms ease-in-out;
+}
+
+a:hover {
+  color: #0052a3;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #663399;
+}
+
+/**
+ * Imágenes y SVG
+ * 
+ * Alt text o aria-label siempre presente.
+ * - img: Si aria-label o alt presente, está cubierto
+ * - svg[role="img"]: Debe tener aria-label o title
+ * - svg[aria-hidden="true"]: Decorativo, oculto para screen readers
+ */
+
+/**
+ * Headings
+ * 
+ * Estructura lógica (h1, h2, h3) para navegación en screen readers.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2em;
+  color: #000;
+}
+
+h2 {
+  font-size: 1.5em;
+  color: #1a1a1a;
+}
+
+h3 {
+  font-size: 1.25em;
+  color: #333;
+}
+
+/**
+ * Texto de ayuda
+ * 
+ * Pequeño, de bajo contraste pero legible.
+ * Asociado con aria-describedby.
+ */
+.help-text,
+#correo-help {
+  font-size: 0.875em;
+  color: #666;
+  margin-top: 4px;
+}
+
+/**
+ * Respuesta de carga (loading state)
+ * 
+ * aria-busy combinado con indicador visual.
+ */
+[aria-busy="true"] {
+  position: relative;
+}
+
+/**
+ * Validación de colores
+ * 
+ * No depende únicamente de color:
+ * - Rojo + símbolo de error
+ * - Verde + símbolo de éxito
+ * - Azul + símbolo de info
+ * 
+ * Contraste mínimo 3:1 para gráficos WCAG AA.
+ */
+
+/* Success state */
+input[aria-invalid="false"]::after {
+  content: " ✓";
+  color: #4caf50;
+}
+
+/* Error state (mostrado como [role="alert"]) */
+
+/**
+ * Modo oscuro (si aplicable)
+ * 
+ * Mantener contraste WCAG AA en modo oscuro también.
+ */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+  }
+
+  [role="region"] {
+    background-color: #2a2a2a;
+    border-color: #444;
+  }
+
+  label,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #e0e0e0;
+  }
+
+  input[type="email"],
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #666;
+  }
+
+  a {
+    color: #66b3ff;
+  }
+
+  a:visited {
+    color: #cc99ff;
+  }
+
+  .error-message[role="alert"] {
+    background-color: #3d1f1f;
+    color: #ff6b6b;
+  }
+}
+
+/**
+ * Reducción de movimiento
+ * 
+ * Respeta preferencia de usuario para movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

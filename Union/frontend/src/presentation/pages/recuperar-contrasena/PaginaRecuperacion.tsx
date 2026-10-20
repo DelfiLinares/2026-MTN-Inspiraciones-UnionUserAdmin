@@ -49,20 +49,26 @@ export const PaginaRecuperacion: React.FC = () => {
 
   // Si la solicitud fue exitosa, muestra la confirmación
   if (esExito) {
-    return <ConfirmacionRecuperacion alRegresar={manejarRegresar} />;
+    return (
+      <main role="main" aria-label="Página de confirmación de recuperación de contraseña">
+        <ConfirmacionRecuperacion alRegresar={manejarRegresar} />
+      </main>
+    );
   }
 
   // De lo contrario, muestra el formulario
   return (
-    <FormularioRecuperacion
-      correo={correo}
-      errorCorreo={errorCorreo}
-      tocado={tocado}
-      estaCargando={estaCargando}
-      alCambiarCorreo={manejarCambioCorreo}
-      alBlurCorreo={manejarBlurCorreo}
-      alEnviar={manejarEnvio}
-      alRegresar={manejarRegresar}
-    />
+    <main role="main" aria-label="Página de recuperación de contraseña">
+      <FormularioRecuperacion
+        correo={correo}
+        errorCorreo={errorCorreo}
+        tocado={tocado}
+        estaCargando={estaCargando}
+        alCambiarCorreo={manejarCambioCorreo}
+        alBlurCorreo={manejarBlurCorreo}
+        alEnviar={manejarEnvio}
+        alRegresar={manejarRegresar}
+      />
+    </main>
   );
 };

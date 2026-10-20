@@ -28,14 +28,14 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
   const hasError = tocado && !!errorCorreo;
 
   return (
-    <div className="formulario-recuperacion">
+    <div className="formulario-recuperacion" role="region" aria-label="Formulario de recuperación de contraseña">
       <h2>Recuperación de Contraseña</h2>
       
       <p className="formulario-recuperacion__description">
         Ingresa tu correo electrónico para recibir instrucciones de recuperación.
       </p>
 
-      <div className="form-group">
+      <form className="form-group" onSubmit={(e) => { e.preventDefault(); alEnviar(); }}>
         <label htmlFor="correo">Correo Electrónico</label>
         
         <input
@@ -48,15 +48,21 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
           onBlur={alBlurCorreo}
           disabled={estaCargando}
           aria-invalid={hasError}
-          aria-describedby={hasError ? 'correo-error' : undefined}
+          aria-describedby={hasError ? 'correo-error' : 'correo-help'}
+          aria-required="true"
+          aria-label="Ingresa tu correo electrónico"
         />
         
+        <div id="correo-help" className="sr-only">
+          Ingresa una dirección de correo electrónico válida
+        </div>
+
         {hasError && (
-          <div id="correo-error" className="error-message">
+          <div id="correo-error" className="error-message" role="alert" aria-live="polite">
             {errorCorreo}
           </div>
         )}
-      </div>
+      </form>
 
       <div className="form-actions">
         <button
@@ -65,6 +71,7 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
           onClick={alEnviar}
           disabled={estaCargando}
           aria-busy={estaCargando}
+          aria-label={estaCargando ? 'Enviando solicitud de recuperación' : 'Enviar solicitud de recuperación'}
         >
           {estaCargando ? 'Enviando...' : 'Continuar'}
         </button>
@@ -74,6 +81,7 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
           className="button button--secondary"
           onClick={alRegresar}
           disabled={estaCargando}
+          aria-label="Regresar a la pantalla anterior"
         >
           Regresar
         </button>
