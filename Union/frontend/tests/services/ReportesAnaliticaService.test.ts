@@ -86,33 +86,36 @@ describe('ReportesAnaliticaService (T079)', () => {
     })
   })
 
-  describe('exportarReporteAnalitica (POST /admin/reportes-analiticas/exportaciones, RF-72, RF-73)', () => {
-    it('realiza la exportación síncrona retornando disponible=true y urlDescarga', async () => {
+  describe('exportarReporteAnalitica (POST /admin/reportes/exportar, RF-72, RF-73)', () => {
+    it('realiza la exportación síncrona con el contrato del back y retorna disponible=true con urlDescarga', async () => {
       vi.mocked(httpClientAdmin.post).mockResolvedValueOnce({
-        disponible: true,
-        urlDescarga: 'https://api.platform.com/downloads/reporte-2026-09.csv',
-        reporteAnaliticaId: 'rep-an-1',
+        urlDescarga: 'data:text/csv;charset=utf-8;base64,aWQ=',
+        nombreArchivoSugerido: 'reportes-2026-10-20.csv',
       })
 
       const resultado = await exportarReporteAnalitica({
         tipoReporte: 'desafios',
-        filtros: { mes: 9, anio: 2026 },
+        filtros: { estadoModeracion: 'PENDIENTE' },
       })
 
       expect(httpClientAdmin.post).toHaveBeenCalledWith(
-        '/admin/reportes-analiticas/exportaciones',
-        {
-          tipoReporte: 'desafios',
-          reporteAnaliticaId: undefined,
-          filtros: { mes: 9, anio: 2026 },
-        },
+        '/admin/reportes/exportar',
+        { estadoModeracion: 'PENDIENTE' },
         undefined
       )
 
       expect(resultado).toBeInstanceOf(ExportacionReporte)
       expect(resultado.disponible).toBe(true)
-      expect(resultado.urlDescarga).toBe('https://api.platform.com/downloads/reporte-2026-09.csv')
+      expect(resultado.urlDescarga).toBe('data:text/csv;charset=utf-8;base64,aWQ=')
       expect(resultado.errorMensaje).toBeUndefined()
+    })
+
+    it('envía un cuerpo vacío cuando no hay filtros', async () => {
+      vi.mocked(httpClientAdmin.post).mockResolvedValueOnce({ urlDescarga: 'data:text/csv;base64,aWQ=' })
+
+      await exportarReporteAnalitica('usuarios')
+
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/reportes/exportar', {}, undefined)
     })
   })
 

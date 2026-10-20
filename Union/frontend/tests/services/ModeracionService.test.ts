@@ -56,13 +56,13 @@ describe('ModeracionService (T077)', () => {
   })
 
   describe('resolverReporteSinEliminar & AC-11.6 (Caso clave)', () => {
-    it('invoca POST /admin/reportes/{id}/resolver-sin-eliminar sin modificar ni cambiar el estado de la publicación (AC-11.6, RF-64)', async () => {
+    it('invoca POST /admin/reportes/{id}/aceptar sin modificar ni eliminar la publicación (AC-11.6, RF-64)', async () => {
       vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
 
       await resolverReporteSinEliminar(reporteIdMock)
 
       expect(httpClientAdmin.post).toHaveBeenCalledWith(
-        `/admin/reportes/${reporteIdMock}/resolver-sin-eliminar`,
+        `/admin/reportes/${reporteIdMock}/aceptar`,
         undefined,
         undefined
       )
@@ -71,27 +71,30 @@ describe('ModeracionService (T077)', () => {
     })
   })
 
-  describe('listarPublicacionesReportadas (GET /admin/publicaciones/reportadas, RF-61, Resuelto A1)', () => {
+  describe('listarPublicacionesReportadas (GET /admin/reportes, RF-61, Resuelto A1)', () => {
     it('devuelve reportes individuales mapeando correctamente reporte y publicación asociada (A1)', async () => {
       vi.mocked(httpClientAdmin.get).mockResolvedValueOnce({
-        items: [
+        contenido: [
           {
             id: reporteIdMock,
             publicacionId: publicacionIdMock,
-            motivo: 'SPAM' as MotivoReporte,
+            motivo: 'SPAM',
             reportanteId: 'usr-rep-1',
-            fecha: '2026-09-20T10:00:00Z',
-            estado: 'PENDIENTE' as EstadoModeracion,
+            prioridad: 'MEDIA',
+            fechaCreacion: '2026-09-20T10:00:00Z',
+            estadoModeracion: 'PENDIENTE',
             publicacion: {
               id: publicacionIdMock,
               autorId: 'autor-1',
-              estado: 'ACTIVA' as EstadoPublicacion,
+              estado: 'REPORTADA',
               cantidadReportes: 3,
-              motivosReporte: ['SPAM' as MotivoReporte],
+              motivosReporte: ['SPAM'],
             },
           },
         ],
-        total: 1,
+        totalElementos: 1,
+        pagina: 0,
+        tamanioPagina: 10,
       })
 
       const resultado = await listarPublicacionesReportadas({
@@ -100,20 +103,21 @@ describe('ModeracionService (T077)', () => {
         pageSize: 10,
       })
 
-      expect(httpClientAdmin.get).toHaveBeenCalledWith('/admin/publicaciones/reportadas', {
+      expect(httpClientAdmin.get).toHaveBeenCalledWith('/admin/reportes', {
         params: {
+          pagina: 0,
+          tamanio: 10,
+          estadoModeracion: EstadoModeracion.PENDIENTE,
+          prioridad: undefined,
           motivo: undefined,
-          estado: EstadoModeracion.PENDIENTE,
-          page: 1,
-          pageSize: 10,
-          ordenarPor: undefined,
         },
       })
       expect(resultado.items).toHaveLength(1)
       expect(resultado.items[0].reporte).toBeInstanceOf(Reporte)
       expect(resultado.items[0].reporte.id).toBe(reporteIdMock)
+      expect(resultado.items[0].reporte.estado).toBe(EstadoModeracion.PENDIENTE)
       expect(resultado.items[0].publicacion).toBeInstanceOf(PublicacionModeracion)
-      expect(resultado.items[0].publicacion?.estado).toBe(EstadoPublicacion.ACTIVA)
+      expect(resultado.items[0].publicacion?.estado).toBe(EstadoPublicacion.REPORTADA)
       expect(resultado.total).toBe(1)
     })
   })
@@ -123,16 +127,17 @@ describe('ModeracionService (T077)', () => {
       vi.mocked(httpClientAdmin.get).mockResolvedValueOnce({
         id: reporteIdMock,
         publicacionId: publicacionIdMock,
-        motivo: 'CONTENIDO_INAPROPIADO' as MotivoReporte,
+        motivo: 'CONTENIDO_INAPROPIADO',
         reportanteId: 'usr-rep-2',
-        fecha: '2026-09-21T14:30:00Z',
-        estado: 'PENDIENTE' as EstadoModeracion,
+        prioridad: 'ALTA',
+        fechaCreacion: '2026-09-21T14:30:00Z',
+        estadoModeracion: 'PENDIENTE',
         publicacion: {
           id: publicacionIdMock,
           autorId: 'autor-admin-1', // Autor con rol admin o usuario
-          estado: 'ACTIVA' as EstadoPublicacion,
+          estado: 'REPORTADA',
           cantidadReportes: 1,
-          motivosReporte: ['CONTENIDO_INAPROPIADO' as MotivoReporte],
+          motivosReporte: ['CONTENIDO_INAPROPIADO'],
         },
         reportante: {
           id: 'usr-rep-2',
@@ -145,21 +150,24 @@ describe('ModeracionService (T077)', () => {
 
       expect(httpClientAdmin.get).toHaveBeenCalledWith(`/admin/reportes/${reporteIdMock}`, undefined)
       expect(detalle.reporte).toBeInstanceOf(Reporte)
+      expect(detalle.reporte.estado).toBe(EstadoModeracion.PENDIENTE)
       expect(detalle.publicacion).toBeInstanceOf(PublicacionModeracion)
       expect(detalle.reportanteId).toBe('usr-rep-2')
     })
   })
 
-  describe('eliminarPublicacion (DELETE /admin/publicaciones/{id}, RF-63, RF-80 / A7)', () => {
+  describe('eliminarPublicacion (POST /admin/publicaciones/{id}/eliminar, RF-63, RF-80 / A7)', () => {
     it('elimina la publicación reportada independientemente del rol del autor (RF-80, A7)', async () => {
-      vi.mocked(httpClientAdmin.delete).mockResolvedValueOnce(undefined)
+      vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
 
       await eliminarPublicacion(publicacionIdMock)
 
-      expect(httpClientAdmin.delete).toHaveBeenCalledWith(
-        `/admin/publicaciones/${publicacionIdMock}`,
+      expect(httpClientAdmin.post).toHaveBeenCalledWith(
+        `/admin/publicaciones/${publicacionIdMock}/eliminar`,
+        undefined,
         undefined
       )
+      expect(httpClientAdmin.delete).not.toHaveBeenCalled()
     })
   })
 
@@ -169,11 +177,11 @@ describe('ModeracionService (T077)', () => {
 
       vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
       await servicio.resolverReporteSinEliminar('rep-300')
-      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/reportes/rep-300/resolver-sin-eliminar', undefined, undefined)
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/reportes/rep-300/aceptar', undefined, undefined)
 
-      vi.mocked(httpClientAdmin.delete).mockResolvedValueOnce(undefined)
+      vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
       await servicio.eliminarPublicacion('pub-400')
-      expect(httpClientAdmin.delete).toHaveBeenCalledWith('/admin/publicaciones/pub-400', undefined)
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/publicaciones/pub-400/eliminar', undefined, undefined)
     })
   })
 })

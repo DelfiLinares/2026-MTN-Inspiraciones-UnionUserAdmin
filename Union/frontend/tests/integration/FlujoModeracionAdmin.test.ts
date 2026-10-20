@@ -115,14 +115,14 @@ describe('Integración: flujo de moderación (frontend admin) — T103', () => {
 
     // 3. Listado de moderación: una fila por reporte individual (resuelto A1, RF-61)
     vi.mocked(httpClientAdmin.get).mockResolvedValueOnce({
-      items: [
+      contenido: [
         {
           id: reporteIdMock,
           publicacionId: publicacionIdMock,
           motivo: MotivoReporte.CONTENIDO_INAPROPIADO,
           reportanteId: 'usuario-reportante-1',
-          fecha: '2026-09-20T10:00:00.000Z',
-          estado: EstadoModeracion.PENDIENTE,
+          fechaCreacion: '2026-09-20T10:00:00.000Z',
+          estadoModeracion: EstadoModeracion.PENDIENTE,
           publicacion: {
             id: publicacionIdMock,
             autorId: 'usuario-autor-1',
@@ -132,7 +132,7 @@ describe('Integración: flujo de moderación (frontend admin) — T103', () => {
           },
         },
       ],
-      total: 1,
+      totalElementos: 1,
     })
 
     const pagina = await listarPublicacionesReportadas()
@@ -146,12 +146,13 @@ describe('Integración: flujo de moderación (frontend admin) — T103', () => {
     const confirmacionUsuario = true // Simula la confirmación explícita del modal (RNF-07)
     expect(confirmacionUsuario).toBe(true)
 
-    vi.mocked(httpClientAdmin.delete).mockResolvedValueOnce(undefined)
+    vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
 
     await eliminarPublicacion(publicacionIdMock)
 
-    expect(httpClientAdmin.delete).toHaveBeenCalledWith(
-      `/admin/publicaciones/${publicacionIdMock}`,
+    expect(httpClientAdmin.post).toHaveBeenLastCalledWith(
+      `/admin/publicaciones/${publicacionIdMock}/eliminar`,
+      undefined,
       undefined
     )
 
@@ -172,6 +173,6 @@ describe('Integración: flujo de moderación (frontend admin) — T103', () => {
     // Ninguna llamada adicional de listado fue realizada tras eliminar (solo login, dashboard,
     // listado inicial y la eliminación en sí).
     expect(httpClientAdmin.get).toHaveBeenCalledTimes(3)
-    expect(httpClientAdmin.delete).toHaveBeenCalledTimes(1)
+    expect(httpClientAdmin.delete).not.toHaveBeenCalled()
   })
 })

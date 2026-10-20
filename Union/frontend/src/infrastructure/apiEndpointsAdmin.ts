@@ -34,10 +34,10 @@ export const apiEndpointsAdmin = {
   publicacion: (publicacionId: string) => `/publicaciones/${publicacionId}`,
   eliminarPublicacion: (publicacionId: string) => `/publicaciones/${publicacionId}/eliminar`,
 
-  // Gestión de reportes (RF-13 a RF-20, T048)
-  reportes: () => '/reportes',
-  reporte: (reporteId: string) => `/reportes/${reporteId}`,
-  aceptarReporte: (reporteId: string) => `/reportes/${reporteId}/aceptar`,
-  rechazarReporte: (reporteId: string) => `/reportes/${reporteId}/rechazar`,
-  exportarReportes: () => '/reportes/exportar',
+  // Gestión de reportes (RF-13 a RF-20, T048) — rutas reales del back bajo /admin
+  reportes: () => '/admin/reportes',
+  reporte: (reporteId: string) => `/admin/reportes/${reporteId}`,
+  aceptarReporte: (reporteId: string) => `/admin/reportes/${reporteId}/aceptar`,
+  rechazarReporte: (reporteId: string) => `/admin/reportes/${reporteId}/rechazar`,
+  exportarReportes: () => '/admin/reportes/exportar',
 } as const

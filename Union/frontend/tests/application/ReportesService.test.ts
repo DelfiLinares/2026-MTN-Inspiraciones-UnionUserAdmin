@@ -82,9 +82,49 @@ function crearReporteResuelto(id = 'rep-2'): Reporte {
 
 describe('ReportesService (T049)', () => {
   describe('listar()', () => {
+    it('usa las rutas /admin del back', () => {
+      expect(apiEndpointsAdmin.reportes()).toBe('/admin/reportes')
+      expect(apiEndpointsAdmin.reporte('r1')).toBe('/admin/reportes/r1')
+      expect(apiEndpointsAdmin.aceptarReporte('r1')).toBe('/admin/reportes/r1/aceptar')
+      expect(apiEndpointsAdmin.rechazarReporte('r1')).toBe('/admin/reportes/r1/rechazar')
+      expect(apiEndpointsAdmin.exportarReportes()).toBe('/admin/reportes/exportar')
+    })
+
+    it('envia pagina base 0 y tamanio, y mapea contenido/totalElementos a items/total', async () => {
+      const httpClient = crearHttpClientMock()
+      ;(httpClient.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        contenido: [
+          {
+            id: 'rep-1',
+            publicacionId: 'pub-1',
+            reportanteId: 'usr-1',
+            motivo: 'SPAM',
+            prioridad: 'ALTA',
+            estadoModeracion: 'PENDIENTE',
+            fechaCreacion: '2026-09-20T10:00:00.000Z',
+          },
+        ],
+        totalElementos: 11,
+        pagina: 1,
+        tamanioPagina: 10,
+      })
+      const servicio = new ReportesService(httpClient)
+
+      const pagina = await servicio.listar({ page: 2, pageSize: 10 })
+
+      expect(httpClient.get).toHaveBeenCalledWith(
+        '/admin/reportes',
+        expect.objectContaining({ params: expect.objectContaining({ pagina: 1, tamanio: 10 }) })
+      )
+      expect(pagina.total).toBe(11)
+      expect(pagina.items).toHaveLength(1)
+      expect(pagina.items[0].estado).toBe(EstadoModeracion.PENDIENTE)
+      expect(pagina.items[0].fecha).toBe('2026-09-20T10:00:00.000Z')
+    })
+
     it('invoca HttpClient.get en la ruta de apiEndpointsAdmin.reportes() con los filtros como query params', async () => {
       const httpClient = crearHttpClientMock()
-      ;(httpClient.get as ReturnType<typeof vi.fn>).mockResolvedValue({ items: [], total: 0 })
+      ;(httpClient.get as ReturnType<typeof vi.fn>).mockResolvedValue({ contenido: [], totalElementos: 0 })
       const servicio = new ReportesService(httpClient)
 
       await servicio.listar({
@@ -114,8 +154,8 @@ describe('ReportesService (T049)', () => {
         publicacionId: 'pub-20',
         motivo: MotivoReporte.CONTENIDO_INAPROPIADO,
         reportanteId: 'usr-reportante-20',
-        fecha: '2026-09-22T10:00:00.000Z',
-        estado: EstadoModeracion.EN_REVISION,
+        fechaCreacion: '2026-09-22T10:00:00.000Z',
+        estadoModeracion: EstadoModeracion.EN_REVISION,
         prioridad: PrioridadReporte.BAJA,
       })
       const servicio = new ReportesService(httpClient)

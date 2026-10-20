@@ -60,6 +60,26 @@ export const REPORTE_FINAL_RESUELTO_FIXTURE: ReporteProps = {
 }
 
 /**
+ * Convierte un reporte del front al formato real del back (`fechaCreacion`, `estadoModeracion`).
+ */
+export function reporteParaBack(reporte: ReporteProps) {
+  const { fecha, estado, ...resto } = reporte
+  return { ...resto, fechaCreacion: fecha, estadoModeracion: estado }
+}
+
+/**
+ * Respuesta paginada del back (`GET /api/admin/reportes`).
+ */
+export function paginaReportesBack(reportes: ReporteProps[]) {
+  return {
+    contenido: reportes.map(reporteParaBack),
+    totalElementos: reportes.length,
+    pagina: 0,
+    tamanioPagina: 10,
+  }
+}
+
+/**
  * Colección sugerida para listados de reportes.
  */
 export const REPORTES_FIXTURES: ReporteProps[] = [

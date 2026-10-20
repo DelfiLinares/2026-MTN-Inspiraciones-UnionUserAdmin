@@ -23,8 +23,9 @@ import type { HttpClient, HttpRequestOptions } from '../application/ports/HttpCl
 export const MENSAJE_ERROR_REPORTE_NO_GENERADO = 'Error: Reporte no generado.'
 
 export interface ExportacionReporteDto {
-  disponible: boolean
+  disponible?: boolean
   urlDescarga?: string | null
+  nombreArchivoSugerido?: string | null
   errorMensaje?: string | null
   mensajeError?: string | null
   reporteAnaliticaId?: string
@@ -43,7 +44,7 @@ export interface SolicitarExportacionDatos {
  * asigna el mensaje especificado en RF-74 ("Error: Reporte no generado.").
  */
 function mapearExportacionReporte(dto: ExportacionReporteDto): ExportacionReporte {
-  const disponible = dto.disponible ?? dto.exitoso ?? false
+  const disponible = dto.disponible ?? dto.exitoso ?? Boolean(dto.urlDescarga)
   let errorMensaje = dto.errorMensaje ?? dto.mensajeError ?? undefined
 
   if (!disponible && !errorMensaje) {
@@ -56,6 +57,14 @@ function mapearExportacionReporte(dto: ExportacionReporteDto): ExportacionReport
     errorMensaje,
     reporteAnaliticaId: dto.reporteAnaliticaId,
   })
+}
+
+/**
+ * El back (`POST /admin/reportes/exportar`) recibe directamente los filtros de reportes como
+ * cuerpo (`estadoModeracion`, `prioridad`, `motivo`); sin filtros se envía `{}`.
+ */
+function cuerpoExportacion(datos: SolicitarExportacionDatos | string): Record<string, unknown> {
+  return typeof datos === 'string' ? {} : (datos.filtros ?? {})
 }
 
 /**
@@ -76,14 +85,7 @@ export async function exportarReporteAnalitica(
   datos: SolicitarExportacionDatos | string,
   options?: HttpRequestOptions
 ): Promise<ExportacionReporte> {
-  const cuerpo: Record<string, unknown> =
-    typeof datos === 'string'
-      ? { reporteAnaliticaId: datos, tipoReporte: datos }
-      : {
-          tipoReporte: datos.tipoReporte ?? datos.reporteAnaliticaId,
-          reporteAnaliticaId: datos.reporteAnaliticaId,
-          filtros: datos.filtros,
-        }
+  const cuerpo = cuerpoExportacion(datos)
 
   try {
     const dto = await httpClientAdmin.post<ExportacionReporteDto>(
@@ -123,14 +125,7 @@ export class ReportesAnaliticaService {
     datos: SolicitarExportacionDatos | string,
     options?: HttpRequestOptions
   ): Promise<ExportacionReporte> {
-    const cuerpo: Record<string, unknown> =
-      typeof datos === 'string'
-        ? { reporteAnaliticaId: datos, tipoReporte: datos }
-        : {
-            tipoReporte: datos.tipoReporte ?? datos.reporteAnaliticaId,
-            reporteAnaliticaId: datos.reporteAnaliticaId,
-            filtros: datos.filtros,
-          }
+    const cuerpo = cuerpoExportacion(datos)
 
     try {
       const dto = await this.client.post<ExportacionReporteDto>(

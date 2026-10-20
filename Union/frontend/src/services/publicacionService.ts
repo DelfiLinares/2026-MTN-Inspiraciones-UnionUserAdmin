@@ -166,7 +166,7 @@ export async function reportarPublicacion(
 
   const respuesta = await httpClient.post<ReporteResponseDto>(
     `/publicaciones/${publicacion.id}/reportes`,
-    { motivoCodigo },
+    { motivo: motivoCodigo },
   )
 
   return respuesta

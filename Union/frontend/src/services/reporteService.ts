@@ -22,7 +22,8 @@ export interface MotivosReporteRespuestaDto {
 
 export interface EnviarReporteRespuestaDto {
   id: string
-  estado: string
+  estado?: string
+  estadoModeracion?: string
 }
 
 export interface EstadoReporteMioRespuestaDto {
@@ -32,19 +33,22 @@ export interface EstadoReporteMioRespuestaDto {
 /**
  * Obtiene el catálogo de motivos de reporte disponibles (`GET /motivos-reporte`).
  */
+/**
+ * Catálogo local de motivos: el back no expone `GET /motivos-reporte`; los códigos coinciden con
+ * `MotivoReporte` del back.
+ */
+const MOTIVOS_REPORTE: MotivoReporte[] = [
+  { codigo: 'SPAM', etiqueta: 'Spam' },
+  { codigo: 'CONTENIDO_INAPROPIADO', etiqueta: 'Contenido inapropiado' },
+  { codigo: 'PLAGIO_DERECHOS_AUTOR', etiqueta: 'Plagio o derechos de autor' },
+  { codigo: 'VIOLENCIA', etiqueta: 'Violencia' },
+  { codigo: 'OTRO', etiqueta: 'Otro' },
+]
+
 export async function obtenerMotivos(
-  options?: HttpRequestOptions
+  _options?: HttpRequestOptions
 ): Promise<MotivoReporte[]> {
-  const respuesta = await httpClient.get<MotivosReporteRespuestaDto | MotivoReporte[]>(
-    '/motivos-reporte',
-    options
-  )
-
-  if (Array.isArray(respuesta)) {
-    return respuesta
-  }
-
-  return Array.isArray(respuesta?.items) ? respuesta.items : []
+  return MOTIVOS_REPORTE.map((motivo) => ({ ...motivo }))
 }
 
 /**
@@ -58,7 +62,7 @@ export async function enviarReporte(
 ): Promise<EnviarReporteRespuestaDto> {
   const respuesta = await httpClient.post<EnviarReporteRespuestaDto>(
     `/publicaciones/${encodeURIComponent(publicacionId)}/reportes`,
-    { motivoCodigo },
+    { motivo: motivoCodigo },
     options
   )
   return respuesta

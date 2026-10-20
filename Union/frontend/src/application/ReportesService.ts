@@ -40,6 +40,12 @@ import { EstadoPublicacionAdmin as EstadoPublicacion } from '../domain/enums/Est
 import { MotivoReporteAdmin as MotivoReporte } from '../domain/enums/MotivoReporteAdmin'
 import type { PrioridadReporte } from '../domain/enums/PrioridadReporte'
 import type { FiltroReportes } from './dto/FiltroReportes'
+import {
+  normalizarReporteBack,
+  paginaDesdeBack,
+  paramsListadoBack,
+} from '../infrastructure/adaptadorReportesBack'
+import type { PaginaBack, ReporteBack } from '../infrastructure/adaptadorReportesBack'
 
 export const MENSAJE_REPORTE_NO_ACCIONABLE =
   'El reporte ya alcanzó un estado final y no puede aceptarse ni rechazarse.'
@@ -90,9 +96,10 @@ function mapearReporte(dto: ReporteDto): Reporte {
   })
 }
 
-interface RespuestaListaReportesDto {
-  items: ReporteDto[]
-  total: number
+type RespuestaListaReportesDto = PaginaBack<ReporteBack>
+
+function mapearReporteBack(dto: ReporteBack): Reporte {
+  return mapearReporte(normalizarReporteBack(dto) as unknown as ReporteDto)
 }
 
 export class ReportesService {
@@ -102,22 +109,19 @@ export class ReportesService {
    * T050a: Búsqueda paginada de reportes (`GET /reportes`, RF-14).
    */
   async listar(filtros: ListarReportesFiltros = {}): Promise<PaginaReportesAdmin> {
-    const params: Record<string, string | number | boolean | undefined> = {
-      page: filtros.page ?? 1,
-      pageSize: filtros.pageSize ?? 10,
+    const params = paramsListadoBack({
+      page: filtros.page,
+      pageSize: filtros.pageSize,
       estadoModeracion: filtros.estadoModeracion,
       prioridad: filtros.prioridad,
       motivo: filtros.motivo,
-    }
+    })
 
     const respuesta = await this.client.get<RespuestaListaReportesDto>(apiEndpointsAdmin.reportes(), {
       params,
     })
 
-    const items = Array.isArray(respuesta.items) ? respuesta.items.map(mapearReporte) : []
-    const total = typeof respuesta.total === 'number' ? respuesta.total : items.length
-
-    return { items, total }
+    return paginaDesdeBack(respuesta, mapearReporteBack)
   }
 
   /**
@@ -125,8 +129,8 @@ export class ReportesService {
    * no existe (404), el error se propaga sin transformarse (CB-03).
    */
   async obtenerDetalle(reporteId: string): Promise<Reporte> {
-    const dto = await this.client.get<ReporteDto>(apiEndpointsAdmin.reporte(reporteId), undefined)
-    return mapearReporte(dto)
+    const dto = await this.client.get<ReporteBack>(apiEndpointsAdmin.reporte(reporteId), undefined)
+    return mapearReporteBack(dto)
   }
 
   /**
