@@ -70,23 +70,23 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
         fireEvent.blur(input);
       });
 
-      // Hacer clic en Continuar
+      // Hacer clic en Enviar
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       // Debería mostrar confirmación
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
-      expect(botonRegresar).toBeInTheDocument();
+      expect(botonAceptar).toBeInTheDocument();
 
       vi.useRealTimers();
     });
@@ -110,7 +110,7 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
       expect(errorMessages.length).toBeGreaterThanOrEqual(0);
     });
 
-    it('debería desabilitar botón Continuar para email inválido', async () => {
+    it('debería desabilitar botón Enviar para email inválido', async () => {
       await act(async () => {
         renderConRouter(<PaginaRecuperacion />);
       });
@@ -123,12 +123,12 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
       });
 
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       // El botón podría estar deshabilitado
-      expect(botonContinuar).toBeInTheDocument();
+      expect(botonEnviar).toBeInTheDocument();
     });
   });
 
@@ -178,27 +178,27 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
 
       // Envío
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
-      expect(botonRegresar).toBeInTheDocument();
+      expect(botonAceptar).toBeInTheDocument();
 
       vi.useRealTimers();
     });
   });
 
   describe('T056 - Navegación hacia Login desde confirmación', () => {
-    it('debería navegar a login cuando se hace clic en Regresar', async () => {
+    it('debería navegar a login cuando se hace clic en Aceptar', async () => {
       vi.useFakeTimers();
       
       await act(async () => {
@@ -213,22 +213,22 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
       });
 
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
       
       await act(async () => {
-        fireEvent.click(botonRegresar!);
+        fireEvent.click(botonAceptar!);
       });
 
       expect(mockNavigate).toHaveBeenCalledWith('/login');
@@ -251,22 +251,22 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
       });
 
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
       
       await act(async () => {
-        fireEvent.click(botonRegresar!);
+        fireEvent.click(botonAceptar!);
       });
 
       // Verificar que navigate fue llamado con '/login'
@@ -296,23 +296,23 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
 
       // Enviar
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       // Ir a confirmación
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
       
       await act(async () => {
-        fireEvent.click(botonRegresar!);
+        fireEvent.click(botonAceptar!);
       });
 
       // El navigate debería haber sido llamado
@@ -337,23 +337,23 @@ describe('T053-T057 - Integration Tests Adicionales', () => {
       });
 
       const botones = screen.getAllByRole('button');
-      const botonContinuar = botones.find(btn => 
-        btn.textContent?.toLowerCase().includes('continuar')
+      const botonEnviar = botones.find(btn => 
+        btn.textContent?.toLowerCase().includes('enviar')
       );
       
       await act(async () => {
-        fireEvent.click(botonContinuar!);
+        fireEvent.click(botonEnviar!);
         vi.advanceTimersByTime(750);
       });
 
       // Volver
       const todosLosBotones = screen.getAllByRole('button');
-      const botonRegresar = todosLosBotones.find(btn => 
-        btn.textContent?.toLowerCase().includes('regres')
+      const botonAceptar = todosLosBotones.find(btn => 
+        btn.textContent?.toLowerCase().includes('aceptar')
       );
       
       await act(async () => {
-        fireEvent.click(botonRegresar!);
+        fireEvent.click(botonAceptar!);
       });
 
       // Debería permitir un nuevo flujo

@@ -51,7 +51,7 @@ describe('PaginaRecuperacion', () => {
 
     it('debería tener el campo de email visible', () => {
       renderConRouter(<PaginaRecuperacion />);
-      const emailInput = screen.getByPlaceholderText(/usuario@ejemplo/i);
+      const emailInput = screen.getByLabelText(/correo/i);
       expect(emailInput).toBeInTheDocument();
     });
 

@@ -23,6 +23,7 @@
  */
 
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { authService, CuentaBloqueadaError, MENSAJE_CREDENCIALES_INVALIDAS } from '../../services/authService'
 
 export const LoginAdminPage: React.FC = () => {
@@ -124,6 +125,14 @@ export const LoginAdminPage: React.FC = () => {
                 placeholder="••••••••"
                 className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
               />
+              <div className="mt-2 text-right">
+                <Link
+                  to="/recuperar-contrasena"
+                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
             </div>
 
             <button

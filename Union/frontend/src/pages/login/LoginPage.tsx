@@ -140,9 +140,9 @@ export const LoginPage: React.FC = () => {
             />
           </div>
 
-          <a className="login-forgot" href="#recuperar">
+          <Link to="/recuperar-contrasena" className="login-forgot">
             ¿Olvidaste tu contraseña?
-          </a>
+          </Link>
 
           <button
             className="login-primary-button"

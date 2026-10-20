@@ -186,7 +186,7 @@ describe('T059: Validar Accesibilidad (a11y) en Componentes', () => {
     it('T059-020: Botón debe tener aria-label descriptivo', () => {
       render(<ConfirmacionRecuperacion {...props} />);
       const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-label', 'Regresar al formulario de inicio de sesión');
+      expect(button).toHaveAttribute('aria-label', 'Aceptar y regresar al formulario de inicio de sesión');
     });
   });
 
@@ -286,7 +286,7 @@ describe('T059: Validar Accesibilidad (a11y) en Componentes', () => {
 
     it('T059-026: Label debe estar asociado con input via htmlFor', () => {
       render(<FormularioRecuperacion {...props} />);
-      const label = screen.getByText('Correo Electrónico');
+      const label = screen.getByText('Correo');
       const input = screen.getByRole('textbox', { name: /ingresa tu correo/i });
       expect(label).toHaveAttribute('for', 'correo');
       expect(input).toHaveAttribute('id', 'correo');
@@ -295,7 +295,7 @@ describe('T059: Validar Accesibilidad (a11y) en Componentes', () => {
     it('T059-027: Estructura de heading debe ser lógica (h1 -> h2)', () => {
       render(<FormularioRecuperacion {...props} />);
       const h2 = screen.getByRole('heading', { level: 2 });
-      expect(h2).toHaveTextContent('Recuperación de Contraseña');
+      expect(h2).toHaveTextContent('Recuperá tu cuenta');
     });
   });
 });

@@ -30,9 +30,9 @@
   --color-warning: #ff9800;
   
   /* Colores neutros */
-  --color-text: #333;
-  --color-text-secondary: #666;
-  --color-text-tertiary: #999;
+  --color-text: #232323;
+  --color-text-secondary: #555555;
+  --color-text-tertiary: #888888;
   --color-bg: #ffffff;
   --color-bg-secondary: #f5f5f5;
   --color-border: #ddd;
@@ -122,30 +122,63 @@ body {
 
 .formulario-recuperacion,
 .confirmacion-recuperacion {
-  max-width: 600px;
-  margin: var(--spacing-xl) auto;
-  padding: var(--spacing-lg);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-md);
-  transition: box-shadow var(--transition-base),
-              background-color var(--transition-base);
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  background-color: var(--color-bg);
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-base);
+}
+
+/* Contenedor interno con límite de ancho */
+.formulario-recuperacion__contenedor,
+.confirmacion-recuperacion__contenedor {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--spacing-xxl) var(--spacing-xl);
+  position: relative;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Botón volver al inicio */
+.formulario-recuperacion__volver {
+  position: absolute;
+  top: var(--spacing-lg);
+  left: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  color: #666666;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.formulario-recuperacion__volver:hover:not(:disabled) {
+  color: #333333;
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
-  .formulario-recuperacion,
-  .confirmacion-recuperacion {
-    margin: var(--spacing-lg) var(--spacing-md);
-    padding: var(--spacing-md);
+  .formulario-recuperacion__contenedor,
+  .confirmacion-recuperacion__contenedor {
+    padding: var(--spacing-lg) var(--spacing-md);
   }
 }
 
 @media (max-width: 480px) {
-  .formulario-recuperacion,
-  .confirmacion-recuperacion {
-    margin: var(--spacing-md) var(--spacing-sm);
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius-md);
+  .formulario-recuperacion__contenedor,
+  .confirmacion-recuperacion__contenedor {
+    padding: var(--spacing-md) var(--spacing-md);
   }
 }
 
@@ -162,7 +195,7 @@ h6 {
   font-weight: 600;
   line-height: var(--line-height-heading);
   margin-bottom: var(--spacing-md);
-  color: var(--color-text);
+  color: #232323;
 }
 
 h2 {
@@ -171,10 +204,11 @@ h2 {
 
 .formulario-recuperacion__description,
 .mensaje-confirmacion {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  margin-top: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 /* ===================================
@@ -211,7 +245,7 @@ textarea {
   font-size: var(--font-size-base);
   border: 2px solid var(--color-border);
   border-radius: var(--border-radius-md);
-  background-color: var(--color-bg);
+  background-color: #ffffff;
   color: var(--color-text);
   font-family: inherit;
   transition: border-color var(--transition-fast),
@@ -248,7 +282,7 @@ input[aria-invalid="false"]:focus {
 /* Invalid state */
 input[aria-invalid="true"] {
   border-color: var(--color-error);
-  background-color: var(--color-error-light);
+  background-color: #fff5f5;
 }
 
 input[aria-invalid="true"]:focus {
@@ -286,13 +320,14 @@ button {
 
 /* Primary button */
 .button--primary {
-  background-color: var(--color-primary);
+  background-color: #a0a0a0;
   color: white;
   box-shadow: var(--box-shadow-sm);
+  width: 100%;
 }
 
 .button--primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background-color: #888888;
   box-shadow: var(--box-shadow-md);
   transform: translateY(-2px);
 }
@@ -313,6 +348,7 @@ button {
   background-color: transparent;
   color: var(--color-primary);
   border: 2px solid var(--color-primary);
+  width: 100%;
 }
 
 .button--secondary:hover:not(:disabled) {
@@ -328,6 +364,29 @@ button {
 .button--secondary:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Link button (sin estilos de botón) */
+.button-link {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: none;
+  padding: var(--spacing-sm) 0;
+  min-height: auto;
+  min-width: auto;
+  box-shadow: none;
+  font-size: var(--font-size-sm);
+  text-decoration: underline;
+  display: inline;
+}
+
+.button-link:hover:not(:disabled) {
+  color: var(--color-primary-hover);
+}
+
+.button-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Disabled state */
@@ -358,6 +417,15 @@ button[aria-busy="true"] {
 .form-actions button {
   flex: 1;
   min-width: 120px;
+}
+
+.formulario-recuperacion__acciones-secundarias {
+  text-align: center;
+  margin-top: var(--spacing-md);
+}
+
+.confirmacion-recuperacion__acciones {
+  margin-top: var(--spacing-lg);
 }
 
 @media (max-width: 480px) {

@@ -27,22 +27,22 @@ describe('FormularioRecuperacion', () => {
     it('debería renderizar el componente correctamente', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      expect(screen.getByText('Recuperación de Contraseña')).toBeInTheDocument();
+      expect(screen.getByText('Recuperá tu cuenta')).toBeInTheDocument();
     });
 
     it('debería renderizar el input de correo', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      expect(screen.getByLabelText('Correo Electrónico')).toBeInTheDocument();
+      expect(screen.getByLabelText('Correo')).toBeInTheDocument();
     });
 
-    it('debería renderizar botón Continuar', () => {
+    it('debería renderizar botón Enviar', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
       expect(screen.getByRole('button', { name: /enviar solicitud/i })).toBeInTheDocument();
     });
 
-    it('debería renderizar botón Regresar', () => {
+    it('debería renderizar enlace Volver', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
       expect(screen.getByRole('button', { name: /regresar a la pantalla/i })).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('FormularioRecuperacion', () => {
     it('debería renderizar descripción del formulario', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      expect(screen.getByText(/Ingresa tu correo electrónico/)).toBeInTheDocument();
+      expect(screen.getByText(/Si tu mail se encuentra en nuestra base de datos/)).toBeInTheDocument();
     });
   });
 
@@ -59,22 +59,22 @@ describe('FormularioRecuperacion', () => {
     it('debería tener tipo email', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico') as HTMLInputElement;
+      const input = screen.getByLabelText('Correo') as HTMLInputElement;
       expect(input.type).toBe('email');
     });
 
-    it('debería tener placeholder correcto', () => {
+    it('debería tener placeholder vacío', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico') as HTMLInputElement;
-      expect(input.placeholder).toBe('usuario@ejemplo.com');
+      const input = screen.getByLabelText('Correo') as HTMLInputElement;
+      expect(input.placeholder).toBe('');
     });
 
     it('debería mostrar el valor del correo', () => {
       const props = { ...defaultProps, correo: 'usuario@example.com' };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico') as HTMLInputElement;
+      const input = screen.getByLabelText('Correo') as HTMLInputElement;
       expect(input.value).toBe('usuario@example.com');
     });
   });
@@ -83,7 +83,7 @@ describe('FormularioRecuperacion', () => {
     it('debería llamar alCambiarCorreo al escribir', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       fireEvent.change(input, { target: { value: 'nuevo@example.com' } });
 
       expect(mockHandlers.alCambiarCorreo).toHaveBeenCalledWith('nuevo@example.com');
@@ -93,7 +93,7 @@ describe('FormularioRecuperacion', () => {
       const props = { ...defaultProps, correo: 'usuario@example.com' };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       fireEvent.change(input, { target: { value: '' } });
 
       expect(mockHandlers.alCambiarCorreo).toHaveBeenCalledWith('');
@@ -104,7 +104,7 @@ describe('FormularioRecuperacion', () => {
     it('debería llamar alBlurCorreo al perder foco', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       fireEvent.blur(input);
 
       expect(mockHandlers.alBlurCorreo).toHaveBeenCalled();
@@ -142,7 +142,7 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveClass('input--error');
     });
 
@@ -154,7 +154,7 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).not.toHaveClass('input--error');
     });
 
@@ -184,31 +184,31 @@ describe('FormularioRecuperacion', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico') as HTMLInputElement;
+      const input = screen.getByLabelText('Correo') as HTMLInputElement;
       expect(input.disabled).toBe(true);
     });
 
-    it('debería deshabilitar botón Continuar durante carga', () => {
+    it('debería deshabilitar botón Enviar durante carga', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /Enviando/i });
-      expect(botonContinuar).toBeDisabled();
+      const botonEnviar = screen.getByRole('button', { name: /enviando/i });
+      expect(botonEnviar).toBeDisabled();
     });
 
-    it('debería deshabilitar botón Regresar durante carga', () => {
+    it('debería deshabilitar botón Volver durante carga', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      const botonRegresar = screen.getByRole('button', { name: /regresar a la pantalla/i });
-      expect(botonRegresar).toBeDisabled();
+      const botonVolver = screen.getByRole('button', { name: /regresar a la pantalla/i });
+      expect(botonVolver).toBeDisabled();
     });
 
     it('debería cambiar texto botón durante carga', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      expect(screen.getByRole('button', { name: /enviando solicitud/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /enviando/i })).toBeInTheDocument();
     });
 
     it('debería mostrar texto normal cuando no está cargando', () => {
@@ -220,30 +220,30 @@ describe('FormularioRecuperacion', () => {
   });
 
   describe('Clicks en botones', () => {
-    it('debería llamar alEnviar al hacer click en Continuar', () => {
+    it('debería llamar alEnviar al hacer click en Enviar', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /enviar solicitud/i });
-      fireEvent.click(botonContinuar);
+      const botonEnviar = screen.getByRole('button', { name: /enviar solicitud/i });
+      fireEvent.click(botonEnviar);
 
       expect(mockHandlers.alEnviar).toHaveBeenCalled();
     });
 
-    it('debería llamar alRegresar al hacer click en Regresar', () => {
+    it('debería llamar alRegresar al hacer click en Volver', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const botonRegresar = screen.getByRole('button', { name: /regresar a la pantalla/i });
-      fireEvent.click(botonRegresar);
+      const botonVolver = screen.getByRole('button', { name: /regresar a la pantalla/i });
+      fireEvent.click(botonVolver);
 
       expect(mockHandlers.alRegresar).toHaveBeenCalled();
     });
 
-    it('no debería permitir click en Continuar si está cargando', () => {
+    it('no debería permitir click en Enviar si está cargando', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /enviando solicitud/i });
-      expect(botonContinuar).toBeDisabled();
+      const botonEnviar = screen.getByRole('button', { name: /enviando solicitud/i });
+      expect(botonEnviar).toBeDisabled();
     });
   });
 
@@ -256,7 +256,7 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
@@ -268,7 +268,7 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveAttribute('aria-invalid', 'false');
     });
 
@@ -280,11 +280,11 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveAttribute('aria-describedby', 'correo-error');
     });
 
-    it('no debería tener aria-describedby sin error y sin tocado', () => {
+    it('debería tener aria-describedby="correo-help" sin error y sin tocado', () => {
       const props = {
         ...defaultProps,
         errorCorreo: undefined,
@@ -292,7 +292,7 @@ describe('FormularioRecuperacion', () => {
       };
       render(<FormularioRecuperacion {...props} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveAttribute('aria-describedby', 'correo-help');
     });
 
@@ -300,32 +300,32 @@ describe('FormularioRecuperacion', () => {
       const props = { ...defaultProps, estaCargando: true };
       render(<FormularioRecuperacion {...props} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /Enviando/i });
-      expect(botonContinuar).toHaveAttribute('aria-busy', 'true');
+      const botonEnviar = screen.getByRole('button', { name: /enviando solicitud/i });
+      expect(botonEnviar).toHaveAttribute('aria-busy', 'true');
     });
 
     it('debería tener aria-busy=false cuando no está cargando', () => {
       const props = { ...defaultProps, estaCargando: false };
       render(<FormularioRecuperacion {...props} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /enviar solicitud/i });
-      expect(botonContinuar).toHaveAttribute('aria-busy', 'false');
+      const botonEnviar = screen.getByRole('button', { name: /enviar solicitud/i });
+      expect(botonEnviar).toHaveAttribute('aria-busy', 'false');
     });
 
     it('debería tener labels asociados correctamente', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const label = screen.getByText('Correo Electrónico');
+      const label = screen.getByText('Correo');
       expect(label.tagName).toBe('LABEL');
       // La label está asociada correctamente porque screen.getByLabelText puede encontrar el input
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toBeInTheDocument();
     });
 
     it('debería tener id en el input coincidiendo con htmlFor del label', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveAttribute('id', 'correo');
     });
   });
@@ -340,22 +340,22 @@ describe('FormularioRecuperacion', () => {
     it('debería aplicar clase input base', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const input = screen.getByLabelText('Correo Electrónico');
+      const input = screen.getByLabelText('Correo');
       expect(input).toHaveClass('input');
     });
 
-    it('debería aplicar clase button--primary en Continuar', () => {
+    it('debería aplicar clase button--primary en Enviar', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const botonContinuar = screen.getByRole('button', { name: /enviar solicitud/i });
-      expect(botonContinuar).toHaveClass('button--primary');
+      const botonEnviar = screen.getByRole('button', { name: /enviar solicitud/i });
+      expect(botonEnviar).toHaveClass('button--primary');
     });
 
-    it('debería aplicar clase button--secondary en Regresar', () => {
+    it('debería aplicar clase button-link en Volver', () => {
       render(<FormularioRecuperacion {...defaultProps} />);
 
-      const botonRegresar = screen.getByRole('button', { name: /regresar a la pantalla/i });
-      expect(botonRegresar).toHaveClass('button--secondary');
+      const botonVolver = screen.getByRole('button', { name: /regresar a la pantalla/i });
+      expect(botonVolver).toHaveClass('button-link');
     });
 
     it('debería aplicar clase error-message al mostrar error', () => {

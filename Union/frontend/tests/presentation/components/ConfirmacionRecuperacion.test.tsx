@@ -17,20 +17,20 @@ describe('ConfirmacionRecuperacion', () => {
     it('debería renderizar el componente correctamente', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      expect(screen.getByText('Solicitud Procesada')).toBeInTheDocument();
+      expect(screen.getByText('¡Genial!')).toBeInTheDocument();
     });
 
     it('debería renderizar el título correcto', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const titulo = screen.getByRole('heading', { level: 2, name: 'Solicitud Procesada' });
+      const titulo = screen.getByRole('heading', { level: 2, name: '¡Genial!' });
       expect(titulo).toBeInTheDocument();
     });
 
-    it('debería renderizar el botón Regresar al Login', () => {
+    it('debería renderizar el botón Aceptar', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      expect(screen.getByRole('button', { name: /regresar al formulario/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /aceptar/i })).toBeInTheDocument();
     });
   });
 
@@ -56,16 +56,16 @@ describe('ConfirmacionRecuperacion', () => {
   });
 
   describe('Mensaje de confirmación', () => {
-    it('debería mostrar mensaje sobre neutralidad de cuenta', () => {
+    it('debería mostrar mensaje sobre email', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      expect(screen.getByText(/Si el correo electrónico corresponde a una cuenta registrada/i)).toBeInTheDocument();
+      expect(screen.getByText(/En pocos minutos recibirás un mail/i)).toBeInTheDocument();
     });
 
-    it('debería mencionar que recibirá instrucciones', () => {
+    it('debería mencionar recuperación de contraseña', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      expect(screen.getByText(/recibirás instrucciones para recuperar tu contraseña/i)).toBeInTheDocument();
+      expect(screen.getByText(/recuperar tu contraseña/i)).toBeInTheDocument();
     });
 
     it('debería tener la clase mensaje-confirmacion', () => {
@@ -82,11 +82,11 @@ describe('ConfirmacionRecuperacion', () => {
     });
   });
 
-  describe('Botón Regresar', () => {
+  describe('Botón Aceptar', () => {
     it('debería llamar alRegresar al hacer click', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       fireEvent.click(boton);
 
       expect(mockAlRegresar).toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe('ConfirmacionRecuperacion', () => {
     it('debería llamar alRegresar solo una vez por click', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       fireEvent.click(boton);
 
       expect(mockAlRegresar).toHaveBeenCalledTimes(1);
@@ -104,14 +104,14 @@ describe('ConfirmacionRecuperacion', () => {
     it('debería tener la clase button--primary', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       expect(boton).toHaveClass('button--primary');
     });
 
     it('debería tener atributo type="button"', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       expect(boton).toHaveAttribute('type', 'button');
     });
   });
@@ -129,7 +129,7 @@ describe('ConfirmacionRecuperacion', () => {
     it('debería ser navegable con teclado', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       boton.focus();
       fireEvent.keyDown(boton, { key: 'Enter', code: 'Enter' });
 
@@ -147,7 +147,7 @@ describe('ConfirmacionRecuperacion', () => {
 
       render(<ConfirmacionRecuperacion {...props} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       fireEvent.click(boton);
 
       expect(customHandler).toHaveBeenCalled();
@@ -159,11 +159,11 @@ describe('ConfirmacionRecuperacion', () => {
 
       const { rerender } = render(<ConfirmacionRecuperacion alRegresar={handler1} />);
 
-      expect(screen.getByText('Solicitud Procesada')).toBeInTheDocument();
+      expect(screen.getByText('¡Genial!')).toBeInTheDocument();
 
       rerender(<ConfirmacionRecuperacion alRegresar={handler2} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       fireEvent.click(boton);
 
       expect(handler2).toHaveBeenCalled();
@@ -181,7 +181,7 @@ describe('ConfirmacionRecuperacion', () => {
     it('debería aplicar clase button al botón', () => {
       render(<ConfirmacionRecuperacion {...defaultProps} />);
 
-      const boton = screen.getByRole('button', { name: /regresar al formulario/i });
+      const boton = screen.getByRole('button', { name: /aceptar/i });
       expect(boton).toHaveClass('button');
     });
   });

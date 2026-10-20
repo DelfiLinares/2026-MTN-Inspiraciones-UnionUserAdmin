@@ -29,62 +29,64 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
 
   return (
     <div className="formulario-recuperacion" role="region" aria-label="Formulario de recuperación de contraseña">
-      <h2>Recuperación de Contraseña</h2>
-      
-      <p className="formulario-recuperacion__description">
-        Ingresa tu correo electrónico para recibir instrucciones de recuperación.
-      </p>
-
-      <form className="form-group" onSubmit={(e) => { e.preventDefault(); alEnviar(); }}>
-        <label htmlFor="correo">Correo Electrónico</label>
-        
-        <input
-          id="correo"
-          type="email"
-          className={`input ${hasError ? 'input--error' : ''}`}
-          placeholder="usuario@ejemplo.com"
-          value={correo}
-          onChange={(e) => alCambiarCorreo(e.target.value)}
-          onBlur={alBlurCorreo}
-          disabled={estaCargando}
-          aria-invalid={hasError}
-          aria-describedby={hasError ? 'correo-error' : 'correo-help'}
-          aria-required="true"
-          aria-label="Ingresa tu correo electrónico"
-        />
-        
-        <div id="correo-help" className="sr-only">
-          Ingresa una dirección de correo electrónico válida
-        </div>
-
-        {hasError && (
-          <div id="correo-error" className="error-message" role="alert" aria-live="polite">
-            {errorCorreo}
-          </div>
-        )}
-      </form>
-
-      <div className="form-actions">
+      <div className="formulario-recuperacion__contenedor">
         <button
           type="button"
-          className="button button--primary"
-          onClick={alEnviar}
-          disabled={estaCargando}
-          aria-busy={estaCargando}
-          aria-label={estaCargando ? 'Enviando solicitud de recuperación' : 'Enviar solicitud de recuperación'}
-        >
-          {estaCargando ? 'Enviando...' : 'Continuar'}
-        </button>
-        
-        <button
-          type="button"
-          className="button button--secondary"
+          className="button-link formulario-recuperacion__volver"
           onClick={alRegresar}
           disabled={estaCargando}
           aria-label="Regresar a la pantalla anterior"
         >
-          Regresar
+          ← Volver
         </button>
+
+        <h2>Recuperá tu cuenta</h2>
+        
+        <form className="form-group" onSubmit={(e) => { e.preventDefault(); alEnviar(); }}>
+          <label htmlFor="correo">Correo</label>
+          
+          <input
+            id="correo"
+            type="email"
+            className={`input ${hasError ? 'input--error' : ''}`}
+            placeholder=""
+            value={correo}
+            onChange={(e) => alCambiarCorreo(e.target.value)}
+            onBlur={alBlurCorreo}
+            disabled={estaCargando}
+            aria-invalid={hasError}
+            aria-describedby={hasError ? 'correo-error' : 'correo-help'}
+            aria-required="true"
+            aria-label="Ingresa tu correo electrónico"
+          />
+          
+          <div id="correo-help" className="sr-only">
+            Ingresa una dirección de correo electrónico válida
+          </div>
+
+          {hasError && (
+            <div id="correo-error" className="error-message" role="alert" aria-live="polite">
+              {errorCorreo}
+            </div>
+          )}
+
+          <p className="formulario-recuperacion__description">
+            Si tu mail se encuentra en nuestra base de datos, te enviaremos un correo para cambiar tu contraseña
+          </p>
+        </form>
+
+        <div className="form-actions">
+          <button
+            type="button"
+            className="button button--primary"
+            onClick={alEnviar}
+            disabled={estaCargando}
+            aria-busy={estaCargando}
+            aria-label={estaCargando ? 'Enviando solicitud de recuperación' : 'Enviar solicitud de recuperación'}
+          >
+            {estaCargando ? 'Enviando...' : 'Enviar'}
+          </button>
+        </div>
       </div>
     </div>
   );

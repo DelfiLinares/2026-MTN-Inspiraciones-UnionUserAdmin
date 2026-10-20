@@ -9,7 +9,7 @@ import { PaginaRecuperacion } from '../../src/presentation/pages/recuperar-contr
  * Verifica el flujo completo cuando un usuario ingresa un email válido:
  * 1. Ingresa "usuario@ejemplo.com"
  * 2. Hace blur (validación)
- * 3. Hace clic en Continuar
+ * 3. Hace clic en Enviar
  * 4. Sistema simula procesamiento durante 750ms
  * 5. Confirmación se muestra exitosamente
  *
@@ -64,26 +64,26 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     const errorMessages = screen.queryAllByText(/inválido|invalido|formato/i);
     expect(errorMessages.length).toBe(0);
 
-    // 4. Usuario hace clic en Continuar
+    // 4. Usuario hace clic en Enviar
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
-    expect(botonContinuar).toBeInTheDocument();
+    expect(botonEnviar).toBeInTheDocument();
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
       // Avanzar timers para simular los 750ms de procesamiento
       vi.advanceTimersByTime(750);
     });
 
-    // 5. Debería mostrar confirmación (botón Regresar)
+    // 5. Debería mostrar confirmación (botón Aceptar)
     const todosLosBotones = screen.getAllByRole('button');
-    const botonRegresar = todosLosBotones.find(btn => 
-      btn.textContent?.toLowerCase().includes('regres')
+    const botonAceptar = todosLosBotones.find(btn => 
+      btn.textContent?.toLowerCase().includes('aceptar')
     );
-    expect(botonRegresar).toBeInTheDocument();
+    expect(botonAceptar).toBeInTheDocument();
 
     vi.useRealTimers();
   });
@@ -103,21 +103,21 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     });
 
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
       vi.advanceTimersByTime(750);
     });
 
     // Después de 750ms, debería estar en estado de éxito
     const todosLosBotones = screen.getAllByRole('button');
-    const botonRegresar = todosLosBotones.find(btn => 
-      btn.textContent?.toLowerCase().includes('regres')
+    const botonAceptar = todosLosBotones.find(btn => 
+      btn.textContent?.toLowerCase().includes('aceptar')
     );
-    expect(botonRegresar).toBeInTheDocument();
+    expect(botonAceptar).toBeInTheDocument();
 
     vi.useRealTimers();
   });
@@ -137,23 +137,23 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     });
 
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
       vi.advanceTimersByTime(750);
     });
 
     const todosLosBotones = screen.getAllByRole('button');
-    const botonRegresar = todosLosBotones.find(btn => 
-      btn.textContent?.toLowerCase().includes('regres')
+    const botonAceptar = todosLosBotones.find(btn => 
+      btn.textContent?.toLowerCase().includes('aceptar')
     );
     
     // El botón debería estar disponible (no deshabilitado)
-    expect(botonRegresar).toBeInTheDocument();
-    expect(botonRegresar).not.toBeDisabled();
+    expect(botonAceptar).toBeInTheDocument();
+    expect(botonAceptar).not.toBeDisabled();
 
     vi.useRealTimers();
   });
@@ -173,22 +173,22 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     });
 
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
       vi.advanceTimersByTime(750);
     });
 
     const todosLosBotones = screen.getAllByRole('button');
-    const botonRegresar = todosLosBotones.find(btn => 
-      btn.textContent?.toLowerCase().includes('regres')
+    const botonAceptar = todosLosBotones.find(btn => 
+      btn.textContent?.toLowerCase().includes('aceptar')
     );
     
     await act(async () => {
-      fireEvent.click(botonRegresar!);
+      fireEvent.click(botonAceptar!);
     });
     
     // mockNavigate debería haber sido llamado
@@ -212,12 +212,12 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     });
 
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
     });
 
     // Después de menos de 750ms, el formulario debería estar en transición
@@ -231,10 +231,10 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     });
 
     const todosLosBotones = screen.getAllByRole('button');
-    const botonRegresar = todosLosBotones.find(btn => 
-      btn.textContent?.toLowerCase().includes('regres')
+    const botonAceptar = todosLosBotones.find(btn => 
+      btn.textContent?.toLowerCase().includes('aceptar')
     );
-    expect(botonRegresar).toBeInTheDocument();
+    expect(botonAceptar).toBeInTheDocument();
 
     vi.useRealTimers();
   });
@@ -260,12 +260,12 @@ describe('T052 - Flujo Completo de Email Válido', () => {
     expect(input).toHaveValue(emailValido);
 
     const botones = screen.getAllByRole('button');
-    const botonContinuar = botones.find(btn => 
-      btn.textContent?.toLowerCase().includes('continuar')
+    const botonEnviar = botones.find(btn => 
+      btn.textContent?.toLowerCase().includes('enviar')
     );
     
     await act(async () => {
-      fireEvent.click(botonContinuar!);
+      fireEvent.click(botonEnviar!);
       vi.advanceTimersByTime(750);
     });
 
