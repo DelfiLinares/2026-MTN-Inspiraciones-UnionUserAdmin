@@ -5,6 +5,11 @@ import { CuestionarioPage } from '../../src/presentation/cuestionario/Cuestionar
 import { CuestionarioFactory } from '../../src/application/CuestionarioFactory';
 import { RespuestaCuestionario } from '../../src/domain/entities/RespuestaCuestionario';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 /**
  * Tests de casos borde para CuestionarioPage (T033)
  *
@@ -270,8 +275,8 @@ describe('CuestionarioPage - Casos borde', () => {
 
         const preferences = mockOnCuestionarioCompleto.mock.calls[0][0];
         // Debe haber muchas preferencias (seleccionamos todas)
-        expect(preferences.interesesArtisticos.length).toBe(10); // 10 opciones en Q1
-        expect(preferences.generosMusical.length).toBe(12); // 12 opciones en Q2
+        expect(preferences.generoIds.length).toBe(10); // 10 opciones en Q1
+        expect(preferences.tipoMusicaIds.length).toBe(12); // 12 opciones en Q2
       });
     });
   });

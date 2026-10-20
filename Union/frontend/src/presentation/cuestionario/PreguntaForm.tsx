@@ -105,7 +105,14 @@ export const PreguntaForm: React.FC<PreguntaFormProps> = ({
 
   return (
     <fieldset className="pregunta-form">
-      <legend className="pregunta-form__titulo">{pregunta.texto}</legend>
+      <legend className="pregunta-form__titulo">
+        {pregunta.texto}
+        {pregunta.obligatoria && (
+          <span className="pregunta-form__requerida" aria-label="Campo requerido">
+            *
+          </span>
+        )}
+      </legend>
 
       {/* Mostrar mensaje de error si hay validación fallida */}
       {errorMessage && (
@@ -119,7 +126,10 @@ export const PreguntaForm: React.FC<PreguntaFormProps> = ({
           const isChecked = respuestasSeleccionadas.has(opcion.id);
 
           return (
-            <div key={opcion.id} className="pregunta-form__opcion">
+            <div
+              key={opcion.id}
+              className={`pregunta-form__opcion${isChecked ? ' is-selected' : ''}`}
+            >
               <input
                 type="checkbox"
                 id={`opcion-${pregunta.id}-${opcion.id}`}
@@ -139,11 +149,6 @@ export const PreguntaForm: React.FC<PreguntaFormProps> = ({
         })}
       </div>
 
-      {pregunta.obligatoria && (
-        <span className="pregunta-form__requerida" aria-label="Campo requerido">
-          *
-        </span>
-      )}
     </fieldset>
   );
 };

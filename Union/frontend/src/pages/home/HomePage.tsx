@@ -21,6 +21,7 @@ import { useAuth } from '../../services/AuthContext'
 import { feedService } from '../../services/feedService'
 import { publicacionService } from '../../services/publicacionService'
 import { useInfiniteList } from '../../services/useInfiniteList'
+import { CerrarSesionButton } from '../../presentation/shared/CerrarSesionButton'
 import type { Publicacion } from '../../domain/Publicacion'
 import './home.css'
 
@@ -119,6 +120,7 @@ export const HomePage: React.FC = () => {
                 .toUpperCase()}
             </span>
           </Link>
+            <CerrarSesionButton />
         </nav>
       </header>
 

@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { CuestionarioPage } from '../../src/presentation/cuestionario/CuestionarioPage';
 import { CuestionarioFactory } from '../../src/application/CuestionarioFactory';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 /**
  * Tests para T036: Implementar callbacks de selección/deselección
  *

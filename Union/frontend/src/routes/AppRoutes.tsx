@@ -48,6 +48,7 @@ import { EditarDesafioPage } from '../pages/desafios/editar'
 import { BandejaSolicitudesPage } from '../pages/solicitudes/bandeja'
 import { DetalleSolicitudAdminPage } from '../pages/solicitudes/detalle-admin'
 import { CarpetaPostsPage } from '../presentation/carpetas/CarpetaPostsPage'
+import { CuestionarioPage } from '../presentation/cuestionario/CuestionarioPage'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -94,6 +95,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaProtegida>
             <HomePage />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/cuestionario"
+        element={
+          <RutaProtegida>
+            <CuestionarioPage />
           </RutaProtegida>
         }
       />

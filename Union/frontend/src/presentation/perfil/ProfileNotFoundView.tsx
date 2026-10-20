@@ -193,7 +193,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           onClick={handleVolver}
           style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#4b5563',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
@@ -203,10 +203,10 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
             transition: 'background-color 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            ;(e.target as HTMLButtonElement).style.backgroundColor = '#4338ca'
+            ;(e.target as HTMLButtonElement).style.backgroundColor = '#374151'
           }}
           onMouseLeave={(e) => {
-            ;(e.target as HTMLButtonElement).style.backgroundColor = '#4f46e5'
+            ;(e.target as HTMLButtonElement).style.backgroundColor = '#4b5563'
           }}
         >
           Volver
@@ -224,7 +224,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           <a
             href="/"
             style={{
-              color: '#4f46e5',
+              color: '#4b5563',
               textDecoration: 'none',
               fontWeight: '600',
               cursor: 'pointer',

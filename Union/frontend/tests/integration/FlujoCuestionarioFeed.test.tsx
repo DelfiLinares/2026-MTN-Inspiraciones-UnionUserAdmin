@@ -23,6 +23,11 @@ import { CuestionarioPage } from '../../src/presentation/cuestionario/Cuestionar
 import { FeedPage } from '../../src/presentation/feed/FeedPage';
 import { CuestionarioService } from '../../src/application/CuestionarioService';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 // Mock de CuestionarioService
 vi.mock('../../src/application/CuestionarioService');
 
@@ -30,14 +35,12 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
   const mockOnCuestionarioCompleto = vi.fn();
   const mockOnNavigate = vi.fn();
 
-  // Mock para Preferencias
+  // Mock para la solicitud de onboarding
   const mockPreferencias = {
-    toJSON: () => ({
-      intereses: ['Arte Urbano', 'Escultura'],
-      generoMusical: ['Rock'],
-      estiloPintura: ['Abstracto'],
-    }),
-  } as any;
+    generoIds: ['GENERO_ARTE', 'GENERO_ESCULTURA'],
+    estiloIds: ['ARTE_ABSTRACTO'],
+    tipoMusicaIds: ['MUSICA_ROCK'],
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,7 +48,7 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
       valida: true,
       errores: null,
     });
-    (CuestionarioService.transformarAPreferencias as any).mockReturnValue(mockPreferencias);
+    (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValue(mockPreferencias);
   });
 
   // Suite 1: Usuario completa cuestionario y navega a feed
@@ -82,7 +85,7 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
       await waitFor(() => {
         // Verificar que CuestionarioService fue llamado
         expect(CuestionarioService.validarCompletitud).toHaveBeenCalled();
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
@@ -119,7 +122,7 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
         // Debe haber llamado a validación
         expect(CuestionarioService.validarCompletitud).toHaveBeenCalled();
         // Debe haber transformado a preferencias
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
         // Debe haber llamado al callback de completitud
         expect(mockOnCuestionarioCompleto).toHaveBeenCalled();
       });
@@ -308,7 +311,7 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
       });
     });
 
-    it('debe llamar CuestionarioService.transformarAPreferencias en flujo', async () => {
+    it('debe llamar CuestionarioService.transformarAOnboardingRequest en flujo', async () => {
       render(
         <MemoryRouter initialEntries={['/cuestionario']}>
           <Routes>
@@ -334,7 +337,7 @@ describe('FlujoCuestionarioFeed: E2E Flujo Completo', () => {
       });
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 

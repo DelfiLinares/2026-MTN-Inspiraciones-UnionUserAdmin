@@ -256,13 +256,13 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
       {/* Información sobre restricciones A2 */}
       <div
         style={{
-          backgroundColor: '#f0f9ff',
-          border: '1px solid #bfdbfe',
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #d1d5db',
           borderRadius: '6px',
           padding: '0.75rem',
           marginBottom: '1rem',
           fontSize: '11px',
-          color: '#0c4a6e',
+          color: '#374151',
         }}
       >
         <p style={{ margin: '0 0 0.25rem 0', fontWeight: '500' }}>Requisitos (A2):</p>
@@ -282,7 +282,7 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
           style={{
             flex: 1,
             padding: '0.5rem 1rem',
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#4b5563',
             color: 'white',
             border: 'none',
             borderRadius: '6px',

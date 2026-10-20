@@ -54,7 +54,7 @@ describe('CuestionarioPageT040Navigation: Navegación a feed con preferencias', 
       valida: true,
       errores: null,
     });
-    (CuestionarioService.transformarAPreferencias as any).mockReturnValue(mockPreferencias);
+    (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValue(mockPreferencias);
   });
 
   afterEach(() => {
@@ -88,9 +88,10 @@ describe('CuestionarioPageT040Navigation: Navegación a feed con preferencias', 
       expect(cuestionarioCode).toContain('preferencias');
     });
 
-    it('debe hacer serialize a JSON las preferencias', () => {
+    it('debe transformar y guardar el DTO antes de navegar', () => {
       const cuestionarioCode = CuestionarioPage.toString();
-      expect(cuestionarioCode).toContain('toJSON');
+      expect(cuestionarioCode).toContain('transformarAOnboardingRequest');
+      expect(cuestionarioCode).toContain('guardarInteresesOnboarding');
     });
   });
 
@@ -213,14 +214,14 @@ describe('CuestionarioPageT040Navigation: Navegación a feed con preferencias', 
 
   // Suite 9: Transformación antes de navegar
   describe('Transformación antes de Navegar', () => {
-    it('debe llamar transformarAPreferencias antes de navegar', () => {
+    it('debe llamar transformarAOnboardingRequest antes de navegar', () => {
       const cuestionarioCode = CuestionarioPage.toString();
-      expect(cuestionarioCode).toContain('transformarAPreferencias');
+      expect(cuestionarioCode).toContain('transformarAOnboardingRequest');
     });
 
-    it('debe serializar preferencias con toJSON', () => {
+    it('debe confirmar la respuesta de onboarding antes de navegar', () => {
       const cuestionarioCode = CuestionarioPage.toString();
-      expect(cuestionarioCode).toContain('toJSON()');
+      expect(cuestionarioCode).toContain('resultadoOnboarding.onboardingCompletado');
     });
   });
 

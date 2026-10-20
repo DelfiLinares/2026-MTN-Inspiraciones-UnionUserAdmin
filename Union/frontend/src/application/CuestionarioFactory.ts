@@ -3,6 +3,7 @@ import { OpcionRespuesta } from '../domain/entities/OpcionRespuesta';
 import { CategoriaInteres } from '../domain/enums/CategoriaInteres';
 import { GeneroMusical } from '../domain/enums/GeneroMusical';
 import { EstiloPintura } from '../domain/enums/EstiloPintura';
+import type { CatalogoOnboardingDTO, CategoriaOnboardingDTO } from './dto/OnboardingInteresesDTO';
 
 /**
  * CuestionarioFactory
@@ -41,6 +42,38 @@ export class CuestionarioFactory {
       this.crearPregunta2Generos(),
       this.crearPregunta3Estilos(),
     ];
+  }
+
+  static crearCuestionarioDesdeCatalogo(catalogo: CatalogoOnboardingDTO): Pregunta[] {
+    return [
+      Pregunta.crear(
+        'pregunta-1-intereses',
+        '¿Cuáles son tus intereses artísticos?',
+        this.crearOpcionesCatalogo(catalogo.generos),
+        true,
+        true
+      ),
+      Pregunta.crear(
+        'pregunta-2-generos',
+        '¿Cuáles son tus géneros musicales favoritos?',
+        this.crearOpcionesCatalogo(catalogo.tiposMusica),
+        true,
+        true
+      ),
+      Pregunta.crear(
+        'pregunta-3-estilos',
+        '¿Cuáles son tus estilos de pintura favoritos?',
+        this.crearOpcionesCatalogo(catalogo.estilos),
+        true,
+        false
+      ),
+    ];
+  }
+
+  private static crearOpcionesCatalogo(categorias: CategoriaOnboardingDTO[]): OpcionRespuesta[] {
+    return categorias.map((categoria) =>
+      OpcionRespuesta.crear(categoria.codigo, categoria.codigo, categoria.nombre)
+    );
   }
 
   /**

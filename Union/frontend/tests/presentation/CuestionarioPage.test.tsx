@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { CuestionarioPage } from '../../src/presentation/cuestionario/CuestionarioPage';
 import { CuestionarioFactory } from '../../src/application/CuestionarioFactory';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 /**
  * Tests de integración para CuestionarioPage (T032)
  *
@@ -332,17 +337,17 @@ describe('CuestionarioPage', () => {
         expect(mockOnCuestionarioCompleto).toHaveBeenCalledTimes(1);
       });
 
-      // 5. Verificar que se pasaron preferencias correctas
+      // 5. Verificar que se pasó el DTO de onboarding correcto
       expect(mockOnCuestionarioCompleto).toHaveBeenCalledWith(
         expect.objectContaining({
-          interesesArtisticos: expect.any(Array),
-          generosMusical: expect.any(Array),
-          estilosPintura: expect.any(Array),
+          generoIds: expect.arrayContaining([opcionP1.id]),
+          tipoMusicaIds: expect.arrayContaining([opcionP2.id]),
+          estiloIds: expect.arrayContaining([opcionP3.id]),
         })
       );
     });
 
-    it('debe tener estructura correcta de preferencias en callback', async () => {
+    it('debe tener estructura correcta del DTO en callback', async () => {
       const user = userEvent.setup();
 
       render(
@@ -371,17 +376,12 @@ describe('CuestionarioPage', () => {
       await waitFor(() => {
         expect(mockOnCuestionarioCompleto).toHaveBeenCalled();
 
-        const preferences = mockOnCuestionarioCompleto.mock.calls[0][0];
-        expect(preferences).toHaveProperty('interesesArtisticos');
-        expect(preferences).toHaveProperty('generosMusical');
-        expect(preferences).toHaveProperty('estilosPintura');
-
-        expect(Array.isArray(preferences.interesesArtisticos)).toBe(true);
-        expect(Array.isArray(preferences.generosMusical)).toBe(true);
-        expect(Array.isArray(preferences.estilosPintura)).toBe(true);
-
-        expect(preferences.interesesArtisticos.length).toBeGreaterThanOrEqual(1);
-        expect(preferences.generosMusical.length).toBeGreaterThanOrEqual(1);
+        const request = mockOnCuestionarioCompleto.mock.calls[0][0];
+        expect(request).toEqual({
+          generoIds: [cuestionario[0].opciones[0].id],
+          estiloIds: [],
+          tipoMusicaIds: [cuestionario[1].opciones[0].id],
+        });
       });
     });
   });

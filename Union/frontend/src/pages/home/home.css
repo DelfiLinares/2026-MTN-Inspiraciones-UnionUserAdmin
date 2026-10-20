@@ -563,11 +563,16 @@
   .home-site-nav {
     width: 100%;
     justify-content: center;
-    gap: 24px;
+    gap: 8px;
   }
 
   .home-site-nav a:not(.home-profile) {
-    font-size: 16px;
+    font-size: 14px;
+  }
+
+  .home-site-nav .cerrar-sesion-button {
+    padding: 6px 7px;
+    font-size: 11px;
   }
 
   .home-profile {

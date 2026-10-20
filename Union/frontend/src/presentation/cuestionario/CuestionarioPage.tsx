@@ -6,8 +6,15 @@ import { BotonContinuar } from './BotonContinuar';
 import { MensajeError } from './MensajeError';
 import { CuestionarioFactory } from '../../application/CuestionarioFactory';
 import { CuestionarioService } from '../../application/CuestionarioService';
+import type { GuardarInteresesOnboardingDTO } from '../../application/dto/OnboardingInteresesDTO';
 import { RespuestaCuestionario } from '../../domain/entities/RespuestaCuestionario';
 import { Pregunta } from '../../domain/entities/Pregunta';
+import {
+  guardarInteresesOnboarding,
+  obtenerCatalogoOnboarding,
+  obtenerMisInteresesOnboarding,
+} from '../../services/onboardingInteresesService';
+import { CerrarSesionButton } from '../shared/CerrarSesionButton';
 import './cuestionario.css';
 
 /**
@@ -18,7 +25,7 @@ interface CuestionarioPageProps {
    * Callback cuando el cuestionario se completa exitosamente
    * Recibe las preferencias transformadas
    */
-  onCuestionarioCompleto?: (preferenciasJSON: Record<string, unknown>) => void;
+  onCuestionarioCompleto?: (intereses: GuardarInteresesOnboardingDTO) => void | Promise<void>;
 
   /**
    * Callback para navegar después de completar el cuestionario
@@ -86,14 +93,73 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
 
   // Estado de carga (para el botón)
   const [isLoading, setIsLoading] = useState(false);
+  const [catalogoCargando, setCatalogoCargando] = useState(true);
+  const [catalogoError, setCatalogoError] = useState<string | null>(null);
+  const [intentoCarga, setIntentoCarga] = useState(0);
 
   // Estado del cuestionario (3 preguntas)
   const [cuestionario, setCuestionario] = useState<Pregunta[]>([]);
 
-  // Cargar cuestionario al montar el componente
+  // El backend provee los códigos de opción que luego se envían al guardar.
   useEffect(() => {
-    setCuestionario(CuestionarioFactory.crearCuestionarioDefault());
-  }, []);
+    const controller = new AbortController();
+    let cancelado = false;
+    setCatalogoCargando(true);
+    setCatalogoError(null);
+
+    obtenerCatalogoOnboarding({ signal: controller.signal })
+      .then((catalogo) => {
+        if (cancelado) {
+          return;
+        }
+
+        const preguntas = CuestionarioFactory.crearCuestionarioDesdeCatalogo(catalogo);
+        setCuestionario(preguntas);
+
+        return obtenerMisInteresesOnboarding({ signal: controller.signal }).then((intereses) => {
+          if (cancelado) {
+            return;
+          }
+
+          const codigosPorPregunta: Record<string, string[]> = {
+            'pregunta-1-intereses': intereses.generoIds,
+            'pregunta-2-generos': intereses.tipoMusicaIds,
+            'pregunta-3-estilos': intereses.estiloIds,
+          };
+          let respuestasIniciales = RespuestaCuestionario.vacio();
+
+          for (const pregunta of preguntas) {
+            const opcionesDisponibles = new Set(pregunta.opciones.map((opcion) => opcion.id));
+            for (const codigo of codigosPorPregunta[pregunta.id] ?? []) {
+              if (opcionesDisponibles.has(codigo)) {
+                respuestasIniciales = respuestasIniciales.seleccionar(pregunta.id, codigo);
+              }
+            }
+          }
+
+          setRespuestas(respuestasIniciales);
+        }).catch(() => {
+          if (!cancelado) {
+            setRespuestas(RespuestaCuestionario.vacio());
+          }
+        });
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setCatalogoError('No pudimos cargar las opciones. Verificá tu conexión e intentá nuevamente.');
+        }
+      })
+      .finally(() => {
+        if (!cancelado) {
+          setCatalogoCargando(false);
+        }
+      });
+
+    return () => {
+      cancelado = true;
+      controller.abort();
+    };
+  }, [intentoCarga]);
 
   /**
    * Maneja selección de una opción
@@ -123,9 +189,13 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
 
   /**
    * Maneja el click en "Continuar"
-   * Valida completitud y transforma a preferencias
+   * Valida completitud y persiste los intereses en la API
    */
   const handleContinuar = useCallback(async () => {
+    if (catalogoCargando || catalogoError || cuestionario.length === 0) {
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -138,24 +208,24 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
         return;
       }
 
-      // Validación pasó: transformar a preferencias
-      const preferencias = CuestionarioService.transformarAPreferencias(
+      const intereses = CuestionarioService.transformarAOnboardingRequest(
         respuestas,
         cuestionario
       );
-
-      // Convertir a JSON para handoff
-      const preferenciasJSON = preferencias.toJSON();
+      const resultadoOnboarding = await guardarInteresesOnboarding(intereses);
+      if (!resultadoOnboarding.onboardingCompletado) {
+        throw new Error('La API no confirmó la finalización del onboarding.');
+      }
 
       // Limpiar errores
       setValidationErrors(null);
 
       // Llamar callback de completitud
-      onCuestionarioCompleto?.(preferenciasJSON);
+      await onCuestionarioCompleto?.(intereses);
 
-      // Navegar a feed con preferencias en state (React Router)
+      // Navegar solo después de confirmar el guardado.
       if (navigate) {
-        navigate('/feed', { state: { preferencias: preferenciasJSON } });
+        navigate('/feed', { replace: true, state: { preferencias: intereses } });
       }
 
       // Fallback: si no hay React Router, usar callback onNavigate
@@ -168,14 +238,14 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
         new Map([
           [
             'global',
-            'Ocurrió un error al procesar tu respuesta. Por favor, intenta nuevamente.',
+            'No pudimos guardar tus intereses. Verificá tu conexión e intentá nuevamente.',
           ],
         ])
       );
     } finally {
       setIsLoading(false);
     }
-  }, [respuestas, cuestionario, onCuestionarioCompleto, onNavigate, navigate]);
+  }, [respuestas, cuestionario, catalogoCargando, catalogoError, onCuestionarioCompleto, onNavigate, navigate]);
 
   /**
    * Obtener respuesta seleccionada para una pregunta
@@ -185,20 +255,29 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
   };
 
   // Mostrar error global si existe
-  const globalError = validationErrors?.get('global');
+  const globalError = validationErrors?.get('global') ?? catalogoError;
 
   return (
     <div className="cuestionario-page">
       <div className="cuestionario-page__container">
+        <div className="cuestionario-page__toolbar">
+          <CerrarSesionButton />
+        </div>
         {/* Bienvenida */}
         <BienvenidaHeader />
 
         {/* Mensaje de error global (si existe) */}
         {globalError && <MensajeError mensaje={globalError} visible={true} />}
 
+        {catalogoCargando && (
+          <p className="cuestionario-page__status" role="status">
+            Cargando opciones...
+          </p>
+        )}
+
         {/* Formulario con preguntas */}
         <div className="cuestionario-page__form">
-          {cuestionario.map((pregunta) => (
+          {!catalogoCargando && !catalogoError && cuestionario.map((pregunta) => (
             <PreguntaForm
               key={pregunta.id}
               pregunta={pregunta}
@@ -212,13 +291,22 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
         {/* Botón continuar con validación */}
         <div className="cuestionario-page__actions">
           <BotonContinuar
-            enabled={true}
+            enabled={!catalogoCargando && !catalogoError && cuestionario.length === 3}
             onClick={handleContinuar}
-            loading={isLoading}
+            loading={isLoading || catalogoCargando}
             respuestas={respuestas}
             preguntas={cuestionario}
             onValidationError={(errores) => setValidationErrors(errores)}
           />
+          {catalogoError && (
+            <button
+              type="button"
+              className="boton-continuar"
+              onClick={() => setIntentoCarga((intento) => intento + 1)}
+            >
+              Reintentar carga
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -42,8 +42,8 @@ const chip: React.CSSProperties = {
   cursor: 'pointer',
 }
 const chipActivo: React.CSSProperties = {
-  backgroundColor: '#4f46e5',
-  borderColor: '#4f46e5',
+  backgroundColor: '#4b5563',
+  borderColor: '#4b5563',
   color: 'white',
 }
 
@@ -324,7 +324,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
             disabled={enviando}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#4f46e5',
+              backgroundColor: '#4b5563',
               color: 'white',
               border: 'none',
               borderRadius: '6px',

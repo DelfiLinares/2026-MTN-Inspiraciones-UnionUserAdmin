@@ -430,7 +430,7 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
 
         .carpeta-item:hover {
           background-color: #f0f0f0;
-          border-color: #0066cc;
+          border-color: #6b7280;
         }
 
         .carpeta-item input[type="radio"] {
@@ -504,12 +504,12 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
         }
 
         .btn-primary {
-          background-color: #0066cc;
+          background-color: #4b5563;
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background-color: #0052a3;
+          background-color: #374151;
         }
 
         .btn-small {

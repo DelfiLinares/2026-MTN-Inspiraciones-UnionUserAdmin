@@ -317,7 +317,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             title={alcanzoBtnCrear ? 'Has alcanzado el límite de 50 carpetas' : ''}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: alcanzoBtnCrear ? '#d1d5db' : '#4f46e5',
+              backgroundColor: alcanzoBtnCrear ? '#d1d5db' : '#4b5563',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
@@ -385,7 +385,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             }}
             onMouseEnter={(e) => {
               if (!esPerfilPropio) {
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#4f46e5'
+                (e.currentTarget as HTMLDivElement).style.borderColor = '#6b7280'
               }
             }}
             onMouseLeave={(e) => {

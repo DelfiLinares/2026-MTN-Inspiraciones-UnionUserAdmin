@@ -22,6 +22,11 @@ import React from 'react';
 import { CuestionarioPage } from '../../src/presentation/cuestionario/CuestionarioPage';
 import { CuestionarioService } from '../../src/application/CuestionarioService';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 // Mock de CuestionarioService para verificar comportamiento
 vi.mock('../../src/application/CuestionarioService');
 
@@ -36,8 +41,10 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
       valida: true,
       errores: null,
     });
-    (CuestionarioService.transformarAPreferencias as any).mockReturnValue({
-      toJSON: () => ({ intereses: 'test' }),
+    (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValue({
+      generoIds: ['GENERO_ARTE'],
+      estiloIds: ['ARTE_CUBISMO'],
+      tipoMusicaIds: ['MUSICA_POP'],
     });
   });
 
@@ -106,7 +113,7 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
         // El callback de completitud NO debe ser llamado
         expect(mockOnCuestionarioCompleto).not.toHaveBeenCalled();
         // El transformar a preferencias NO debe ser llamado
-        expect(CuestionarioService.transformarAPreferencias).not.toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).not.toHaveBeenCalled();
       });
     });
 
@@ -131,7 +138,7 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
 
       await waitFor(() => {
         // La transformación debe ser llamada
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
   });
@@ -229,7 +236,7 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
 
   // Suite 3: Transformación de respuestas a preferencias
   describe('Transformación de Respuestas a Preferencias', () => {
-    it('debe llamar transformarAPreferencias después de validación exitosa', async () => {
+    it('debe llamar transformarAOnboardingRequest después de validación exitosa', async () => {
       (CuestionarioService.validarCompletitud as any).mockReturnValue({
         valida: true,
         errores: null,
@@ -248,11 +255,11 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
       });
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
-    it('debe pasar respuestas y cuestionario a transformarAPreferencias', async () => {
+    it('debe pasar respuestas y cuestionario a transformarAOnboardingRequest', async () => {
       (CuestionarioService.validarCompletitud as any).mockReturnValue({
         valida: true,
         errores: null,
@@ -271,14 +278,14 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
       });
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalledWith(
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalledWith(
           expect.anything(),
           expect.anything()
         );
       });
     });
 
-    it('debe NO llamar transformarAPreferencias si validación falla', async () => {
+    it('debe NO llamar transformarAOnboardingRequest si validación falla', async () => {
       (CuestionarioService.validarCompletitud as any).mockReturnValue({
         valida: false,
         errores: new Map([['pregunta-1', 'Error']]),
@@ -297,7 +304,7 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
       });
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).not.toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).not.toHaveBeenCalled();
       });
     });
   });
@@ -309,8 +316,10 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
         valida: true,
         errores: null,
       });
-      (CuestionarioService.transformarAPreferencias as any).mockReturnValue({
-        toJSON: () => ({ test: 'data' }),
+      (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValue({
+        generoIds: ['GENERO_ARTE'],
+        estiloIds: ['ARTE_CUBISMO'],
+        tipoMusicaIds: ['MUSICA_POP'],
       });
 
       render(
@@ -387,8 +396,10 @@ describe('CuestionarioPageT038ValidationHandlers: Validación y Manejo de Errore
             setTimeout(() => resolve({ valida: true, errores: null }), 50)
           )
       );
-      (CuestionarioService.transformarAPreferencias as any).mockReturnValueOnce({
-        toJSON: () => ({ intereses: 'test' }),
+      (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValueOnce({
+        generoIds: ['GENERO_ARTE'],
+        estiloIds: ['ARTE_CUBISMO'],
+        tipoMusicaIds: ['MUSICA_POP'],
       });
 
       render(

@@ -25,6 +25,11 @@ import React from 'react';
 import { CuestionarioPage } from '../../src/presentation/cuestionario/CuestionarioPage';
 import { CuestionarioFactory } from '../../src/application/CuestionarioFactory';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 // No mockeamos CuestionarioFactory aquí - usamos la implementación real
 // porque necesitamos verificar que el useEffect funcione correctamente
 

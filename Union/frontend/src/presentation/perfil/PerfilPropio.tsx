@@ -7,6 +7,10 @@ import { ResultadoCarpetasPaginado } from '../../application/dto/ResultadoCarpet
 import type { ResultadoPublicacionesPaginado } from '../../application/ports/PublicacionRepository'
 import { carpetaService } from '../../services/carpetaPerfilService'
 import { publicacionService } from '../../services/perfilPublicacionService'
+import {
+  obtenerCatalogoOnboarding,
+  obtenerMisInteresesOnboarding,
+} from '../../services/onboardingInteresesService'
 import { EditarPerfilForm } from './EditarPerfilForm'
 import { PhotoUploadField } from './PhotoUploadField'
 import { CarpetaList } from '../carpetas/CarpetaList'
@@ -105,6 +109,9 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
   const [mostrarModalFoto, setMostrarModalFoto] = useState(false)
   const [usuarioActualizado, setUsuarioActualizado] = useState(usuario)
+  const [categoriasFavoritas, setCategoriasFavoritas] = useState<string[]>([])
+  const [cargandoCategoriasFavoritas, setCargandoCategoriasFavoritas] = useState(true)
+  const [errorCategoriasFavoritas, setErrorCategoriasFavoritas] = useState('')
 
   // T046: Estado para carpetas y paginación
   const [carpetasActuales, setCarpetasActuales] = useState(carpetas)
@@ -216,6 +223,47 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
     void cargarCarpetas(TAMANIO_PAGINA, 0, false).catch(() => undefined)
     void cargarPublicaciones(TAMANIO_PAGINA, 0, false)
   }, [cargarCarpetas, cargarPublicaciones])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let activo = true
+
+    Promise.all([
+      obtenerCatalogoOnboarding({ signal: controller.signal }),
+      obtenerMisInteresesOnboarding({ signal: controller.signal }),
+    ])
+      .then(([catalogo, intereses]) => {
+        if (!activo) {
+          return
+        }
+
+        const seleccionadas = new Set([
+          ...intereses.generoIds,
+          ...intereses.estiloIds,
+          ...intereses.tipoMusicaIds,
+        ])
+        setCategoriasFavoritas(
+          [...catalogo.generos, ...catalogo.estilos, ...catalogo.tiposMusica]
+            .filter((categoria) => seleccionadas.has(categoria.codigo))
+            .map((categoria) => categoria.nombre),
+        )
+      })
+      .catch(() => {
+        if (activo) {
+          setErrorCategoriasFavoritas('No se pudieron cargar tus categorías favoritas.')
+        }
+      })
+      .finally(() => {
+        if (activo) {
+          setCargandoCategoriasFavoritas(false)
+        }
+      })
+
+    return () => {
+      activo = false
+      controller.abort()
+    }
+  }, [])
 
   const handleEditarPerfil = () => {
     setMostrarModalEditar(true)
@@ -388,6 +436,58 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '20px', fontWeight: '700' }}>
                 @{usuario.username}
               </h1>
+              <div
+                role="group"
+                aria-label="Categorías favoritas"
+                style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.5rem' }}
+              >
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>Favoritas:</span>
+                {cargandoCategoriasFavoritas ? (
+                  <span role="status" style={{ fontSize: '12px', color: '#6b7280' }}>
+                    Cargando...
+                  </span>
+                ) : errorCategoriasFavoritas ? (
+                  <span role="alert" style={{ fontSize: '12px', color: '#6b7280' }}>
+                    {errorCategoriasFavoritas}
+                  </span>
+                ) : categoriasFavoritas.length > 0 ? (
+                  categoriasFavoritas.map((categoria) => (
+                    <span
+                      key={categoria}
+                      style={{
+                        padding: '0.2rem 0.5rem',
+                        backgroundColor: '#f3f4f6',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '999px',
+                        color: '#374151',
+                        fontSize: '12px',
+                      }}
+                    >
+                      {categoria}
+                    </span>
+                  ))
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                    Sin categorías favoritas
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => navigate('/cuestionario')}
+                  style={{
+                    padding: '0.3rem 0.6rem',
+                    backgroundColor: '#e5e7eb',
+                    color: '#374151',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cambiar categorías
+                </button>
+              </div>
               <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: '#6b7280' }}>
                 {usuario.cantidadSeguidores} {usuario.cantidadSeguidores === 1 ? 'seguidor' : 'seguidores'}
               </p>
@@ -413,7 +513,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 onClick={handleEditarPerfil}
                 style={{
                   padding: '0.5rem 1rem',
-                  backgroundColor: '#4f46e5',
+                  backgroundColor: '#4b5563',
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
@@ -493,7 +593,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               onClick={() => setMostrarCrearPublicacion(true)}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#4f46e5',
+                backgroundColor: '#4b5563',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',

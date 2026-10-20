@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import '../../pages/home/home.css'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
+import { CerrarSesionButton } from '../shared/CerrarSesionButton'
 
 /**
  * `PerfilSiteHeader`: Barra de navegación del sitio para las vistas de perfil.
@@ -27,6 +28,7 @@ export const PerfilSiteHeader: React.FC<PerfilSiteHeaderProps> = ({ usuario }) =
           <Link className="home-profile" to="/perfil" aria-label="Mi perfil">
             <span aria-hidden="true">{inicial}</span>
           </Link>
+          <CerrarSesionButton />
         </nav>
       </header>
     </div>

@@ -470,7 +470,7 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             flex: 1,
             padding: '0.75rem',
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#4b5563',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
@@ -509,7 +509,7 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
         abierto={mostrarConfirmacionUsername}
         titulo="Confirmar cambio de nombre de usuario"
         mensaje={`¿Cambiar tu nombre de usuario de @${usuario.username} a @${nombreUsuario}?`}
-        variante="informativa"
+        variante="neutra"
         textoConfirmar="Sí, cambiar"
         textoCancelar="Cancelar"
         confirmando={enviando}

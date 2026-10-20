@@ -12,14 +12,10 @@
  * Referencia: spec.md § 6 (RF-06), data-model.md § 1.2
  */
 
-import { CategoriaInteres } from '../enums/CategoriaInteres'
-import { GeneroMusical } from '../enums/GeneroMusical'
-import { EstiloPintura } from '../enums/EstiloPintura'
-
 /**
  * Type union de todas las categorías posibles
  */
-export type Categoria = CategoriaInteres | GeneroMusical | EstiloPintura
+export type Categoria = string
 
 /**
  * OpcionRespuesta value object

@@ -443,7 +443,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                 style={{
                   backgroundColor: 'transparent',
                   border: 'none',
-                  color: '#3b82f6',
+                  color: '#4b5563',
                   fontSize: '12px',
                   fontWeight: '600',
                   cursor: 'pointer',
@@ -456,11 +456,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   transition: 'color 0.2s ease, text-decoration 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLButtonElement).style.color = '#1d4ed8'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = '#374151'
                   ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
                 }}
                 onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLButtonElement).style.color = '#3b82f6'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = '#4b5563'
                   ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'none'
                 }}
                 title={`Ver perfil de ${pub.autorNombreUsuario}`}
@@ -545,7 +545,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   disabled={cargandoAccion === pub.id}
                   style={{
                     padding: '0.5rem 0.75rem',
-                    backgroundColor: '#3b82f6',
+                    backgroundColor: '#4b5563',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -557,11 +557,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   }}
                   onMouseEnter={(e) => {
                     if (cargandoAccion !== pub.id) {
-                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#2563eb'
+                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#374151'
                     }
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#3b82f6'
+                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#4b5563'
                   }}
                 >
                   {cargandoAccion === pub.id ? 'Editando...' : 'Editar'}

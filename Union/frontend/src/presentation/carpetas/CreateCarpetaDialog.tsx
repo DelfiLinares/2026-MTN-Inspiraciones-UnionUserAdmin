@@ -413,8 +413,8 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
 
         .form-group input:focus {
           outline: none;
-          border-color: #3498db;
-          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+          border-color: #6b7280;
+          box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.15);
         }
 
         .form-group input:disabled {
@@ -495,12 +495,12 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
         }
 
         .btn-primary {
-          background-color: #3498db;
+          background-color: #4b5563;
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background-color: #2980b9;
+          background-color: #374151;
         }
 
         .btn-secondary {

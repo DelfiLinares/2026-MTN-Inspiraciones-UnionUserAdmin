@@ -21,6 +21,11 @@ import React from 'react';
 import { CuestionarioPage } from '../../src/presentation/cuestionario/CuestionarioPage';
 import { CuestionarioService } from '../../src/application/CuestionarioService';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 // Mock de CuestionarioService
 vi.mock('../../src/application/CuestionarioService');
 
@@ -28,14 +33,12 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
   const mockOnCuestionarioCompleto = vi.fn();
   const mockOnNavigate = vi.fn();
 
-  // Mock para Preferencias
+  // Mock para la solicitud de onboarding
   const mockPreferencias = {
-    toJSON: () => ({
-      intereses: ['Arte Urbano', 'Escultura'],
-      generoMusical: ['Rock'],
-      estiloPintura: ['Abstracto'],
-    }),
-  } as any;
+    generoIds: ['GENERO_ARTE', 'GENERO_ESCULTURA'],
+    estiloIds: ['ARTE_ABSTRACTO'],
+    tipoMusicaIds: ['MUSICA_ROCK'],
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +46,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       valida: true,
       errores: null,
     });
-    (CuestionarioService.transformarAPreferencias as any).mockReturnValue(mockPreferencias);
+    (CuestionarioService.transformarAOnboardingRequest as any).mockReturnValue(mockPreferencias);
   });
 
   // Suite 1: Llamada a transformarAPreferencias
@@ -65,7 +68,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       fireEvent.click(continueButton);
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
@@ -88,7 +91,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       });
 
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).not.toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).not.toHaveBeenCalled();
       });
     });
 
@@ -107,7 +110,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
 
       await waitFor(() => {
         // Verificar que se llamó con dos argumentos
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalledWith(
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalledWith(
           expect.anything(), // respuestas
           expect.anything()  // cuestionario
         );
@@ -134,15 +137,15 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
         // El callback debe recibir preferenciasJSON
         expect(mockOnCuestionarioCompleto).toHaveBeenCalledWith(
           expect.objectContaining({
-            intereses: expect.any(Array),
-            generoMusical: expect.any(Array),
-            estiloPintura: expect.any(Array),
+            generoIds: expect.any(Array),
+            estiloIds: expect.any(Array),
+            tipoMusicaIds: expect.any(Array),
           })
         );
       });
     });
 
-    it('debe tener método toJSON() en Preferencias', async () => {
+    it('debe serializar el DTO de onboarding como JSON', async () => {
       render(
         <CuestionarioPage
           onCuestionarioCompleto={mockOnCuestionarioCompleto}
@@ -156,8 +159,8 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       });
 
       await waitFor(() => {
-        expect(mockPreferencias.toJSON).toBeDefined();
-        expect(typeof mockPreferencias.toJSON).toBe('function');
+        const payload = mockOnCuestionarioCompleto.mock.calls[0][0];
+        expect(JSON.parse(JSON.stringify(payload))).toEqual(mockPreferencias);
       });
     });
 
@@ -176,9 +179,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
 
       await waitFor(() => {
         const jsonCall = mockOnCuestionarioCompleto.mock.calls[0][0];
-        expect(jsonCall).toHaveProperty('intereses');
-        expect(jsonCall).toHaveProperty('generoMusical');
-        expect(jsonCall).toHaveProperty('estiloPintura');
+        expect(jsonCall).toEqual(mockPreferencias);
       });
     });
   });
@@ -201,7 +202,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       await waitFor(() => {
         // Verificar que ambas funciones fueron llamadas en orden correcto
         expect(CuestionarioService.validarCompletitud).toHaveBeenCalled();
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
@@ -240,9 +241,9 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       await waitFor(() => {
         expect(mockOnCuestionarioCompleto).toHaveBeenCalledWith(
           expect.objectContaining({
-            intereses: expect.any(Array),
-            generoMusical: expect.any(Array),
-            estiloPintura: expect.any(Array),
+            generoIds: expect.any(Array),
+            estiloIds: expect.any(Array),
+            tipoMusicaIds: expect.any(Array),
           })
         );
       });
@@ -252,7 +253,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
   // Suite 4: Manejo de errores en transformación
   describe('Manejo de Errores en Transformación', () => {
     it('debe manejar error si transformación falla', async () => {
-      (CuestionarioService.transformarAPreferencias as any).mockImplementation(() => {
+      (CuestionarioService.transformarAOnboardingRequest as any).mockImplementation(() => {
         throw new Error('Error en transformación');
       });
 
@@ -276,7 +277,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
     });
 
     it('debe mostrar error genérico si transformación falla', async () => {
-      (CuestionarioService.transformarAPreferencias as any).mockImplementation(() => {
+      (CuestionarioService.transformarAOnboardingRequest as any).mockImplementation(() => {
         throw new Error('Error en transformación');
       });
 
@@ -338,7 +339,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
 
       await waitFor(() => {
         // Debe transformar y llamar callback
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
         expect(mockOnCuestionarioCompleto).toHaveBeenCalled();
       });
     });
@@ -348,7 +349,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
   describe('Inmutabilidad y Validación de Preferencias', () => {
     it('debe generar objeto Preferencias nuevo cada vez', async () => {
       const calls: any[] = [];
-      (CuestionarioService.transformarAPreferencias as any).mockImplementation(() => {
+      (CuestionarioService.transformarAOnboardingRequest as any).mockImplementation(() => {
         const pref = { ...mockPreferencias };
         calls.push(pref);
         return pref;
@@ -368,7 +369,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
 
       await waitFor(() => {
         // Cada transformación debe crear un objeto nuevo
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
@@ -396,7 +397,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
   // Suite 7: Estado y ciclo de vida
   describe('Estado y Ciclo de Vida', () => {
     it('debe mantener isLoading durante transformación', async () => {
-      (CuestionarioService.transformarAPreferencias as any).mockImplementation(
+      (CuestionarioService.transformarAOnboardingRequest as any).mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(() => resolve(mockPreferencias), 50)
@@ -417,7 +418,7 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
 
       // Esperar procesamiento
       await waitFor(() => {
-        expect(CuestionarioService.transformarAPreferencias).toHaveBeenCalled();
+        expect(CuestionarioService.transformarAOnboardingRequest).toHaveBeenCalled();
       });
     });
 
@@ -449,11 +450,11 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       expect(typeof CuestionarioPage).toBe('function');
     });
 
-    it('debe estar disponible CuestionarioService.transformarAPreferencias', () => {
-      expect(CuestionarioService.transformarAPreferencias).toBeDefined();
+    it('debe estar disponible CuestionarioService.transformarAOnboardingRequest', () => {
+      expect(CuestionarioService.transformarAOnboardingRequest).toBeDefined();
     });
 
-    it('debe tener método toJSON en objeto Preferencias', async () => {
+    it('debe exponer los tres campos del DTO de onboarding', async () => {
       render(
         <CuestionarioPage
           onCuestionarioCompleto={mockOnCuestionarioCompleto}
@@ -467,8 +468,11 @@ describe('CuestionarioPageT039Transformation: Transformación de Respuestas a Pr
       });
 
       await waitFor(() => {
-        // Verificar que toJSON fue llamado correctamente
-        expect(mockPreferencias.toJSON).toBeDefined();
+        expect(mockPreferencias).toEqual(expect.objectContaining({
+          generoIds: expect.any(Array),
+          estiloIds: expect.any(Array),
+          tipoMusicaIds: expect.any(Array),
+        }));
       });
     });
   });

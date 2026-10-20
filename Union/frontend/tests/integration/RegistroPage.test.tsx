@@ -1,26 +1,45 @@
 // @vitest-environment jsdom
 
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { ApiError } from '../../src/infrastructure/httpClient'
 import { RegistroPage } from '../../src/pages/registro/RegistroPage'
+import { AppRoutes } from '../../src/routes/AppRoutes'
+import { AuthProvider } from '../../src/services/AuthContext'
 
 const mocks = vi.hoisted(() => ({
   registrar: vi.fn(),
   iniciarSesion: vi.fn(),
   iniciarSesionConOAuth: vi.fn(),
+  usuario: null as { id: string; rol?: string } | null,
 }))
 
 vi.mock('../../src/services/AuthContext', () => ({
-  useAuth: () => ({ iniciarSesion: mocks.iniciarSesion }),
+  useAuth: () => ({
+    usuario: mocks.usuario,
+    cargando: false,
+    estaAutenticado: mocks.usuario !== null,
+    iniciarSesion: (usuario: { id: string; rol?: string }) => {
+      mocks.usuario = usuario
+      mocks.iniciarSesion(usuario)
+    },
+    cerrarSesion: vi.fn(),
+    revalidarSesion: vi.fn(),
+  }),
 }))
 
 vi.mock('../../src/services/authService', () => ({
   authService: {
     registrar: mocks.registrar,
     iniciarSesionConOAuth: mocks.iniciarSesionConOAuth,
+    logout: vi.fn(),
   },
+}))
+
+vi.mock('../../src/pages/home', () => ({ HomePage: () => 'Inicio' }))
+vi.mock('../../src/presentation/cuestionario/CuestionarioPage', () => ({
+  CuestionarioPage: () => 'Cuestionario',
 }))
 
 function renderRegistro() {
@@ -44,6 +63,10 @@ function completarFormulario(email = 'ana@test.com', password = 'password1!') {
 }
 
 describe('RegistroPage', () => {
+  beforeEach(() => {
+    mocks.usuario = null
+  })
+
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()
@@ -55,6 +78,23 @@ describe('RegistroPage', () => {
 
     const submit = screen.getByRole('button', { name: 'Registrarse' }) as HTMLButtonElement
     expect(submit.disabled).toBe(false)
+  })
+
+  it('redirige al cuestionario después de un registro exitoso', async () => {
+    const usuario = { id: 'usuario-1' }
+    mocks.registrar.mockResolvedValueOnce({ usuario })
+
+    render(
+      <MemoryRouter initialEntries={['/registro']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+    await screen.findByLabelText('Nombre')
+    completarFormulario()
+    fireEvent.click(screen.getByRole('button', { name: 'Registrarse' }))
+
+    expect(await screen.findByText('Cuestionario')).toBeInTheDocument()
+    expect(screen.queryByText('Inicio')).not.toBeInTheDocument()
   })
 
   it('deshabilita el envío cuando el correo no tiene un formato válido', () => {

@@ -26,7 +26,7 @@
 
 import React from 'react'
 
-export type VarianteAccionSensible = 'peligro' | 'advertencia' | 'informativa'
+export type VarianteAccionSensible = 'peligro' | 'advertencia' | 'informativa' | 'neutra'
 
 export interface ConfirmacionAccionSensibleModalProps {
   abierto: boolean
@@ -55,6 +55,11 @@ const CLASES_POR_VARIANTE: Record<VarianteAccionSensible, { boton: string; icono
     boton: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
     icono: 'text-indigo-600 bg-indigo-50',
     halo: 'border-indigo-200',
+  },
+  neutra: {
+    boton: 'bg-gray-600 hover:bg-gray-700 focus:ring-gray-500',
+    icono: 'text-gray-600 bg-gray-50',
+    halo: 'border-gray-200',
   },
 }
 

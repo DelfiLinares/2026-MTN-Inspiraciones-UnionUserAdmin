@@ -5,6 +5,11 @@ import { CuestionarioPage } from '../../src/presentation/cuestionario/Cuestionar
 import { RespuestaCuestionario } from '../../src/domain/entities/RespuestaCuestionario';
 import { CuestionarioFactory } from '../../src/application/CuestionarioFactory';
 
+vi.mock('../../src/services/onboardingInteresesService', async () => {
+  const { onboardingServiceMock } = await import('../helpers/mockOnboardingInteresesService');
+  return onboardingServiceMock;
+});
+
 /**
  * Tests para T035: Implementar estado React en CuestionarioPage
  *
@@ -437,9 +442,9 @@ describe('CuestionarioPage - T035: Estado React', () => {
       await waitFor(() => {
         expect(onCompleto).toHaveBeenCalledWith(
           expect.objectContaining({
-            interesesArtisticos: expect.any(Array),
-            generosMusical: expect.any(Array),
-            estilosPintura: expect.any(Array),
+            generoIds: expect.arrayContaining([opcionP1.id]),
+            estiloIds: expect.any(Array),
+            tipoMusicaIds: expect.arrayContaining([opcionP2.id]),
           })
         );
       });

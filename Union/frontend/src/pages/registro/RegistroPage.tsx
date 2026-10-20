@@ -15,7 +15,7 @@
  * - Muestra coincidencia de contraseñas.
  * - Requiere aceptar los términos y condiciones antes de registrarse.
  * - Opciones de registro OAuth (Google, GitHub) que autentican en un solo paso.
- * - Tras registro exitoso, guarda sesión y redirige al home (`/feed`).
+ * - Tras registro exitoso, guarda la sesión y redirige al cuestionario (`/cuestionario`); al completarlo, continúa al feed (`/feed`).
  */
 
 import React, { useState } from 'react'
@@ -115,7 +115,7 @@ export const RegistroPage: React.FC = () => {
       })
 
       iniciarSesion(resultado.usuario)
-      navigate('/feed')
+      navigate('/cuestionario')
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.status >= 500 && (typeof err.body !== 'object' || err.body === null)) {

@@ -63,6 +63,7 @@ export const apiEndpoints = {
   // Publicaciones, interacciones, coautoría y feed (rutas relativas a /api)
   publicaciones: () => '/publicaciones',
   categoriasPublicaciones: () => '/publicaciones/categorias',
+  interesesOnboarding: () => '/usuarios/me/intereses/onboarding',
   publicacionUsuario: (publicacionId: string) => `/publicaciones/${encodeURIComponent(publicacionId)}`,
   comentariosPublicacion: (publicacionId: string) =>
     `/publicaciones/${encodeURIComponent(publicacionId)}/comentarios`,

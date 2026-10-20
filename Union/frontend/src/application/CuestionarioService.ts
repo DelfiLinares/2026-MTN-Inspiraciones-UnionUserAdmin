@@ -4,6 +4,7 @@ import { Preferencias } from '../domain/entities/Preferencias';
 import { CategoriaInteres } from '../domain/enums/CategoriaInteres';
 import { GeneroMusical } from '../domain/enums/GeneroMusical';
 import { EstiloPintura } from '../domain/enums/EstiloPintura';
+import type { GuardarInteresesOnboardingDTO } from './dto/OnboardingInteresesDTO';
 
 /**
  * Resultado de validación con errores desglosados por pregunta
@@ -104,6 +105,32 @@ export class CuestionarioService {
     return {
       valida: false,
       errores,
+    };
+  }
+
+  static transformarAOnboardingRequest(
+    respuestas: RespuestaCuestionario,
+    preguntas: Pregunta[]
+  ): GuardarInteresesOnboardingDTO {
+    if (!respuestas) {
+      throw new Error('CuestionarioService: respuestas no puede ser null');
+    }
+    if (!Array.isArray(preguntas)) {
+      throw new Error('CuestionarioService: preguntas debe ser un array válido');
+    }
+
+    const obtenerIds = (preguntaId: string): string[] => {
+      const pregunta = preguntas.find((item) => item.id === preguntaId);
+      if (!pregunta) {
+        throw new Error(`CuestionarioService: falta la pregunta ${preguntaId}`);
+      }
+      return Array.from(respuestas.obtenerRespuesta(pregunta.id));
+    };
+
+    return {
+      generoIds: obtenerIds('pregunta-1-intereses'),
+      estiloIds: obtenerIds('pregunta-3-estilos'),
+      tipoMusicaIds: obtenerIds('pregunta-2-generos'),
     };
   }
 
