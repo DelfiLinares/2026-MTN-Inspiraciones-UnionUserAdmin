@@ -85,7 +85,7 @@ export const DashboardPage: React.FC = () => {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             aria-label="Indicadores del dashboard"
           >
-            {INDICADORES.map(({ clave, etiqueta }) => (
+            {INDICADORES.filter(({ clave }) => indicadores[clave] !== undefined).map(({ clave, etiqueta }) => (
               <div
                 key={clave}
                 className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col space-y-1"

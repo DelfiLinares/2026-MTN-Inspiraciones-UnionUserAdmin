@@ -243,10 +243,10 @@ describe('publicacionService (T070)', () => {
     it('envía el reporte si no es autor y no la reportó previamente', async () => {
       vi.mocked(httpClient.post).mockResolvedValueOnce({ id: 'rep-1', estado: 'PENDIENTE' })
 
-      const res = await reportarPublicacion(publicacionBase, usuarioActualId, 'MOTIVO_CONTENIDO_INAPROPIADO')
+      const res = await reportarPublicacion(publicacionBase, usuarioActualId, 'CONTENIDO_INAPROPIADO')
 
       expect(httpClient.post).toHaveBeenCalledWith('/publicaciones/pub-100/reportes', {
-        motivo: 'MOTIVO_CONTENIDO_INAPROPIADO',
+        motivo: 'CONTENIDO_INAPROPIADO',
       })
       expect(res.id).toBe('rep-1')
     })

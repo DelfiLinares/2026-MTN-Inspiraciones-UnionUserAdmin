@@ -16,14 +16,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
 import { ReportesPage } from '../../src/presentation/reportes/ReportesPage'
 import type { HttpClient } from '../../src/infrastructure/AdminHttpClientPort'
-import { REPORTE_PENDIENTE_FIXTURE } from '../fixtures/reportes.fixtures'
+import { REPORTE_PENDIENTE_FIXTURE, paginaReportesBack, reporteParaBack } from '../fixtures/reportes.fixtures'
 
 function crearHttpClientMockConExportacion(postImpl: (path: string, body?: unknown) => Promise<unknown>): HttpClient {
   const get = vi.fn().mockImplementation((path: string) => {
-    if (path === '/reportes') {
-      return Promise.resolve({ items: [REPORTE_PENDIENTE_FIXTURE], total: 1 })
+    if (path === '/admin/reportes') {
+      return Promise.resolve(paginaReportesBack([REPORTE_PENDIENTE_FIXTURE]))
     }
-    return Promise.resolve(REPORTE_PENDIENTE_FIXTURE)
+    return Promise.resolve(reporteParaBack(REPORTE_PENDIENTE_FIXTURE))
   })
 
   return {
@@ -43,7 +43,7 @@ describe('Escenario 9 de quickstart.md — Exportar reportes (T080)', () => {
     })
 
     const httpClient = crearHttpClientMockConExportacion((path) => {
-      if (path === '/reportes/exportar') {
+      if (path === '/admin/reportes/exportar') {
         return promesaExportacion as Promise<unknown>
       }
       return Promise.resolve({})
@@ -62,7 +62,7 @@ describe('Escenario 9 de quickstart.md — Exportar reportes (T080)', () => {
     // Resultado esperado: se invoca el endpoint de exportación con el filtro activo (AC-09.1).
     await waitFor(() => {
       expect(httpClient.post).toHaveBeenCalledWith(
-        '/reportes/exportar',
+        '/admin/reportes/exportar',
         expect.objectContaining({ prioridad: 'ALTA' })
       )
     })
@@ -86,7 +86,7 @@ describe('Escenario 9 de quickstart.md — Exportar reportes (T080)', () => {
 
   it('pasos 4-5: si falla la generación del archivo, se muestra un mensaje de error claro (AC-09.4, CB-05)', async () => {
     const httpClient = crearHttpClientMockConExportacion((path) => {
-      if (path === '/reportes/exportar') {
+      if (path === '/admin/reportes/exportar') {
         return Promise.reject(new Error('Error: Reporte no generado.'))
       }
       return Promise.resolve({})

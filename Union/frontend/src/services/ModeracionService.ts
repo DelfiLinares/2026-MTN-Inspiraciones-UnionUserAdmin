@@ -28,6 +28,12 @@ import { EstadoModeracion } from '../domain/enums/EstadoModeracion'
 import { EstadoPublicacionAdmin as EstadoPublicacion } from '../domain/enums/EstadoPublicacionAdmin'
 import { PrioridadReporte } from '../domain/enums/PrioridadReporte'
 import type { HttpClient, HttpRequestOptions } from '../application/ports/HttpClient'
+import {
+  normalizarReporteBack,
+  paginaDesdeBack,
+  paramsListadoBack,
+} from '../infrastructure/adaptadorReportesBack'
+import type { PaginaBack, ReporteBack } from '../infrastructure/adaptadorReportesBack'
 
 export interface FilaReporteModeracionDto {
   id: string
@@ -47,10 +53,7 @@ export interface FilaReporteModeracionDto {
   }
 }
 
-export interface RespuestaReportesReportadosDto {
-  items: FilaReporteModeracionDto[]
-  total: number
-}
+export type RespuestaReportesReportadosDto = PaginaBack<ReporteBack>
 
 export interface ReporteDetalleDto extends FilaReporteModeracionDto {
   publicacion: {
@@ -93,6 +96,23 @@ export interface DetalleReporteModeracion {
   reportanteId: string
 }
 
+function mapearFilaBack(dto: ReporteBack): ItemModeracionReporte {
+  const fila = normalizarReporteBack(dto) as unknown as FilaReporteModeracionDto
+  return {
+    reporte: mapearReporte(fila),
+    publicacion: fila.publicacion ? mapearPublicacionModeracion(fila.publicacion) : undefined,
+  }
+}
+
+function paramsModeracion(filtros: FiltrosModeracion) {
+  return paramsListadoBack({
+    page: filtros.page,
+    pageSize: filtros.pageSize,
+    estadoModeracion: filtros.estado ?? filtros.estadoReporte,
+    motivo: filtros.motivo,
+  })
+}
+
 function mapearReporte(dto: FilaReporteModeracionDto): Reporte {
   return new Reporte({
     id: dto.id,
@@ -123,27 +143,11 @@ export async function listarPublicacionesReportadas(
   filtros: FiltrosModeracion = {},
   options?: HttpRequestOptions
 ): Promise<PaginaModeracionReportes> {
-  const params: Record<string, string | number | boolean | undefined> = {
-    motivo: filtros.motivo,
-    estado: filtros.estado ?? filtros.estadoReporte,
-    page: filtros.page ?? 1,
-    pageSize: filtros.pageSize ?? 10,
-    ordenarPor: filtros.ordenarPor,
-  }
-
   const respuesta = await httpClientAdmin.get<RespuestaReportesReportadosDto>(
     apiEndpoints.publicacionesReportadas(),
-    { ...options, params }
+    { ...options, params: paramsModeracion(filtros) }
   )
-
-  const itemsRaw = Array.isArray(respuesta.items) ? respuesta.items : []
-  const items: ItemModeracionReporte[] = itemsRaw.map((dto) => ({
-    reporte: mapearReporte(dto),
-    publicacion: dto.publicacion ? mapearPublicacionModeracion(dto.publicacion) : undefined,
-  }))
-
-  const total = typeof respuesta.total === 'number' ? respuesta.total : items.length
-  return { items, total }
+  return paginaDesdeBack(respuesta, mapearFilaBack)
 }
 
 /**
@@ -153,10 +157,9 @@ export async function obtenerDetalleReporte(
   reporteId: string,
   options?: HttpRequestOptions
 ): Promise<DetalleReporteModeracion> {
-  const dto = await httpClientAdmin.get<ReporteDetalleDto>(
-    apiEndpoints.reporte(reporteId),
-    options
-  )
+  const dto = normalizarReporteBack(
+    await httpClientAdmin.get<ReporteBack>(apiEndpoints.reporte(reporteId), options)
+  ) as unknown as ReporteDetalleDto
 
   return {
     reporte: mapearReporte(dto),
@@ -173,8 +176,9 @@ export async function eliminarPublicacion(
   publicacionId: string,
   options?: HttpRequestOptions
 ): Promise<void> {
-  await httpClientAdmin.delete<void>(
+  await httpClientAdmin.post<void>(
     apiEndpoints.eliminarPublicacionModeracion(publicacionId),
+    undefined,
     options
   )
 }
@@ -203,37 +207,20 @@ export class ModeracionService {
     filtros: FiltrosModeracion = {},
     options?: HttpRequestOptions
   ): Promise<PaginaModeracionReportes> {
-    const params: Record<string, string | number | boolean | undefined> = {
-      motivo: filtros.motivo,
-      estado: filtros.estado ?? filtros.estadoReporte,
-      page: filtros.page ?? 1,
-      pageSize: filtros.pageSize ?? 10,
-      ordenarPor: filtros.ordenarPor,
-    }
-
     const respuesta = await this.client.get<RespuestaReportesReportadosDto>(
       apiEndpoints.publicacionesReportadas(),
-      { ...options, params }
+      { ...options, params: paramsModeracion(filtros) }
     )
-
-    const itemsRaw = Array.isArray(respuesta.items) ? respuesta.items : []
-    const items: ItemModeracionReporte[] = itemsRaw.map((dto) => ({
-      reporte: mapearReporte(dto),
-      publicacion: dto.publicacion ? mapearPublicacionModeracion(dto.publicacion) : undefined,
-    }))
-
-    const total = typeof respuesta.total === 'number' ? respuesta.total : items.length
-    return { items, total }
+    return paginaDesdeBack(respuesta, mapearFilaBack)
   }
 
   async obtenerDetalleReporte(
     reporteId: string,
     options?: HttpRequestOptions
   ): Promise<DetalleReporteModeracion> {
-    const dto = await this.client.get<ReporteDetalleDto>(
-      apiEndpoints.reporte(reporteId),
-      options
-    )
+    const dto = normalizarReporteBack(
+      await this.client.get<ReporteBack>(apiEndpoints.reporte(reporteId), options)
+    ) as unknown as ReporteDetalleDto
 
     return {
       reporte: mapearReporte(dto),
@@ -246,8 +233,9 @@ export class ModeracionService {
     publicacionId: string,
     options?: HttpRequestOptions
   ): Promise<void> {
-    await this.client.delete<void>(
+    await this.client.post<void>(
       apiEndpoints.eliminarPublicacionModeracion(publicacionId),
+      undefined,
       options
     )
   }

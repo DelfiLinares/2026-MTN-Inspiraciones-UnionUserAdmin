@@ -41,17 +41,19 @@ import {
   REPORTE_PENDIENTE_FIXTURE,
   REPORTE_EN_REVISION_FIXTURE,
   REPORTE_FINAL_RESUELTO_FIXTURE,
+  paginaReportesBack,
+  reporteParaBack,
 } from '../fixtures/reportes.fixtures'
 
 function crearHttpClientMockDeReportes(listaInicial: unknown[]): HttpClient {
   const get = vi.fn().mockImplementation((path: string) => {
-    if (path === '/reportes') {
-      return Promise.resolve({ items: listaInicial, total: listaInicial.length })
+    if (path === '/admin/reportes') {
+      return Promise.resolve(paginaReportesBack(listaInicial as never))
     }
-    // GET /reportes/{reporteId}: detalle de un reporte específico.
+    // GET /admin/reportes/{reporteId}: detalle de un reporte específico.
     const reporteId = path.split('/').pop()
     const encontrado = listaInicial.find((r) => (r as { id: string }).id === reporteId)
-    return Promise.resolve(encontrado)
+    return Promise.resolve(encontrado ? reporteParaBack(encontrado as never) : encontrado)
   })
 
   return {
@@ -134,7 +136,7 @@ describe('Escenario 7 de quickstart.md — Aceptar un reporte (T079)', () => {
     const httpClient = crearHttpClientMockDeReportes([REPORTE_PENDIENTE_FIXTURE])
     // Tras aceptar, la siguiente recarga del listado refleja el nuevo estado RESUELTO.
     vi.mocked(httpClient.get).mockImplementationOnce(() =>
-      Promise.resolve({ items: [REPORTE_PENDIENTE_FIXTURE], total: 1 })
+      Promise.resolve(paginaReportesBack([REPORTE_PENDIENTE_FIXTURE]))
     )
 
     render(<ReportesPage httpClient={httpClient} />)
@@ -146,10 +148,9 @@ describe('Escenario 7 de quickstart.md — Aceptar un reporte (T079)', () => {
     const botonAceptar = within(filaReporte).getByRole('button', { name: 'Aceptar' })
 
     // Preparar la recarga posterior a "Aceptar" para reflejar el nuevo estado RESUELTO.
-    vi.mocked(httpClient.get).mockResolvedValueOnce({
-      items: [{ ...REPORTE_PENDIENTE_FIXTURE, estado: EstadoModeracion.RESUELTO }],
-      total: 1,
-    })
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      paginaReportesBack([{ ...REPORTE_PENDIENTE_FIXTURE, estado: EstadoModeracion.RESUELTO }])
+    )
 
     // Paso 2 (resultado esperado, AC-07.3): se ejecuta directamente, sin diálogo de confirmación.
     fireEvent.click(botonAceptar)
@@ -185,10 +186,9 @@ describe('Escenario 8 de quickstart.md — Rechazar un reporte (T079)', () => {
     const botonRechazar = within(filaReporte).getByRole('button', { name: 'Rechazar' })
 
     // Preparar la recarga posterior a "Rechazar" para reflejar el nuevo estado DESESTIMADO.
-    vi.mocked(httpClient.get).mockResolvedValueOnce({
-      items: [{ ...REPORTE_EN_REVISION_FIXTURE, estado: EstadoModeracion.DESESTIMADO }],
-      total: 1,
-    })
+    vi.mocked(httpClient.get).mockResolvedValueOnce(
+      paginaReportesBack([{ ...REPORTE_EN_REVISION_FIXTURE, estado: EstadoModeracion.DESESTIMADO }])
+    )
 
     // Paso 2: iniciar la acción "Rechazar" y confirmar explícitamente (AC-08.3).
     fireEvent.click(botonRechazar)

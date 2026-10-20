@@ -20,7 +20,13 @@ import type { HttpClient } from '../../src/infrastructure/AdminHttpClientPort'
 
 function crearHttpClientMockConReportes(items: unknown[]): HttpClient {
   return {
-    get: vi.fn().mockResolvedValue({ items, total: items.length }),
+    get: vi.fn().mockResolvedValue({
+      contenido: items.map((item) => {
+        const { fecha, estado, ...resto } = item as Record<string, unknown>
+        return { ...resto, fechaCreacion: fecha, estadoModeracion: estado }
+      }),
+      totalElementos: items.length,
+    }),
     post: vi.fn(),
     patch: vi.fn(),
     put: vi.fn(),

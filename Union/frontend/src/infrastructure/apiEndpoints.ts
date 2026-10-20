@@ -83,11 +83,11 @@ export const apiEndpoints = {
     `/usuarios/${encodeURIComponent(usuarioId)}/seguimiento`,
 
   // Moderación de publicaciones y reportes (RF-61 a RF-65)
-  publicacionesReportadas: () => '/admin/publicaciones/reportadas',
-  eliminarPublicacionModeracion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}`,
+  publicacionesReportadas: () => '/admin/reportes',
+  eliminarPublicacionModeracion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}/eliminar`,
   publicacion: (publicacionId: string) => `/admin/publicaciones/${publicacionId}`,
   reporte: (reporteId: string) => `/admin/reportes/${reporteId}`,
-  resolverReporteSinEliminar: (reporteId: string) => `/admin/reportes/${reporteId}/resolver-sin-eliminar`,
+  resolverReporteSinEliminar: (reporteId: string) => `/admin/reportes/${reporteId}/aceptar`,
 
   // Gestión de desafíos propuestos (RF-66 a RF-70)
   desafiosPropuestos: () => '/admin/desafios-propuestos',
@@ -100,7 +100,7 @@ export const apiEndpoints = {
   // Reportes y Analíticas (RF-71 a RF-74)
   analiticas: () => '/admin/analiticas',
   reportesAnaliticas: () => '/admin/reportes-analiticas',
-  iniciarExportacionReporteAnalitica: () => '/admin/reportes-analiticas/exportaciones',
+  iniciarExportacionReporteAnalitica: () => '/admin/reportes/exportar',
   descargarExportacionReporteAnalitica: (exportacionId: string) =>
     `/admin/reportes-analiticas/exportaciones/${exportacionId}/descarga`,
 } as const

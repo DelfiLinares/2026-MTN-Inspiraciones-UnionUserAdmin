@@ -27,7 +27,7 @@ import type { HttpClient, HttpRequestOptions } from '../application/ports/HttpCl
 export interface DashboardIndicadoresDto {
   reportesPendientes: number
   usuariosActivos: number
-  desafiosPendientes: number
+  desafiosPendientes?: number
   publicacionesActivas: number
   publicacionesEliminadas: number
   usuariosBaneados: number
@@ -38,22 +38,22 @@ export interface DashboardIndicadoresDto {
 export interface IndicadoresDashboard {
   reportesPendientes: number
   usuariosActivos: number
-  desafiosPendientes: number
+  desafiosPendientes?: number
   publicacionesActivas: number
   publicacionesEliminadas: number
   usuariosBaneados: number
-  desafiosAprobadosRechazados: number
+  desafiosAprobadosRechazados?: number
 }
 
 function mapearIndicadores(dto: DashboardIndicadoresDto): IndicadoresDashboard {
   return {
     reportesPendientes: dto.reportesPendientes ?? 0,
     usuariosActivos: dto.usuariosActivos ?? 0,
-    desafiosPendientes: dto.desafiosPendientes ?? 0,
+    desafiosPendientes: dto.desafiosPendientes,
     publicacionesActivas: dto.publicacionesActivas ?? 0,
     publicacionesEliminadas: dto.publicacionesEliminadas ?? 0,
     usuariosBaneados: dto.usuariosBaneados ?? 0,
-    desafiosAprobadosRechazados: dto.desafiosAprobadosRechazados ?? dto.desafiosDecididos ?? 0,
+    desafiosAprobadosRechazados: dto.desafiosAprobadosRechazados ?? dto.desafiosDecididos,
   }
 }
 
