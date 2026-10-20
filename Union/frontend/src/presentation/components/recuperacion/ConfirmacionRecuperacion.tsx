@@ -31,6 +31,11 @@ export const ConfirmacionRecuperacion: React.FC<PropsConfirmacionRecuperacion> =
 }) => {
   return (
     <div className="confirmacion-recuperacion" role="region" aria-label="Confirmación de recuperación de contraseña">
+      <div className="recuperacion-circles" aria-hidden="true">
+        <span className="recuperacion-circle-outline" />
+        <span className="recuperacion-circle-fill" />
+      </div>
+
       <div className="confirmacion-recuperacion__contenedor">
         <div className="icono-exito" aria-hidden="false" role="status">✓</div>
 
@@ -51,6 +56,11 @@ export const ConfirmacionRecuperacion: React.FC<PropsConfirmacionRecuperacion> =
           </button>
         </div>
       </div>
+
+      <aside className="recuperacion-promo" aria-hidden="true">
+        <h2>Ya casi estás</h2>
+        <p>Revisá tu bandeja de entrada para continuar.</p>
+      </aside>
     </div>
   );
 };

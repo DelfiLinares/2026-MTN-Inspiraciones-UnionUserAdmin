@@ -29,6 +29,11 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
 
   return (
     <div className="formulario-recuperacion" role="region" aria-label="Formulario de recuperación de contraseña">
+      <div className="recuperacion-circles" aria-hidden="true">
+        <span className="recuperacion-circle-outline" />
+        <span className="recuperacion-circle-fill" />
+      </div>
+
       <div className="formulario-recuperacion__contenedor">
         <button
           type="button"
@@ -88,6 +93,11 @@ export const FormularioRecuperacion: React.FC<PropsFormularioRecuperacion> = ({
           </button>
         </div>
       </div>
+
+      <aside className="recuperacion-promo" aria-hidden="true">
+        <h2>¿Recordaste tu contraseña?</h2>
+        <p>Volvé a intentar iniciar sesión con tus credenciales.</p>
+      </aside>
     </div>
   );
 };
