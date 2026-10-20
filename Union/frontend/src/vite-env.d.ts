@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_GITHUB_REDIRECT_URL: string
   readonly VITE_GEOLOCATION_ENABLED_DEFAULT: string
   readonly VITE_SESSION_EXPIRY_REDIRECT?: string
+  readonly VITE_BUSQUEDA_REPOSITORIO?: string
 }
 
 interface ImportMeta {
