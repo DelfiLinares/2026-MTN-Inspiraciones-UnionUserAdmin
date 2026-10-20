@@ -1,0 +1,537 @@
+/**
+ * recuperacion.css
+ * 
+ * Estilos finales para el flujo de recuperación de contraseña.
+ * Module 008: Recuperación de Contraseña
+ * 
+ * Incluye:
+ * - Diseño responsive (mobile-first)
+ * - Dark mode compatible
+ * - Estados visuales claros
+ * - Transiciones suaves
+ * - Accesibilidad mejorada
+ */
+
+/* ===================================
+   VARIABLES Y VALORES POR DEFECTO
+   =================================== */
+
+:root {
+  /* Colores principales */
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-primary-active: #003d7a;
+  --color-primary-light: #e6f0ff;
+  
+  /* Colores de validación */
+  --color-success: #4caf50;
+  --color-error: #d32f2f;
+  --color-error-light: #ffebee;
+  --color-warning: #ff9800;
+  
+  /* Colores neutros */
+  --color-text: #333;
+  --color-text-secondary: #666;
+  --color-text-tertiary: #999;
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-border: #ddd;
+  --color-border-dark: #ccc;
+  
+  /* Espaciado */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  /* Tipografía */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-xxl: 32px;
+  --line-height-base: 1.5;
+  --line-height-heading: 1.2;
+  
+  /* Bordes y sombras */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --box-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --box-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  
+  /* Transiciones */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 400ms ease-in-out;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* ===================================
+   DARK MODE
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #e0e0e0;
+    --color-text-secondary: #b0b0b0;
+    --color-text-tertiary: #808080;
+    --color-bg: #1a1a1a;
+    --color-bg-secondary: #2a2a2a;
+    --color-border: #444;
+    --color-border-dark: #555;
+    --color-primary-light: #1a3a52;
+    --color-error-light: #3d1f1f;
+  }
+}
+
+/* ===================================
+   RESET Y ESTILOS BASE
+   =================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+/* ===================================
+   CONTENEDOR PRINCIPAL
+   =================================== */
+
+.formulario-recuperacion,
+.confirmacion-recuperacion {
+  max-width: 600px;
+  margin: var(--spacing-xl) auto;
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  transition: box-shadow var(--transition-base),
+              background-color var(--transition-base);
+}
+
+@media (max-width: 768px) {
+  .formulario-recuperacion,
+  .confirmacion-recuperacion {
+    margin: var(--spacing-lg) var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .formulario-recuperacion,
+  .confirmacion-recuperacion {
+    margin: var(--spacing-md) var(--spacing-sm);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+  }
+}
+
+/* ===================================
+   HEADINGS Y TIPOGRAFÍA
+   =================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: var(--line-height-heading);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+}
+
+.formulario-recuperacion__description,
+.mensaje-confirmacion {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.6;
+}
+
+/* ===================================
+   FORM GROUPS
+   =================================== */
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  transition: color var(--transition-fast);
+}
+
+label:hover {
+  color: var(--color-primary);
+}
+
+/* ===================================
+   INPUTS
+   =================================== */
+
+input[type="email"],
+input[type="text"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast),
+              background-color var(--transition-fast);
+}
+
+input[type="email"]::placeholder,
+input[type="text"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Focus state */
+input[type="email"]:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* Valid state */
+input[aria-invalid="false"] {
+  border-color: var(--color-success);
+}
+
+input[aria-invalid="false"]:focus {
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+/* Invalid state */
+input[aria-invalid="true"] {
+  border-color: var(--color-error);
+  background-color: var(--color-error-light);
+}
+
+input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2);
+}
+
+/* Disabled state */
+input:disabled,
+textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-bg-secondary);
+}
+
+/* ===================================
+   BUTTONS
+   =================================== */
+
+button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 44px;
+  min-width: 44px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Primary button */
+.button--primary {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.button--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  box-shadow: var(--box-shadow-md);
+  transform: translateY(-2px);
+}
+
+.button--primary:active:not(:disabled) {
+  background-color: var(--color-primary-active);
+  transform: translateY(0);
+}
+
+.button--primary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+}
+
+/* Secondary button */
+.button--secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+
+.button--secondary:active:not(:disabled) {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.button--secondary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Disabled state */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Loading state */
+button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.8;
+}
+
+/* ===================================
+   FORM ACTIONS
+   =================================== */
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* ===================================
+   ERRORES Y VALIDACIÓN
+   =================================== */
+
+.error-message {
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  background-color: var(--color-error-light);
+  color: var(--color-error);
+  border-left: 4px solid var(--color-error);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  animation: slideInError var(--transition-fast) ease-in-out;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================
+   CONFIRMACIÓN
+   =================================== */
+
+.icono-exito {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  animation: popIn var(--transition-base) ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icono-exito {
+    animation: none;
+  }
+}
+
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+
+/* Tablet (768px y arriba) */
+@media (min-width: 768px) {
+  .formulario-recuperacion,
+  .confirmacion-recuperacion {
+    margin: var(--spacing-xxl) auto;
+    padding: var(--spacing-lg);
+  }
+
+  .form-actions {
+    gap: var(--spacing-lg);
+  }
+
+  .form-actions button {
+    flex: 1;
+  }
+}
+
+/* Desktop (1024px y arriba) */
+@media (min-width: 1024px) {
+  .formulario-recuperacion,
+  .confirmacion-recuperacion {
+    max-width: 600px;
+  }
+}
+
+/* ===================================
+   REDUCCIÓN DE MOVIMIENTO
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================
+   MODO OSCURO - ESTILOS ESPECÍFICOS
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Buttons en dark mode */
+  .button--primary:hover:not(:disabled) {
+    background-color: #0052a3;
+  }
+
+  .button--secondary {
+    color: #66b3ff;
+    border-color: #66b3ff;
+  }
+
+  .button--secondary:hover:not(:disabled) {
+    background-color: rgba(102, 179, 255, 0.1);
+  }
+
+  /* Input focus en dark mode */
+  input[type="email"]:focus,
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  textarea:focus {
+    box-shadow: 0 0 0 3px rgba(102, 179, 255, 0.2);
+  }
+
+  /* Error en dark mode */
+  .error-message {
+    background-color: #3d1f1f;
+    color: #ff6b6b;
+  }
+}
+
+/* ===================================
+   UTILIDADES
+   =================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===================================
+   PRINT STYLES (opcional)
+   =================================== */
+
+@media print {
+  .formulario-recuperacion,
+  .confirmacion-recuperacion {
+    box-shadow: none;
+    border: 1px solid #999;
+  }
+
+  button {
+    border: 1px solid #999;
+  }
+}
