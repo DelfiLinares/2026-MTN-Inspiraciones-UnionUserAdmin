@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { DashboardService } from '../../src/services/DashboardService'
 import type { HttpClient } from '../../src/application/ports/HttpClient'
 
@@ -35,7 +36,7 @@ describe('Dashboard con el contrato real del back', () => {
     const { DashboardPage } = await import('../../src/presentation/dashboard/DashboardPage')
     obtenerIndicadores.mockResolvedValue({ ...dtoBack })
 
-    render(React.createElement(DashboardPage))
+    render(React.createElement(MemoryRouter, null, React.createElement(DashboardPage)))
 
     await waitFor(() => expect(screen.getByText('Reportes pendientes')).toBeTruthy())
     expect(screen.queryByText('Desafíos pendientes')).toBeNull()

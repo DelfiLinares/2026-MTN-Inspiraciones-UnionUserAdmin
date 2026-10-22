@@ -87,9 +87,10 @@ describe('AuthAdminService & sessionGuard (T075)', () => {
 
       expect(httpClientAdmin.post).toHaveBeenCalledWith('/auth/login', {
         mail: mailAdmin,
+        email: mailAdmin,
         password: passwordValido,
       })
-      expect(httpClientAdmin.get).toHaveBeenCalledWith('/auth/me')
+      expect(httpClientAdmin.get).toHaveBeenCalledWith('/usuarios/me')
 
       expect(sesion).toBeInstanceOf(SesionAdministrativa)
       expect(sesion.token).toBe('token-jwt-admin-valido')

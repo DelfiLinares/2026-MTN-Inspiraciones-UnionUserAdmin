@@ -55,12 +55,19 @@ export interface LoginAdminCredenciales {
 }
 
 interface LoginResponseDto {
-  token: string
-  usuario: {
+  token?: string
+  accessToken?: string
+  usuario?: {
     id: string
     nombre: string
     apellido?: string
     rol: string
+  }
+  user?: {
+    id: string
+    username?: string
+    nombreCompleto?: string
+    role?: string
   }
 }
 
@@ -80,6 +87,7 @@ export async function login(credenciales: LoginAdminCredenciales): Promise<Sesio
   try {
     dto = await httpClientAdmin.post<LoginResponseDto>('/auth/login', {
       mail: credenciales.mail,
+      email: credenciales.mail,
       password: credenciales.password,
     })
   } catch (error) {
@@ -101,15 +109,20 @@ export async function login(credenciales: LoginAdminCredenciales): Promise<Sesio
 
   // Autentica temporalmente el cliente HTTP administrativo con el token recibido,
   // de modo que `sessionGuard.validarAccesoAdmin()` pueda consultar `GET /auth/me`.
+  const token = dto.token ?? dto.accessToken ?? ''
+  const idUsuario = dto.usuario?.id ?? dto.user?.id ?? ''
+  const nombreUsuario =
+    dto.usuario?.nombre ?? dto.user?.nombreCompleto ?? dto.user?.username ?? ''
+  const rolUsuario = (dto.usuario?.rol ?? dto.user?.role) as RolUsuario | undefined
   const sesionTemporal = new SesionAdministrativa({
     usuario: new UsuarioAdmin({
-      id: dto.usuario.id,
-      nombre: dto.usuario.nombre,
+      id: idUsuario,
+      nombre: nombreUsuario,
       mail: credenciales.mail,
-      rol: (dto.usuario.rol as RolUsuario) ?? RolUsuario.ADMIN,
+      rol: rolUsuario ?? RolUsuario.ADMIN,
       estadoCuenta: EstadoCuentaUsuario.ACTIVO,
     }),
-    token: dto.token,
+    token,
     // Expiración temporal amplia; será reemplazada por la sesión definitiva tras la verificación.
     expiraEn: new Date(Date.now() + 5 * 60 * 1000),
   })
@@ -121,7 +134,7 @@ export async function login(credenciales: LoginAdminCredenciales): Promise<Sesio
 
     const sesion = new SesionAdministrativa({
       usuario: usuarioAdmin,
-      token: dto.token,
+      token,
       expiraEn: new Date(Date.now() + 60 * 60 * 1000),
     })
     sessionManager.guardarSesion(sesion)

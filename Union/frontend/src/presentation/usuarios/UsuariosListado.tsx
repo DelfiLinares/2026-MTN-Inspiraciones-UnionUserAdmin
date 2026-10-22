@@ -22,6 +22,9 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { AdminHeading } from '../admin/AdminUI'
+import { UsuarioAccionesSensibles } from './UsuarioAccionesSensibles'
+import { obtenerSesion } from '../../infrastructure/sessionManager'
 import { buscarUsuarios } from '../../services/UsuariosService'
 import type { PaginaUsuariosAdmin } from '../../services/UsuariosService'
 import { RolUsuarioAdmin } from '../../domain/enums/RolUsuarioAdmin'
@@ -32,6 +35,7 @@ const TAMANO_PAGINA = 10
 
 export const UsuariosListadoPage: React.FC = () => {
   const [texto, setTexto] = useState('')
+  const [consulta, setConsulta] = useState('')
   const [rol, setRol] = useState<RolUsuarioAdmin | ''>('')
   const [estadoCuenta, setEstadoCuenta] = useState<EstadoCuentaUsuario | ''>('')
   const [pagina, setPagina] = useState(1)
@@ -44,7 +48,7 @@ export const UsuariosListadoPage: React.FC = () => {
     setErrorMensaje(null)
     try {
       const datos = await buscarUsuarios({
-        q: texto.trim() || undefined,
+        q: consulta || undefined,
         page: pagina,
         pageSize: TAMANO_PAGINA,
         rol: rol || undefined,
@@ -56,7 +60,7 @@ export const UsuariosListadoPage: React.FC = () => {
     } finally {
       setCargando(false)
     }
-  }, [texto, pagina, rol, estadoCuenta])
+  }, [consulta, pagina, rol, estadoCuenta])
 
   useEffect(() => {
     cargarUsuarios()
@@ -64,8 +68,8 @@ export const UsuariosListadoPage: React.FC = () => {
 
   const handleBuscarSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setPagina(1)
-    cargarUsuarios()
+    if (pagina === 1 && consulta === texto.trim()) void cargarUsuarios()
+    else { setPagina(1); setConsulta(texto.trim()) }
   }
 
   const totalPaginas = resultado ? Math.max(1, Math.ceil(resultado.total / TAMANO_PAGINA)) : 1
@@ -73,7 +77,7 @@ export const UsuariosListadoPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestión de usuarios</h1>
+        <AdminHeading titulo="Gestión de usuarios" descripcion="Buscá integrantes de la comunidad y administrá sus cuentas y permisos." />
 
         <form
           className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-3"
@@ -91,7 +95,7 @@ export const UsuariosListadoPage: React.FC = () => {
 
           <select
             value={rol}
-            onChange={(e) => setRol(e.target.value as RolUsuarioAdmin | '')}
+            onChange={(e) => { setRol(e.target.value as RolUsuarioAdmin | ''); setPagina(1) }}
             className="px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Filtrar por rol"
           >
@@ -102,7 +106,7 @@ export const UsuariosListadoPage: React.FC = () => {
 
           <select
             value={estadoCuenta}
-            onChange={(e) => setEstadoCuenta(e.target.value as EstadoCuentaUsuario | '')}
+            onChange={(e) => { setEstadoCuenta(e.target.value as EstadoCuentaUsuario | ''); setPagina(1) }}
             className="px-3.5 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             aria-label="Filtrar por estado de cuenta"
           >
@@ -141,13 +145,14 @@ export const UsuariosListadoPage: React.FC = () => {
         {!cargando && !errorMensaje && resultado && resultado.items.length > 0 && (
           <>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-100" aria-label="Listado de usuarios">
+              <div className="admin-table-scroll" role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="min-w-full divide-y divide-gray-100" aria-label="Listado de usuarios">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Nombre</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Mail</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Rol</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -157,10 +162,11 @@ export const UsuariosListadoPage: React.FC = () => {
                       <td className="px-4 py-3 text-sm text-gray-600">{usuario.mail}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{usuario.rol}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{usuario.estadoCuenta}</td>
+                      <td>{obtenerSesion()?.usuario.id && <details className="admin-user-actions"><summary>Administrar cuenta</summary><UsuarioAccionesSensibles usuario={usuario} adminActualId={obtenerSesion()!.usuario.id} onUsuarioActualizado={cargarUsuarios} onUsuarioEliminado={cargarUsuarios} /></details>}</td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
 
             <div className="flex items-center justify-between mt-4">

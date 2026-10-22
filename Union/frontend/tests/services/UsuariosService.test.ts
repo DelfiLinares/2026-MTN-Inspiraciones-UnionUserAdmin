@@ -133,7 +133,7 @@ describe('UsuariosService & Reglas de Rol (T076)', () => {
 
       const resultado = await banearUsuario(user, adminActualId)
 
-      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/usuarios/usr-target-1/banear', undefined, undefined)
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/usuarios/usr-target-1/banear', { permanente: true }, undefined)
       expect(resultado.estadoCuenta).toBe(EstadoCuentaUsuario.BANEADO)
     })
 
@@ -159,11 +159,11 @@ describe('UsuariosService & Reglas de Rol (T076)', () => {
   describe('eliminarUsuario & CB-11, AC-12.5 (Caso crítico)', () => {
     it('elimina exitosamente a un usuario común llamando a DELETE /admin/usuarios/{id}', async () => {
       const user = crearUserComun('usr-target-1')
-      vi.mocked(httpClientAdmin.delete).mockResolvedValueOnce(undefined)
+      vi.mocked(httpClientAdmin.post).mockResolvedValueOnce(undefined)
 
       await eliminarUsuario(user, adminActualId)
 
-      expect(httpClientAdmin.delete).toHaveBeenCalledWith('/admin/usuarios/usr-target-1', undefined)
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/usuarios/usr-target-1/eliminar', undefined, undefined)
     })
 
     it('caso crítico: rechaza eliminar a otro usuario con rol ADMIN sin invocar a la API (CB-11, AC-12.5)', async () => {
@@ -265,7 +265,7 @@ describe('UsuariosService & Reglas de Rol (T076)', () => {
       })
 
       await servicio.banear(user)
-      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/usuarios/usr-inst-1/banear', undefined, undefined)
+      expect(httpClientAdmin.post).toHaveBeenCalledWith('/admin/usuarios/usr-inst-1/banear', { permanente: true }, undefined)
 
       const propio = crearPropioAdmin(adminActualId)
       await expect(servicio.eliminar(propio)).rejects.toThrow(AccionAccesoAdminProhibidaError)

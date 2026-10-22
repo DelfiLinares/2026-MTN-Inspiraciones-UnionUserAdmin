@@ -22,6 +22,7 @@
  */
 
 import React, { useState } from 'react'
+import { AdminHeading } from '../admin/AdminUI'
 import type { HttpClient } from '../../infrastructure/AdminHttpClientPort'
 import { UsuariosTable } from '../usuarios/UsuariosTable'
 import { PromoverUsuarioAction } from './PromoverUsuarioAction'
@@ -38,7 +39,7 @@ export const PromocionPage: React.FC<PromocionPageProps> = ({ httpClient, obtene
 
   return (
     <section>
-      <h1>Promoción</h1>
+      <AdminHeading titulo="Accesos de administración" descripcion="Buscá usuarios y otorgá el rol de administrador con una confirmación explícita." />
 
       {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
 

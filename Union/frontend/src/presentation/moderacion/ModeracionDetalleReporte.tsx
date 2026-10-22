@@ -77,7 +77,7 @@ export const ModeracionDetalleReporte: React.FC<ModeracionDetalleReporteProps> =
         {cargando && <Spinner tamano="lg" texto="Cargando detalle..." />}
 
         {!cargando && errorMensaje && (
-          <EmptyState titulo="Error al cargar el detalle" mensaje={errorMensaje} />
+          <EmptyState titulo="Error al cargar el detalle" mensaje={errorMensaje} onAccion={cargarDetalle} textoAccion="Reintentar" />
         )}
 
         {!cargando && !errorMensaje && detalle && (

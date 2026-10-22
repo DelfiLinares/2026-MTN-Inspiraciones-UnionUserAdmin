@@ -24,6 +24,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AdminHeading } from '../admin/AdminUI'
 import { listarPublicacionesReportadas } from '../../services/ModeracionService'
 import type { PaginaModeracionReportes } from '../../services/ModeracionService'
 import { MotivoReporteAdmin } from '../../domain/enums/MotivoReporteAdmin'
@@ -49,6 +51,7 @@ const ETIQUETAS_ESTADO: Record<EstadoModeracion, string> = {
 }
 
 export const ModeracionListado: React.FC = () => {
+  const navigate = useNavigate()
   const [motivo, setMotivo] = useState<MotivoReporteAdmin | ''>('')
   const [estado, setEstado] = useState<EstadoModeracion | ''>('')
   const [pagina, setPagina] = useState(1)
@@ -99,7 +102,7 @@ export const ModeracionListado: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Moderación de publicaciones</h1>
+        <AdminHeading titulo="Moderación de publicaciones" descripcion="Revisá los reportes de la comunidad y resolvé cada caso con su contexto." />
 
         <form
           className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-3"
@@ -163,7 +166,7 @@ export const ModeracionListado: React.FC = () => {
         {!cargando && !errorMensaje && resultado && resultado.items.length > 0 && (
           <>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-100" aria-label="Listado de reportes">
+              <div className="admin-table-scroll" role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="min-w-full divide-y divide-gray-100" aria-label="Listado de reportes">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Publicación</th>
@@ -185,7 +188,7 @@ export const ModeracionListado: React.FC = () => {
                       <td className="px-4 py-3 text-sm">
                         <button
                           type="button"
-                          onClick={() => setReporteSeleccionadoId(reporte.id)}
+                          onClick={() => navigate(`/admin/moderacion/${reporte.id}`)}
                           className="text-indigo-600 hover:text-indigo-800 font-medium"
                         >
                           Ver detalle
@@ -194,7 +197,7 @@ export const ModeracionListado: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
 
             <div className="flex items-center justify-between mt-4">

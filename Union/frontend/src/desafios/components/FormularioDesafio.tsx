@@ -423,7 +423,7 @@ export const FormularioDesafio: React.FC<FormularioDesafioProps> = ({
             </div>
           ) : (
             <p className="text-sm text-gray-500 italic">
-              Cargando ámbitos... (pendiente de A-02)
+              No hay ámbitos disponibles para seleccionar.
             </p>
           )}
 

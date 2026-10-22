@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { httpClient } from '../../../infrastructure/httpClient'
+import { httpClientAdmin as httpClient } from '../../../infrastructure/httpClientAdmin'
 import { FormularioDesafio } from '../../../desafios/components/FormularioDesafio'
 import { Desafio } from '../../../domain/Desafio'
 import './publicar-desafio.css'
@@ -52,8 +52,8 @@ export const PublicarDesafioPage: React.FC = () => {
           .filter(Boolean)
         
         setAmbitosDisponibles(valores)
-      } catch (err) {
-        console.error('Error cargando ámbitos:', err)
+      } catch {
+        setError('No se pudieron cargar los ámbitos. Recargá la página para volver a intentarlo.')
         setAmbitosDisponibles([])
       }
     }
@@ -109,14 +109,14 @@ export const PublicarDesafioPage: React.FC = () => {
 
         if (respuesta?.id) {
           // Éxito: redirigir a la página de detalle del desafío creado
-          navigate(`/desafios/${respuesta.id}`, { state: { creado: true } })
+          navigate('/admin/desafios', { state: { creado: true } })
         } else {
           setError('No se pudo crear el desafío. Intentá nuevamente.')
         }
       } catch (err: any) {
         if (err?.status === 401) {
           setError('Debes iniciar sesión para publicar un desafío.')
-          navigate('/login')
+          navigate('/login-admin')
         } else if (err?.status === 403) {
           setError('No tienes permiso para publicar desafíos. Se requiere ser administrador.')
         } else if (err?.status === 400) {
@@ -140,7 +140,7 @@ export const PublicarDesafioPage: React.FC = () => {
         </p>
       </header>
 
-      <main className="publicar-desafio-contenedor">
+      <div className="publicar-desafio-contenedor">
         {error && (
           <div className="publicar-desafio-error" role="alert">
             {error}
@@ -168,7 +168,7 @@ export const PublicarDesafioPage: React.FC = () => {
             Una vez publicado, el desafío será visible inmediatamente y los usuarios podrán responder.
           </p>
         </aside>
-      </main>
+      </div>
     </div>
   )
 }

@@ -27,6 +27,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AdminDatos, AdminHeading } from '../admin/AdminUI'
 import {
   listarDesafiosPropuestos,
   obtenerDetalleDesafioPropuesto,
@@ -43,6 +45,8 @@ type AccionDesafio = 'aprobar' | 'rechazar'
 const TAMANO_PAGINA = 10
 
 export const DesafiosAdminPage: React.FC = () => {
+  const { propuestaId } = useParams<{ propuestaId: string }>()
+  const navigate = useNavigate()
   const [pagina, setPagina] = useState(1)
   const [resultado, setResultado] = useState<PaginaDesafiosPropuestos | null>(null)
   const [cargando, setCargando] = useState(true)
@@ -75,7 +79,7 @@ export const DesafiosAdminPage: React.FC = () => {
 
   const totalPaginas = resultado ? Math.max(1, Math.ceil(resultado.total / TAMANO_PAGINA)) : 1
 
-  const verDetalle = async (id: string) => {
+  const verDetalle = useCallback(async (id: string) => {
     setCargandoDetalle(true)
     setErrorDetalle(null)
     try {
@@ -86,11 +90,17 @@ export const DesafiosAdminPage: React.FC = () => {
     } finally {
       setCargandoDetalle(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (propuestaId) void verDetalle(propuestaId)
+    else { setDesafioSeleccionado(null); setErrorDetalle(null) }
+  }, [propuestaId, verDetalle])
 
   const volverAlListado = () => {
     setDesafioSeleccionado(null)
     setErrorDetalle(null)
+    navigate('/admin/desafios/propuestas')
   }
 
   const ejecutarAccion = async () => {
@@ -131,7 +141,7 @@ export const DesafiosAdminPage: React.FC = () => {
           {cargandoDetalle && <Spinner tamano="lg" texto="Cargando detalle..." />}
 
           {!cargandoDetalle && errorDetalle && (
-            <EmptyState titulo="Error al cargar el detalle" mensaje={errorDetalle} />
+            <EmptyState titulo="Error al cargar el detalle" mensaje={errorDetalle} onAccion={() => propuestaId && verDetalle(propuestaId)} textoAccion="Reintentar" />
           )}
 
           {!cargandoDetalle && !errorDetalle && desafioSeleccionado && (
@@ -142,9 +152,7 @@ export const DesafiosAdminPage: React.FC = () => {
               </div>
               <div>
                 <span className="block text-xs font-medium text-gray-500">Formulario completo</span>
-                <pre className="mt-1 text-xs bg-gray-50 border border-gray-100 rounded-lg p-3 overflow-x-auto">
-                  {JSON.stringify(desafioSeleccionado.contenidoFormulario, null, 2)}
-                </pre>
+                <AdminDatos datos={desafioSeleccionado.contenidoFormulario} />
               </div>
 
               {errorAccion && (
@@ -197,7 +205,7 @@ export const DesafiosAdminPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestión de desafíos propuestos</h1>
+        <AdminHeading titulo="Desafíos propuestos" descripcion="Conocé las ideas de la comunidad y decidí cuáles aprobar o rechazar." />
 
         {cargando && <Skeleton variante="tarjeta" cantidad={3} />}
 
@@ -220,7 +228,7 @@ export const DesafiosAdminPage: React.FC = () => {
         {!cargando && !errorMensaje && resultado && resultado.items.length > 0 && (
           <>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-100" aria-label="Listado de desafíos propuestos">
+              <div className="admin-table-scroll" role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="min-w-full divide-y divide-gray-100" aria-label="Listado de desafíos propuestos">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Título</th>
@@ -238,7 +246,7 @@ export const DesafiosAdminPage: React.FC = () => {
                       <td className="px-4 py-3 text-sm">
                         <button
                           type="button"
-                          onClick={() => verDetalle(desafio.id)}
+                          onClick={() => navigate(`/admin/desafios/propuestas/${desafio.id}`)}
                           className="text-indigo-600 hover:text-indigo-800 font-medium"
                         >
                           Ver detalle
@@ -247,7 +255,7 @@ export const DesafiosAdminPage: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
 
             <div className="flex items-center justify-between mt-4">

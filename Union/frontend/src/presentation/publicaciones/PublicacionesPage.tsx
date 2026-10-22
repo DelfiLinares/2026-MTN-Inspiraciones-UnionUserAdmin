@@ -21,6 +21,7 @@
  */
 
 import React, { useState } from 'react'
+import { AdminHeading } from '../admin/AdminUI'
 import type { HttpClient } from '../../infrastructure/AdminHttpClientPort'
 import { PublicacionesTable } from './PublicacionesTable'
 import { EditarPublicacionForm } from './EditarPublicacionForm'
@@ -37,7 +38,7 @@ export const PublicacionesPage: React.FC<PublicacionesPageProps> = ({ httpClient
 
   return (
     <section>
-      <h1>Publicaciones</h1>
+      <AdminHeading titulo="Publicaciones" descripcion="Consultá el contenido de la comunidad, editá sus datos y gestioná su estado." />
 
       {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
 
@@ -45,8 +46,8 @@ export const PublicacionesPage: React.FC<PublicacionesPageProps> = ({ httpClient
         httpClient={httpClient}
         renderAcciones={(publicacion, recargar) => (
           <>
-            <button type="button" onClick={() => setIdEnEdicion(publicacion.id)}>
-              Editar
+            <button type="button" onClick={() => setIdEnEdicion(idEnEdicion === publicacion.id ? null : publicacion.id)}>
+              {idEnEdicion === publicacion.id ? 'Cancelar edición' : 'Editar'}
             </button>
             <EliminarPublicacionAction
               publicacion={publicacion}
@@ -57,6 +58,7 @@ export const PublicacionesPage: React.FC<PublicacionesPageProps> = ({ httpClient
             {idEnEdicion === publicacion.id && (
               <EditarPublicacionForm
                 publicacion={publicacion}
+                contenidoInicial={publicacion.contenido}
                 httpClient={httpClient}
                 onGuardado={() => {
                   setIdEnEdicion(null)

@@ -114,12 +114,13 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({
         <button type="submit">Buscar</button>
       </form>
 
-      {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
+      {mensajeError !== null && <><MensajeError mensaje={mensajeError} /><button type="button" onClick={cargarUsuarios}>Reintentar</button></>}
+      {cargando && <p role="status">Cargando usuarios...</p>}
 
-      {!cargando && items.length === 0 ? (
+      {!cargando && mensajeError === null && items.length === 0 ? (
         <EstadoVacio mensaje="No hay usuarios para mostrar." />
       ) : (
-        <table className="admin-tabla">
+        <div className="admin-table-scroll" hidden={cargando || mensajeError !== null} role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="admin-tabla">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -140,7 +141,7 @@ export const UsuariosTable: React.FC<UsuariosTableProps> = ({
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
 
       <div className="usuarios-table__paginacion">

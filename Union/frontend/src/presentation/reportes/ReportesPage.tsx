@@ -36,6 +36,7 @@
  */
 
 import React, { useState } from 'react'
+import { AdminHeading } from '../admin/AdminUI'
 import type { HttpClient } from '../../infrastructure/AdminHttpClientPort'
 import type { FiltroReportes } from '../../application/dto/FiltroReportes'
 import { ReportesTable } from './ReportesTable'
@@ -57,7 +58,7 @@ export const ReportesPage: React.FC<ReportesPageProps> = ({ httpClient }) => {
 
   return (
     <section>
-      <h1>Reportes</h1>
+      <AdminHeading titulo="Gestión de reportes" descripcion="Filtrá reportes, consultá sus detalles y exportá los resultados de la búsqueda." />
 
       {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
 
@@ -70,8 +71,8 @@ export const ReportesPage: React.FC<ReportesPageProps> = ({ httpClient }) => {
         filtros={filtros}
         renderAcciones={(reporte, recargar) => (
           <>
-            <button type="button" onClick={() => setIdEnDetalle(reporte.id)}>
-              Ver detalle
+            <button type="button" onClick={() => setIdEnDetalle(idEnDetalle === reporte.id ? null : reporte.id)}>
+              {idEnDetalle === reporte.id ? 'Cerrar detalle' : 'Ver detalle'}
             </button>
             <AceptarReporteAction
               reporte={reporte}

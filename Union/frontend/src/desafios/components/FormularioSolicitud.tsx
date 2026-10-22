@@ -288,7 +288,7 @@ export const FormularioSolicitud: React.FC<FormularioSolicitudProps> = ({
             </div>
           ) : (
             <p className="text-sm text-gray-500 italic">
-              Cargando ámbitos... (pendiente de A-02)
+              No hay ámbitos disponibles para seleccionar.
             </p>
           )}
 

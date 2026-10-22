@@ -52,12 +52,16 @@ export interface SessionGuardOptions {
 
 interface AuthMeDto {
   id: string
-  nombre: string
+  nombre?: string
+  nombreCompleto?: string
+  username?: string
   apellido?: string
   mail?: string
   email?: string
-  rol: string
+  rol?: string
+  role?: string
   estadoCuenta?: string
+  status?: string
 }
 
 /**
@@ -71,19 +75,19 @@ export async function validarAccesoAdmin(): Promise<UsuarioAdmin> {
   }
 
   try {
-    const dto = await httpClientAdmin.get<AuthMeDto>('/auth/me')
+    const dto = await httpClientAdmin.get<AuthMeDto>('/usuarios/me')
 
-    if (dto.rol !== RolUsuario.ADMIN) {
+    if ((dto.rol ?? dto.role) !== RolUsuario.ADMIN) {
       limpiarSesion()
       throw new RolNoAutorizadoError(MENSAJE_ROL_NO_AUTORIZADO)
     }
 
     return new UsuarioAdmin({
       id: dto.id,
-      nombre: dto.nombre,
+      nombre: dto.nombre ?? dto.nombreCompleto ?? dto.username ?? '',
       mail: dto.mail ?? dto.email ?? '',
       rol: RolUsuario.ADMIN,
-      estadoCuenta: (dto.estadoCuenta as EstadoCuentaUsuario) ?? EstadoCuentaUsuario.ACTIVO,
+      estadoCuenta: ((dto.estadoCuenta ?? dto.status) as EstadoCuentaUsuario) ?? EstadoCuentaUsuario.ACTIVO,
     })
   } catch (error) {
     if (error instanceof RolNoAutorizadoError) {

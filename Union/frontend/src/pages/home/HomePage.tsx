@@ -15,14 +15,17 @@
  * - Usa `InfiniteScrollList` (T083) para los estados de carga/vacío/fin de lista reutilizables.
  */
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../services/AuthContext'
 import { feedService } from '../../services/feedService'
 import { publicacionService } from '../../services/publicacionService'
+import { reporteService } from '../../services/reporteService'
+import { ApiError } from '../../infrastructure/httpClient'
 import { useInfiniteList } from '../../services/useInfiniteList'
 import { CerrarSesionButton } from '../../presentation/shared/CerrarSesionButton'
 import type { Publicacion } from '../../domain/Publicacion'
+import type { MotivoReporte } from '../../domain/enums/MotivoReporte'
 import './home.css'
 
 const obtenerVarianteTarjeta = (indiceColumna: number, indiceEnColumna: number) => {
@@ -42,7 +45,25 @@ export const HomePage: React.FC = () => {
   const { usuario, estaAutenticado } = useAuth()
 
   const [idsConLikeEnCurso, setIdsConLikeEnCurso] = useState<Set<string>>(new Set())
+  const [idsReportados, setIdsReportados] = useState<Set<string>>(new Set())
+  const [publicacionAReportar, setPublicacionAReportar] = useState<string | null>(null)
+  const [motivoReporte, setMotivoReporte] = useState('')
+  const [enviandoReporte, setEnviandoReporte] = useState(false)
+  const [errorReporte, setErrorReporte] = useState<string | null>(null)
+  const [avisoReporte, setAvisoReporte] = useState<string | null>(null)
+  const [motivosReporte, setMotivosReporte] = useState<MotivoReporte[]>([])
 
+  useEffect(() => {
+    if (!avisoReporte) {
+      return undefined
+    }
+    const temporizador = setTimeout(() => setAvisoReporte(null), 4000)
+    return () => clearTimeout(temporizador)
+  }, [avisoReporte])
+
+  useEffect(() => {
+    reporteService.obtenerMotivos().then(setMotivosReporte).catch(() => setMotivosReporte([]))
+  }, [])
   const {
     items,
     cargando,
@@ -90,11 +111,41 @@ export const HomePage: React.FC = () => {
   )
 
   const handleReportar = useCallback((publicacionId: string) => {
-    // La apertura del flujo de selección de motivo de reporte (RF-34) se resuelve en la
-    // pantalla/modal dedicada de reporte (fuera del alcance de T087).
-    // Aquí solo se expone el punto de entrada delegando el id de la publicación.
-    console.info('Reportar publicación', publicacionId)
+    setMotivoReporte('')
+    setErrorReporte(null)
+    setAvisoReporte(null)
+    setPublicacionAReportar(publicacionId)
   }, [])
+
+  const cerrarModalReporte = () => {
+    if (!enviandoReporte) {
+      setPublicacionAReportar(null)
+    }
+  }
+
+  const confirmarReporte = async () => {
+    if (!publicacionAReportar || !motivoReporte) {
+      return
+    }
+    setEnviandoReporte(true)
+    setErrorReporte(null)
+    try {
+      await reporteService.enviarReporte(publicacionAReportar, motivoReporte)
+      setIdsReportados((actual) => new Set(actual).add(publicacionAReportar))
+      setAvisoReporte('Reporte enviado. Gracias por ayudarnos a moderar.')
+      setPublicacionAReportar(null)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setIdsReportados((actual) => new Set(actual).add(publicacionAReportar))
+        setAvisoReporte('Ya reportaste esta publicación.')
+        setPublicacionAReportar(null)
+      } else {
+        setErrorReporte('No se pudo enviar el reporte. Intentá de nuevo.')
+      }
+    } finally {
+      setEnviandoReporte(false)
+    }
+  }
 
   const columnas: Publicacion[][] = [[], [], []]
   items.forEach((publicacion, indice) => {
@@ -150,6 +201,7 @@ export const HomePage: React.FC = () => {
                     const variante = obtenerVarianteTarjeta(indiceColumna, indiceEnColumna)
                     const contenido = String(publicacion.tipoContenido).toLocaleLowerCase('es-AR')
                     const likeEnCurso = idsConLikeEnCurso.has(publicacion.id)
+                    const reportada = publicacion.reportadaPorUsuarioActual || idsReportados.has(publicacion.id)
 
                     return (
                       <article
@@ -197,11 +249,11 @@ export const HomePage: React.FC = () => {
                               className="home-post-action home-post-report"
                               type="button"
                               onClick={() => handleReportar(publicacion.id)}
-                              disabled={publicacion.reportadaPorUsuarioActual}
-                              aria-label={publicacion.reportadaPorUsuarioActual ? 'Publicación reportada' : 'Reportar publicación'}
-                              title={publicacion.reportadaPorUsuarioActual ? 'Ya reportaste esta publicación' : 'Reportar publicación'}
+                              disabled={reportada}
+                              aria-label={reportada ? 'Publicación reportada' : 'Reportar publicación'}
+                              title={reportada ? 'Ya reportaste esta publicación' : 'Reportar publicación'}
                             >
-                              {publicacion.reportadaPorUsuarioActual ? 'Reportada' : 'Reportar'}
+                              {reportada ? 'Reportada' : 'Reportar'}
                             </button>
                           </div>
                         </div>
@@ -244,6 +296,54 @@ export const HomePage: React.FC = () => {
       </main>
 
       <footer className="home-site-footer" aria-label="Pie de página" />
+
+      {avisoReporte && (
+        <div className="home-report-toast" role="status">{avisoReporte}</div>
+      )}
+
+      {publicacionAReportar && (
+        <div className="home-report-backdrop" onClick={cerrarModalReporte}>
+          <div
+            className="home-report-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="home-report-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="home-report-title">Reportar publicación</h2>
+            <p>Elegí el motivo del reporte:</p>
+            <div className="home-report-options">
+              {motivosReporte.map((motivo) => (
+                <label key={motivo.codigo}>
+                  <input
+                    type="radio"
+                    name="motivo-reporte"
+                    value={motivo.codigo}
+                    checked={motivoReporte === motivo.codigo}
+                    onChange={() => setMotivoReporte(motivo.codigo)}
+                    disabled={enviandoReporte}
+                  />
+                  <span>{motivo.etiqueta}</span>
+                </label>
+              ))}
+            </div>
+            {errorReporte && <p className="home-report-error" role="alert">{errorReporte}</p>}
+            <div className="home-report-buttons">
+              <button type="button" onClick={cerrarModalReporte} disabled={enviandoReporte}>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="home-report-confirm"
+                onClick={confirmarReporte}
+                disabled={!motivoReporte || enviandoReporte}
+              >
+                {enviandoReporte ? 'Enviando...' : 'Enviar reporte'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

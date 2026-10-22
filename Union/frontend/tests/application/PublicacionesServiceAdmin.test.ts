@@ -76,7 +76,7 @@ describe('PublicacionesServiceAdmin (T041)', () => {
       await servicio.editar(publicacion, { contenido: 'Nuevo contenido' })
 
       expect(httpClient.patch).toHaveBeenCalledWith(apiEndpointsAdmin.publicacion('pub-10'), {
-        contenido: 'Nuevo contenido',
+        descripcion: 'Nuevo contenido',
       })
     })
 

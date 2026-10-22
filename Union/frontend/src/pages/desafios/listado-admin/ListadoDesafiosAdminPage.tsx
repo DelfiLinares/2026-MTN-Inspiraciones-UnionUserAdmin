@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { httpClient } from '../../../infrastructure/httpClient'
+import { httpClientAdmin as httpClient } from '../../../infrastructure/httpClientAdmin'
 import { ConfirmarAccionDestructiva } from '../../../desafios/components/ConfirmarAccionDestructiva'
 import './listado-desafios-admin.css'
 
@@ -144,7 +144,7 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
   )
 
   const handleEditar = (desafio: DesafioListadoItem) => {
-    navigate(`/desafios/${desafio.id}/editar`)
+    navigate(`/admin/desafios/${desafio.id}/editar`)
   }
 
   const handleEliminarClick = (desafio: DesafioListadoItem) => {
@@ -168,7 +168,7 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
     } catch (err: any) {
       if (err?.status === 401) {
         setError('Debes iniciar sesión para eliminar desafíos.')
-        navigate('/login')
+        navigate('/login-admin')
       } else if (err?.status === 403) {
         setError('No tienes permiso para eliminar desafíos.')
       } else if (err?.status === 404) {
@@ -207,7 +207,7 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
         <h1>Gestionar Desafíos</h1>
         <button
           className="listado-desafios-admin-btn-nuevo"
-          onClick={() => navigate('/desafios/publicar')}
+          onClick={() => navigate('/admin/desafios/nuevo')}
         >
           + Publicar Desafío
         </button>
@@ -216,23 +216,24 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
       {error && (
         <div className="listado-desafios-admin-error" role="alert">
           {error}
+          <button type="button" onClick={() => cargarDesafios(null, false)}>Reintentar</button>
         </div>
       )}
 
-      <main className="listado-desafios-admin-contenedor">
-        {desafios.length === 0 && !cargando && (
+      <div className="listado-desafios-admin-contenedor">
+        {desafios.length === 0 && !cargando && !error && (
           <div className="listado-desafios-admin-vacio">
             <p>No hay desafíos para mostrar.</p>
             <button
               className="listado-desafios-admin-btn-vacio"
-              onClick={() => navigate('/desafios/publicar')}
+              onClick={() => navigate('/admin/desafios/nuevo')}
             >
               Crear primer desafío
             </button>
           </div>
         )}
 
-        <table className="listado-desafios-admin-tabla" role="grid">
+        <div className="admin-table-scroll" role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="listado-desafios-admin-tabla" role="grid">
           <thead>
             <tr>
               <th>Nombre</th>
@@ -287,7 +288,7 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
 
         {cargando && (
           <div className="listado-desafios-admin-cargando">
@@ -306,7 +307,7 @@ export const ListadoDesafiosAdminPage: React.FC = () => {
             </button>
           </div>
         )}
-      </main>
+      </div>
 
       {mostrarConfirmacionEliminar && desafioAEliminar && (
         <ConfirmarAccionDestructiva

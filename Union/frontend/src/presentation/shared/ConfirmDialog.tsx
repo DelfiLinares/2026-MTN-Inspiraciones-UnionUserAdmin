@@ -21,6 +21,7 @@
  */
 
 import React from 'react'
+import { useModalFocus } from '../admin/useModalFocus'
 import type { ConfirmDialogProps } from './ConfirmDialog.types'
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -30,8 +31,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancelar,
   cargando = false,
 }) => {
+  const modalRef = useModalFocus(true, onCancelar, cargando)
   return (
-    <div className="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-titulo">
+    <div className="confirm-dialog" role="dialog" ref={modalRef} tabIndex={-1} aria-modal="true" aria-labelledby="confirm-dialog-titulo">
       <div className="confirm-dialog__contenido">
         <h2 id="confirm-dialog-titulo" className="confirm-dialog__titulo">
           {titulo}

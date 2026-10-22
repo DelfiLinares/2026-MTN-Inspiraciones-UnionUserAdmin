@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react'
+import { AdminHeading } from '../../../presentation/admin/AdminUI'
 import { useParams, useNavigate } from 'react-router-dom'
-import { httpClient } from '../../../infrastructure/httpClient'
+import { httpClientAdmin as httpClient } from '../../../infrastructure/httpClientAdmin'
 import { FormularioDesafio } from '../../../desafios/components/FormularioDesafio'
 import { ConfirmarAccionDestructiva } from '../../../desafios/components/ConfirmarAccionDestructiva'
 import { Desafio } from '../../../domain/Desafio'
@@ -223,14 +224,14 @@ export const EditarDesafioPage: React.FC = () => {
 
       if (respuesta?.id) {
         // Éxito: redirigir a la página de detalle del desafío
-        navigate(`/desafios/${respuesta.id}`, { state: { editado: true } })
+        navigate('/admin/desafios', { state: { editado: true } })
       } else {
         setError('No se pudo guardar el desafío. Intentá nuevamente.')
       }
     } catch (err: any) {
       if (err?.status === 401) {
         setError('Debes iniciar sesión para editar un desafío.')
-        navigate('/login')
+        navigate('/login-admin')
       } else if (err?.status === 403) {
         setError('No tienes permiso para editar desafíos. Se requiere ser administrador.')
       } else if (err?.status === 404) {
@@ -265,6 +266,7 @@ export const EditarDesafioPage: React.FC = () => {
   if (cargando) {
     return (
       <div className="editar-desafio-page">
+        <AdminHeading titulo="Editar Desafío" descripcion="Modificá la consigna, las imágenes y las fechas del desafío." />
         <div className="editar-desafio-cargando">Cargando desafío...</div>
       </div>
     )
@@ -273,6 +275,7 @@ export const EditarDesafioPage: React.FC = () => {
   if (error && !desafio) {
     return (
       <div className="editar-desafio-page">
+        <AdminHeading titulo="Editar Desafío" descripcion="Modificá la consigna, las imágenes y las fechas del desafío." />
         <div className="editar-desafio-error">{error}</div>
       </div>
     )
@@ -287,7 +290,7 @@ export const EditarDesafioPage: React.FC = () => {
         </p>
       </header>
 
-      <main className="editar-desafio-contenedor">
+      <div className="editar-desafio-contenedor">
         {error && (
           <div className="editar-desafio-error-inline" role="alert">
             {error}
@@ -322,7 +325,7 @@ export const EditarDesafioPage: React.FC = () => {
             Los cambios se guardan en la base de datos inmediatamente después de la confirmación.
           </p>
         </aside>
-      </main>
+      </div>
 
       {mostrarConfirmacion && (
         <ConfirmarAccionDestructiva

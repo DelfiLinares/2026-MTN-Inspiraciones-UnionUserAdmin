@@ -164,7 +164,7 @@ export const UsuarioAccionesSensibles: React.FC<UsuarioAccionesSensiblesProps> =
   return (
     <div className="flex flex-col space-y-2">
       <div className="flex flex-wrap gap-2" role="group" aria-label={`Acciones sensibles sobre ${usuario.nombre}`}>
-        {configuraciones.map((config) => (
+        {configuraciones.filter((config) => config.clave !== 'degradar').map((config) => (
           <button
             key={config.clave}
             type="button"

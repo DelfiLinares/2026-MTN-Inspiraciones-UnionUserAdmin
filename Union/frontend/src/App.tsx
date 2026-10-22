@@ -11,15 +11,23 @@
  */
 
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, useLocation } from 'react-router-dom'
 import { AuthProvider } from './services/AuthContext'
 import { AppRoutes } from './routes'
+import { AppRouterAdmin } from './presentation/AppRouterAdmin'
+
+const RUTAS_CONSOLA_ADMIN = /^\/(?:login-admin(?:\/|$)|admin(?:\/|$)|(?:usuarios|publicaciones|promocion|reportes)\/?$)/
+
+const Raiz: React.FC = () => {
+  const { pathname } = useLocation()
+  return RUTAS_CONSOLA_ADMIN.test(pathname) ? <AppRouterAdmin /> : <AppRoutes />
+}
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <Raiz />
       </AuthProvider>
     </BrowserRouter>
   )

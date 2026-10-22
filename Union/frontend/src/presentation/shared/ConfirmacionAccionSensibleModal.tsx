@@ -25,6 +25,7 @@
  */
 
 import React from 'react'
+import { useModalFocus } from '../admin/useModalFocus'
 
 export type VarianteAccionSensible = 'peligro' | 'advertencia' | 'informativa' | 'neutra'
 
@@ -74,6 +75,7 @@ export const ConfirmacionAccionSensibleModal: React.FC<ConfirmacionAccionSensibl
   onConfirmar,
   onCancelar,
 }) => {
+  const modalRef = useModalFocus(abierto, onCancelar, confirmando)
   if (!abierto) {
     return null
   }
@@ -84,6 +86,8 @@ export const ConfirmacionAccionSensibleModal: React.FC<ConfirmacionAccionSensibl
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
       role="dialog"
+      ref={modalRef}
+      tabIndex={-1}
       aria-modal="true"
       aria-labelledby="confirmacion-accion-sensible-titulo"
     >

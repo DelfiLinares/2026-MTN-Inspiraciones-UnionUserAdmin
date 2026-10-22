@@ -12,6 +12,7 @@
  */
 
 import React from 'react'
+import { useModalFocus } from '../presentation/admin/useModalFocus'
 
 export type VarianteConfirmacion = 'peligro' | 'advertencia' | 'informativa'
 
@@ -69,6 +70,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirmar,
   onCancelar,
 }) => {
+  const modalRef = useModalFocus(abierto, onCancelar, confirmando)
   if (!abierto) {
     return null
   }
@@ -79,6 +81,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
       role="dialog"
+      ref={modalRef}
+      tabIndex={-1}
       aria-modal="true"
       aria-labelledby="confirm-dialog-titulo"
     >

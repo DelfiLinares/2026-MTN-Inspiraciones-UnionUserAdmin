@@ -21,6 +21,7 @@
  */
 
 import React, { useEffect, useState } from 'react'
+import './admin/admin.css'
 import { Navigate } from 'react-router-dom'
 import { validarAccesoAdmin, SesionExpiradaError, RolNoAutorizadoError } from '../infrastructure/sessionGuard'
 
@@ -68,8 +69,8 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({ children }) => {
 
   if (verificando) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-500">Verificando sesión administrativa...</p>
+      <div className="admin-console">
+        <div className="admin-empty" role="status"><p>Verificando sesión administrativa...</p></div>
       </div>
     )
   }

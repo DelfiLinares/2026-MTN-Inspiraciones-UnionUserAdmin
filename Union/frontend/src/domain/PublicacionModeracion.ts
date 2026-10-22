@@ -2,6 +2,8 @@ import { EstadoPublicacionAdmin as EstadoPublicacion } from './enums/EstadoPubli
 import { MotivoReporteAdmin as MotivoReporte } from './enums/MotivoReporteAdmin'
 
 export interface PublicacionModeracionProps {
+  contenido?: string
+  titulo?: string
   id: string
   autorId: string
   estado: EstadoPublicacion
@@ -26,6 +28,8 @@ export interface PublicacionModeracionProps {
  * social de `001-plataforma-unificada`).
  */
 export class PublicacionModeracion {
+  readonly contenido: string
+  readonly titulo?: string
   readonly id: string
   readonly autorId: string
   estado: EstadoPublicacion
@@ -33,6 +37,8 @@ export class PublicacionModeracion {
   readonly motivosReporte: MotivoReporte[]
 
   constructor(props: PublicacionModeracionProps) {
+    this.contenido = props.contenido ?? ''
+    this.titulo = props.titulo
     this.id = props.id
     this.autorId = props.autorId
     this.estado = props.estado

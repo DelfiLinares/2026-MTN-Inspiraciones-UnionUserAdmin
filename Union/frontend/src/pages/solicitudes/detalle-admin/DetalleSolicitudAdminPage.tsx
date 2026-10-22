@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react'
+import { AdminHeading } from '../../../presentation/admin/AdminUI'
 import { useNavigate, useParams } from 'react-router-dom'
-import { httpClient } from '../../../infrastructure/httpClient'
+import { httpClientAdmin as httpClient } from '../../../infrastructure/httpClientAdmin'
 import { SolicitudDesafio } from '../../../domain/SolicitudDesafio'
 import { Foto } from '../../../domain/Foto'
 import { RangoFechas } from '../../../domain/RangoFechas'
@@ -74,7 +75,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
         // Cargar solicitud
         if (!solicitudId) {
           setError('ID de solicitud no proporcionado.')
-          navigate('/solicitudes')
+          navigate('/admin/solicitudes')
           return
         }
 
@@ -131,13 +132,11 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
       } catch (err: any) {
         if (err?.status === 401) {
           setError('Debes iniciar sesión para acceder a esta solicitud.')
-          navigate('/login')
+          navigate('/login-admin')
         } else if (err?.status === 403) {
           setError('No tienes permiso para acceder a esta solicitud.')
-          navigate('/solicitudes')
         } else if (err?.status === 404) {
           setError('La solicitud no existe o ha sido eliminada.')
-          navigate('/solicitudes')
         } else {
           setError('Error al cargar la solicitud. Intentá nuevamente.')
         }
@@ -218,12 +217,12 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
       } catch (err: any) {
         if (err?.status === 401) {
           setError('Tu sesión expiró. Iniciá sesión nuevamente.')
-          navigate('/login')
+          navigate('/login-admin')
         } else if (err?.status === 403) {
           setError('No tienes permiso para editar esta solicitud.')
         } else if (err?.status === 404) {
           setError('La solicitud ya no existe.')
-          navigate('/solicitudes')
+          navigate('/admin/solicitudes')
         } else if (err?.status === 409) {
           setError('La solicitud fue modificada por otro proceso. Recargá la página.')
         } else {
@@ -245,16 +244,16 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
     try {
       await httpClient.delete(`/solicitudes/${solicitud.id}`)
       // Redirigir a la bandeja
-      navigate('/solicitudes')
+      navigate('/admin/solicitudes')
     } catch (err: any) {
       if (err?.status === 401) {
         setError('Tu sesión expiró. Iniciá sesión nuevamente.')
-        navigate('/login')
+        navigate('/login-admin')
       } else if (err?.status === 403) {
         setError('No tienes permiso para eliminar esta solicitud.')
       } else if (err?.status === 404) {
         setError('La solicitud ya no existe.')
-        navigate('/solicitudes')
+        navigate('/admin/solicitudes')
       } else {
         setError('Error al eliminar la solicitud. Intentá nuevamente.')
       }
@@ -267,6 +266,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
   if (cargando) {
     return (
       <div className="detalle-solicitud-admin-page">
+        <AdminHeading titulo="Editar Solicitud" descripcion="Consultá la propuesta y administrá su contenido." />
         <div className="detalle-solicitud-admin-cargando">
           <p>Cargando solicitud...</p>
         </div>
@@ -277,8 +277,10 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
   if (!solicitud) {
     return (
       <div className="detalle-solicitud-admin-page">
+        <AdminHeading titulo="Editar Solicitud" descripcion="Consultá la propuesta y administrá su contenido." />
         <div className="detalle-solicitud-admin-error-principal">
           <p>{error || 'No se pudo cargar la solicitud.'}</p>
+          <button type="button" onClick={() => navigate('/admin/solicitudes')}>Volver a solicitudes</button>
         </div>
       </div>
     )
@@ -289,7 +291,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
       <header className="detalle-solicitud-admin-header">
         <button
           className="detalle-solicitud-admin-volver"
-          onClick={() => navigate('/solicitudes')}
+          onClick={() => navigate('/admin/solicitudes')}
           aria-label="Volver a la bandeja de solicitudes"
         >
           ← Volver
@@ -307,7 +309,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
         </div>
       )}
 
-      <main className="detalle-solicitud-admin-contenedor">
+      <div className="detalle-solicitud-admin-contenedor">
         <section className="detalle-solicitud-admin-formulario-contenedor">
           <FormularioSolicitud
             solicitudInicial={solicitud}
@@ -334,7 +336,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
             </p>
           </div>
         </aside>
-      </main>
+      </div>
 
       <ConfirmarAccionDestructiva
         caso="eliminar-solicitud"

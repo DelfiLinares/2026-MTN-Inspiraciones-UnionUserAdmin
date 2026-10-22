@@ -85,15 +85,16 @@ export const PublicacionesTable: React.FC<PublicacionesTableProps> = ({ httpClie
         </label>
       </div>
 
-      {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
+      {mensajeError !== null && <><MensajeError mensaje={mensajeError} /><button type="button" onClick={cargarPublicaciones}>Reintentar</button></>}
+      {cargando && <p role="status">Cargando publicaciones...</p>}
 
-      {!cargando && items.length === 0 ? (
+      {!cargando && mensajeError === null && items.length === 0 ? (
         <EstadoVacio mensaje="No hay publicaciones para mostrar." />
       ) : (
-        <table className="admin-tabla">
+        <div className="admin-table-scroll" hidden={cargando || mensajeError !== null} role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="admin-tabla">
           <thead>
             <tr>
-              <th>Id</th>
+              <th>Publicación</th>
               <th>Autor</th>
               <th>Estado</th>
               <th>Reportes</th>
@@ -103,7 +104,7 @@ export const PublicacionesTable: React.FC<PublicacionesTableProps> = ({ httpClie
           <tbody>
             {items.map((publicacion) => (
               <tr key={publicacion.id}>
-                <td>{publicacion.id}</td>
+                <td><strong>{publicacion.titulo || publicacion.contenido.slice(0, 90) || 'Publicación sin título'}</strong><small className="admin-record-id">{publicacion.id}</small></td>
                 <td>{publicacion.autorId}</td>
                 <td>{publicacion.estado}</td>
                 <td>{publicacion.cantidadReportes}</td>
@@ -111,7 +112,7 @@ export const PublicacionesTable: React.FC<PublicacionesTableProps> = ({ httpClie
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
 
       <div className="publicaciones-table__paginacion">

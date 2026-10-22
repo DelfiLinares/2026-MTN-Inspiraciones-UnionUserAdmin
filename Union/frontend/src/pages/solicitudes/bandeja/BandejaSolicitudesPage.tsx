@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { httpClient } from '../../../infrastructure/httpClient'
+import { httpClientAdmin as httpClient } from '../../../infrastructure/httpClientAdmin'
 import './bandeja-solicitudes.css'
 
 interface SolicitudDto {
@@ -147,7 +147,7 @@ export const BandejaSolicitudesPage: React.FC = () => {
     } catch (err: any) {
       if (err?.status === 401) {
         setError('Debes iniciar sesión para aprobar solicitudes.')
-        navigate('/login')
+        navigate('/login-admin')
       } else if (err?.status === 403) {
         setError('No tienes permiso para aprobar solicitudes.')
       } else if (err?.status === 404) {
@@ -178,7 +178,7 @@ export const BandejaSolicitudesPage: React.FC = () => {
     } catch (err: any) {
       if (err?.status === 401) {
         setError('Debes iniciar sesión para rechazar solicitudes.')
-        navigate('/login')
+        navigate('/login-admin')
       } else if (err?.status === 403) {
         setError('No tienes permiso para rechazar solicitudes.')
       } else if (err?.status === 404) {
@@ -228,11 +228,12 @@ export const BandejaSolicitudesPage: React.FC = () => {
       {error && (
         <div className="bandeja-solicitudes-error" role="alert">
           {error}
+          <button type="button" onClick={() => cargarSolicitudes(null, false)}>Reintentar</button>
         </div>
       )}
 
-      <main className="bandeja-solicitudes-contenedor">
-        {solicitudes.length === 0 && !cargando && (
+      <div className="bandeja-solicitudes-contenedor">
+        {solicitudes.length === 0 && !cargando && !error && (
           <div className="bandeja-solicitudes-vacio">
             <p>No hay solicitudes pendientes para revisar.</p>
             <p className="bandeja-solicitudes-subtexto">
@@ -254,7 +255,7 @@ export const BandejaSolicitudesPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="bandeja-solicitudes-acciones">
+              <div className="bandeja-solicitudes-acciones"><button type="button" onClick={() => navigate(`/admin/solicitudes/${solicitud.id}`)}>Ver y editar solicitud</button>
                 <button
                   className="bandeja-solicitudes-btn-aprobar"
                   onClick={() => handleAprobar(solicitud)}
@@ -293,23 +294,9 @@ export const BandejaSolicitudesPage: React.FC = () => {
             </button>
           </div>
         )}
-      </main>
+      </div>
 
-      <aside className="bandeja-solicitudes-nota">
-        <h3>Nota importante</h3>
-        <p>
-          <strong>Aprobar:</strong> Solo cambia el estado de la solicitud a APROBADA. Publicar el
-          desafío es un paso aparte que debe hacer desde la sección de desafíos.
-        </p>
-        <p>
-          <strong>Caso borde CB-03:</strong> Si una solicitud fue eliminada por el usuario mientras
-          la estabas aprobando, verás un mensaje de error.
-        </p>
-        <p>
-          <strong>Caso borde CB-06:</strong> Una solicitud que ya está APROBADA o RECHAZADA no puede
-          volver a PENDIENTE.
-        </p>
-      </aside>
+<aside className="bandeja-solicitudes-nota"><h3>Después de aprobar</h3><p>La aprobación cambia el estado de la solicitud. Para que la comunidad pueda participar, publicá el desafío desde la sección Desafíos.</p></aside>
     </div>
   )
 }

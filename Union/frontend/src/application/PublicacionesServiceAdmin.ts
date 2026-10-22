@@ -47,6 +47,9 @@ export class PublicacionNoEliminableError extends Error {
 }
 
 export interface PublicacionModeracionDto {
+  descripcion?: string
+  titulo?: string
+  contenido?: string
   id: string
   autorId: string
   estado: string
@@ -71,6 +74,8 @@ export interface CambiosEdicionPublicacion {
 
 function mapearPublicacionModeracion(dto: PublicacionModeracionDto): PublicacionModeracion {
   return new PublicacionModeracion({
+    contenido: dto.descripcion ?? dto.contenido,
+    titulo: dto.titulo,
     id: dto.id,
     autorId: dto.autorId,
     estado: (dto.estado as EstadoPublicacion) || EstadoPublicacion.ACTIVA,
@@ -118,7 +123,7 @@ export class PublicacionesServiceAdmin {
       throw new PublicacionNoEditableError()
     }
 
-    await this.client.patch<void>(apiEndpointsAdmin.publicacion(publicacion.id), cambios)
+    await this.client.patch<void>(apiEndpointsAdmin.publicacion(publicacion.id), { descripcion: cambios.contenido })
   }
 
   /**

@@ -77,7 +77,7 @@ export const EditarPublicacionForm: React.FC<EditarPublicacionFormProps> = ({
             aria-label="Contenido de la publicación"
           />
         </label>
-        <button type="submit">Guardar</button>
+        <button type="submit" disabled={cargando || !publicacion.puedeSerEditada()}>Guardar</button>
       </form>
 
       {dialogoAbierto && (

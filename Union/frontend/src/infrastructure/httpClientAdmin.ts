@@ -17,6 +17,7 @@
 
 import type { HttpClient, HttpRequestOptions } from '../application/ports/HttpClient'
 import { config } from './config'
+import { opcionesListadoAdmin, respuestaListadoAdmin } from './adaptadorListadosAdmin'
 
 export class HttpError extends Error {
   constructor(
@@ -166,8 +167,9 @@ async function ejecutarRequest<T>(
 }
 
 export const httpClientAdmin: HttpClient = {
-  get<T>(path: string, options?: HttpRequestOptions): Promise<T> {
-    return ejecutarRequest<T>(path, { method: 'GET' }, options)
+  async get<T>(path: string, options?: HttpRequestOptions): Promise<T> {
+    const respuesta = await ejecutarRequest<T>(path, { method: 'GET' }, opcionesListadoAdmin(path, options))
+    return respuestaListadoAdmin(path, respuesta)
   },
 
   post<T>(path: string, body?: unknown, options?: HttpRequestOptions): Promise<T> {

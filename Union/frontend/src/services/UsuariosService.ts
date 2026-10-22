@@ -125,14 +125,14 @@ export async function banearUsuario(
 
   const dto = await httpClientAdmin.post<UsuarioAdminDto>(
     apiEndpoints.banearUsuario(usuario.id),
-    undefined,
+    { permanente: true },
     options
   )
   return mapearUsuarioAdmin(dto)
 }
 
 /**
- * Elimina un usuario (`DELETE /admin/usuarios/{id}`, RF-58).
+ * Elimina un usuario (`POST /admin/usuarios/{id}/eliminar`, contrato actual del backend).
  * Valida previamente con `usuario.puedeSerEliminado()` para impedir eliminar a administradores
  * o a uno mismo (CB-11, AC-12.5).
  */
@@ -145,7 +145,7 @@ export async function eliminarUsuario(
     throw new AccionAccesoAdminProhibidaError(MENSAJE_PROHIBIDO_ADMIN_O_UNO_MISMO)
   }
 
-  await httpClientAdmin.delete<void>(apiEndpoints.eliminarUsuario(usuario.id), options)
+  await httpClientAdmin.post<void>(`${apiEndpoints.usuarios()}/${encodeURIComponent(usuario.id)}/eliminar`, undefined, options)
 }
 
 /**

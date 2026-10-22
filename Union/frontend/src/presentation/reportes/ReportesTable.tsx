@@ -81,12 +81,13 @@ export const ReportesTable: React.FC<ReportesTableProps> = ({ httpClient, filtro
 
   return (
     <div className="reportes-table">
-      {mensajeError !== null && <MensajeError mensaje={mensajeError} />}
+      {mensajeError !== null && <><MensajeError mensaje={mensajeError} /><button type="button" onClick={cargarReportes}>Reintentar</button></>}
+      {cargando && <p role="status">Cargando reportes...</p>}
 
-      {!cargando && items.length === 0 ? (
+      {!cargando && mensajeError === null && items.length === 0 ? (
         <EstadoVacio mensaje="No hay reportes para mostrar." />
       ) : (
-        <table className="admin-tabla">
+        <div className="admin-table-scroll" hidden={cargando || mensajeError !== null} role="region" aria-label="Tabla con desplazamiento horizontal" tabIndex={0}><table className="admin-tabla">
           <thead>
             <tr>
               <th>Id</th>
@@ -107,7 +108,7 @@ export const ReportesTable: React.FC<ReportesTableProps> = ({ httpClient, filtro
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
 
       <div className="reportes-table__paginacion">
