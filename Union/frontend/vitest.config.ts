@@ -23,6 +23,7 @@ export default defineConfig({
       'tests/application/**/*.test.{ts,tsx}',
       'tests/presentation/**/*.test.{ts,tsx}',
       'tests/integration/**/*.test.{ts,tsx}',
+      'tests/recuperacion/**/*.test.{ts,tsx}',
       // `tests/services` es la suite preexistente del frontend de usuario (001-plataforma-unificada),
       // anterior a la estructura de 002-frontend-admin. Se mantiene incluida para no romper la
       // cobertura ya existente; no forma parte de las 4 carpetas exigidas por RNF-09.

@@ -60,8 +60,8 @@ export async function login(credenciales: LoginCredentials | { email: string; pa
     return await mailPasswordProvider.iniciarSesion(credenciales)
   } catch (error) {
     if (error instanceof ApiError || error instanceof HttpForbiddenError) {
-      const cuerpo = error.body as { error?: string; codigo?: string } | undefined
-      const errorCodigo = cuerpo?.error ?? cuerpo?.codigo
+      const cuerpo = error.body as { error?: string; codigo?: string; code?: string } | undefined
+      const errorCodigo = cuerpo?.error ?? cuerpo?.codigo ?? cuerpo?.code
 
       if (error.status === 403 || errorCodigo === 'CUENTA_BANEADA' || errorCodigo === 'CUENTA_ELIMINADA') {
         tokenStorage.clearToken()

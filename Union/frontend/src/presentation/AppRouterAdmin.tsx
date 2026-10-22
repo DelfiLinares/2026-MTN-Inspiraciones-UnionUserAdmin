@@ -20,6 +20,7 @@ import { PublicarDesafioPage } from '../pages/desafios/publicar'
 import { EditarDesafioPage } from '../pages/desafios/editar'
 import { BandejaSolicitudesPage } from '../pages/solicitudes/bandeja'
 import { DetalleSolicitudAdminPage } from '../pages/solicitudes/detalle-admin'
+import { ApelacionesAdminPage } from './apelaciones'
 
 function DetalleModeracionRuta() {
   const { reporteId } = useParams()
@@ -51,6 +52,7 @@ export const AppRouterAdmin: React.FC = () => (
       <Route path="solicitudes/:solicitudId" element={<DetalleSolicitudAdminPage />} />
       <Route path="reportes" element={<ReportesAnaliticaPage />} />
       <Route path="reportes/gestion" element={<ReportesPage httpClient={httpClientAdmin} />} />
+      <Route path="apelaciones" element={<ApelacionesAdminPage />} />
       <Route path="*" element={<AdminNoEncontrado />} />
     </Route>
   </Routes>

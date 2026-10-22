@@ -103,4 +103,12 @@ export const apiEndpoints = {
   iniciarExportacionReporteAnalitica: () => '/admin/reportes/exportar',
   descargarExportacionReporteAnalitica: (exportacionId: string) =>
     `/admin/reportes-analiticas/exportaciones/${exportacionId}/descarga`,
+
+  // Recuperación de cuenta y contraseña (spec 008)
+  solicitarCodigoRecuperacion: () => '/auth/password-reset/request',
+  confirmarRestablecimiento: () => '/auth/password-reset/confirm',
+  enviarApelacion: () => '/auth/appeals',
+  apelacionesAdmin: () => '/admin/apelaciones',
+  aceptarApelacion: (apelacionId: string) => `/admin/apelaciones/${apelacionId}/aceptar`,
+  rechazarApelacion: (apelacionId: string) => `/admin/apelaciones/${apelacionId}/rechazar`,
 } as const

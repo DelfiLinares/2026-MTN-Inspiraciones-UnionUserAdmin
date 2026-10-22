@@ -16,6 +16,8 @@ import { MisSolicitudesPage } from '../pages/desafios/mis-solicitudes'
 import { NuevaSolicitudPage } from '../pages/desafios/nueva-solicitud'
 import { CarpetaPostsPage } from '../presentation/carpetas/CarpetaPostsPage'
 import { CuestionarioPage } from '../presentation/cuestionario/CuestionarioPage'
+import { RecuperarContrasenaPage } from '../pages/recuperar'
+import { ApelarSuspensionPage } from '../pages/apelacion'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -52,6 +54,23 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaPublicaDeAutenticacion>
             <RegistroPage />
+          </RutaPublicaDeAutenticacion>
+        }
+      />
+
+      <Route
+        path="/recuperar-contrasena"
+        element={
+          <RutaPublicaDeAutenticacion>
+            <RecuperarContrasenaPage />
+          </RutaPublicaDeAutenticacion>
+        }
+      />
+      <Route
+        path="/apelar-suspension"
+        element={
+          <RutaPublicaDeAutenticacion>
+            <ApelarSuspensionPage />
           </RutaPublicaDeAutenticacion>
         }
       />
