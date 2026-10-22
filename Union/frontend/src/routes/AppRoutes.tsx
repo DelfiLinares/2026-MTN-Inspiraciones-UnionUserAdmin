@@ -26,6 +26,8 @@ import { RegistroPage } from '../pages/registro'
 import { HomePage } from '../pages/home'
 import { PerfilPage } from '../pages/perfil'
 import { EditarPerfilPage } from '../pages/editar-perfil'
+import { RecuperarContrasenaPage } from '../pages/recuperar'
+import { ApelarSuspensionPage } from '../pages/apelacion'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -62,6 +64,23 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaPublicaDeAutenticacion>
             <RegistroPage />
+          </RutaPublicaDeAutenticacion>
+        }
+      />
+
+      <Route
+        path="/recuperar-contrasena"
+        element={
+          <RutaPublicaDeAutenticacion>
+            <RecuperarContrasenaPage />
+          </RutaPublicaDeAutenticacion>
+        }
+      />
+      <Route
+        path="/apelar-suspension"
+        element={
+          <RutaPublicaDeAutenticacion>
+            <ApelarSuspensionPage />
           </RutaPublicaDeAutenticacion>
         }
       />

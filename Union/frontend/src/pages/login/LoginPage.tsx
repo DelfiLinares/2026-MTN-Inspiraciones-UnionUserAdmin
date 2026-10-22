@@ -36,13 +36,16 @@ export const LoginPage: React.FC = () => {
 
   // Determinar la ruta de destino original tras el login (fallback a /feed)
   const estadoNavegacion = location.state as
-    | { from?: { pathname: string }; mensaje?: string }
+    | { from?: { pathname: string }; mensaje?: string; mensajeExito?: string }
     | undefined
   const destinoPostLogin = estadoNavegacion?.from?.pathname ?? '/feed'
+  const mensajeExito = estadoNavegacion?.mensajeExito ?? null
 
   // RF-78 / Resuelto A14: refuerzo de mensaje cuando `RutaProtegida` (T094) redirige aquí
   // tras rechazar una sesión ADMIN persistida que intentaba operar en `frontend/`.
   const [errorMensaje, setErrorMensaje] = useState<string | null>(estadoNavegacion?.mensaje ?? null)
+  // Spec 008 (HU-05): ante una cuenta suspendida se ofrece apelar.
+  const [ofrecerApelacion, setOfrecerApelacion] = useState(false)
 
   const handleSubmitMailPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,6 +58,7 @@ export const LoginPage: React.FC = () => {
 
     setEnviando(true)
     setErrorMensaje(null)
+    setOfrecerApelacion(false)
 
     try {
       const resultado = await authService.login({ mail: mailLimpio, password })
@@ -75,6 +79,7 @@ export const LoginPage: React.FC = () => {
       if (err instanceof CuentaBloqueadaError) {
         // AC-04.9, RF-77: Mensaje específico para cuenta BANEADA o ELIMINADA
         setErrorMensaje(err.message)
+        setOfrecerApelacion(err.codigo === 'CUENTA_BANEADA')
       } else {
         // RF-03: Mensaje genérico de credenciales inválidas
         setErrorMensaje(MENSAJE_CREDENCIALES_INVALIDAS)
@@ -105,12 +110,25 @@ export const LoginPage: React.FC = () => {
         </h1>
 
         <form className="login-form" onSubmit={handleSubmitMailPassword}>
+          {mensajeExito && (
+            <div className="login-success" role="status">
+              <span>{mensajeExito}</span>
+            </div>
+          )}
           {errorMensaje && (
             <div className="login-error" role="alert">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>{errorMensaje}</span>
+              <span>
+                {errorMensaje}
+                {ofrecerApelacion && (
+                  <>
+                    {' '}
+                    <Link to="/apelar-suspension">Apelar suspensión</Link>
+                  </>
+                )}
+              </span>
             </div>
           )}
 
@@ -140,9 +158,9 @@ export const LoginPage: React.FC = () => {
             />
           </div>
 
-          <a className="login-forgot" href="#recuperar">
+          <Link className="login-forgot" to="/recuperar-contrasena">
             ¿Olvidaste tu contraseña?
-          </a>
+          </Link>
 
           <button
             className="login-primary-button"

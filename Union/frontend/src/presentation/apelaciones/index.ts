@@ -1,0 +1,1 @@
+export { ApelacionesAdminPage } from './ApelacionesAdminPage'

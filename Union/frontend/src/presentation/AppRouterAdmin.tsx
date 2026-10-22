@@ -29,6 +29,7 @@ import { UsuariosListadoPage } from './usuarios'
 import { ModeracionListado } from './moderacion'
 import { DesafiosAdminPage } from './desafios'
 import { ReportesAnaliticaPage } from './reportes'
+import { ApelacionesAdminPage } from './apelaciones'
 
 export const AppRouterAdmin: React.FC = () => {
   return (
@@ -74,6 +75,14 @@ export const AppRouterAdmin: React.FC = () => {
         element={
           <RequireAdmin>
             <ReportesAnaliticaPage />
+          </RequireAdmin>
+        }
+      />
+      <Route
+        path="/admin/apelaciones"
+        element={
+          <RequireAdmin>
+            <ApelacionesAdminPage />
           </RequireAdmin>
         }
       />
