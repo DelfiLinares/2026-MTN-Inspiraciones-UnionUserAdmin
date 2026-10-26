@@ -66,6 +66,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: testing
     timeout-minutes: 5
     permissions: {}
     steps:

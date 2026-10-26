@@ -117,7 +117,8 @@ Se publica una imagen `linux/amd64` para servidores x86_64 con dos etiquetas:
 - `ghcr.io/delfilinares/2026-mtn-inspiraciones-unionuseradmin:latest`
 - `ghcr.io/delfilinares/2026-mtn-inspiraciones-unionuseradmin:sha-<commit completo>`
 
-Solo `dev` publica y despliega; los pushes a otras ramas no lo hacen.
+Solo `dev` publica y despliega, usando el environment `testing`; los pushes
+a otras ramas no lo hacen. El environment `production` no se utiliza.
 Las ejecuciones se serializan para que no compitan por la etiqueta `latest`.
 La imagen se compila con Node.js y se sirve con Nginx en el **puerto interno 80**.
 Las rutas SPA, como `/login-admin`, funcionan también al recargar.
@@ -157,8 +158,8 @@ llama a la [API de despliegue de Dokploy](https://docs.dokploy.com/docs/core/aut
 
 ### 2. Configurar GitHub Actions (una sola vez)
 
-En el repositorio, abrí **Settings → Secrets and variables → Actions** y
-creá estos **Repository secrets**:
+En el repositorio, abrí **Settings → Environments → testing** y creá estos
+**Environment secrets** (no variables):
 
 | Secret | Valor |
 | --- | --- |
@@ -166,12 +167,19 @@ creá estos **Repository secrets**:
 | `DOKPLOY_API_KEY` | API key generado en Dokploy |
 | `DOKPLOY_APPLICATION_ID` | ID de la Application creada para el frontend |
 
+El job `deploy` declara `environment: testing` para poder leer esos secrets.
+Si configuraste restricciones de ramas en ese environment, permití `dev`;
+si requiere aprobación, autorizá el despliegue cuando GitHub lo solicite.
+Los secrets de `production` quedan reservados y no se leen en este workflow.
+
 Para publicar en GHCR se utiliza el `GITHUB_TOKEN` automático con
 `packages: write`; **no tenés que crear un secret para subir la imagen**.
 Si las políticas de tu organización restringen Actions o Packages, habilitá
 la ejecución del workflow y su permiso de publicación.
 
-En la pestaña **Variables**, configurá las variables públicas que necesites:
+En **Settings → Secrets and variables → Actions → Variables**, configurá las
+variables públicas que necesites a nivel de **repositorio**: el job de build
+no utiliza un environment.
 
 | Variable | Valor por defecto | Uso |
 | --- | --- | --- |
@@ -206,7 +214,8 @@ nuevamente el workflow. Los archivos `.env` locales no se copian a la imagen.
 3. Revisá **Dokploy → Deployments** para confirmar que terminó y visitá el
    dominio. El éxito del job significa que Dokploy aceptó la solicitud,
    no que el despliegue asíncrono haya terminado.
-4. En adelante, cada push a `dev` repite el proceso sin intervención manual.
+4. En adelante, cada push a `dev` repite el proceso hacia `testing`
+   automáticamente, salvo las aprobaciones que hayas configurado en GitHub.
 
 También se puede ejecutar desde **Actions → Run workflow**, seleccionando
 `dev`. GitHub muestra ese botón cuando el workflow también existe en la
