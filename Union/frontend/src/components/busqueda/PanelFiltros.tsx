@@ -2,9 +2,9 @@ import type { CatalogoFiltros } from '../../domain/busqueda/CatalogoFiltros'
 import type { CriteriosBusqueda } from '../../domain/busqueda/CriteriosBusqueda'
 import type { ErrorBusqueda } from '../../domain/busqueda/ErrorBusqueda'
 import { FiltroActivo } from '../../domain/busqueda/FiltroActivo'
-import { RangoDistancia } from '../../domain/enums/RangoDistancia'
 import { TipoContenido } from '../../domain/enums/TipoContenido'
 import { TipoFiltro } from '../../domain/enums/TipoFiltro'
+import { ControlDistancia } from './ControlDistancia'
 import { SelectorFiltroCatalogo } from './SelectorFiltroCatalogo'
 import './busqueda.css'
 
@@ -22,12 +22,6 @@ const TIPOS_CONTENIDO = [
   { valor: TipoContenido.VIDEO, etiqueta: 'Video' },
   { valor: TipoContenido.MUSICA, etiqueta: 'Música' },
   { valor: TipoContenido.TUTORIAL, etiqueta: 'Tutorial' },
-]
-
-const RANGOS_DISTANCIA = [
-  { valor: RangoDistancia.KM_5, etiqueta: 'Hasta 5 km' },
-  { valor: RangoDistancia.KM_25, etiqueta: 'Hasta 25 km' },
-  { valor: RangoDistancia.KM_100, etiqueta: 'Hasta 100 km' },
 ]
 
 const GRUPOS_DE_CATALOGO = [
@@ -54,10 +48,6 @@ export function PanelFiltros({
     if (marcado) onAplicar(filtro)
     else onQuitar(filtro)
   }
-
-  const distanciaAdmitida = criterios.admiteFiltro(TipoFiltro.DISTANCIA, {
-    ubicacionConcedida: false,
-  })
 
   return (
     <section className="panel-filtros" aria-label="Filtros">
@@ -89,17 +79,10 @@ export function PanelFiltros({
         onCambiar={cambiar(TipoFiltro.TIPO_CONTENIDO)}
       />
 
-      <SelectorFiltroCatalogo
-        titulo="Distancia"
-        opciones={RANGOS_DISTANCIA}
-        seleccionados={criterios.valoresDe(TipoFiltro.DISTANCIA)}
-        onCambiar={cambiar(TipoFiltro.DISTANCIA)}
-        deshabilitado={!distanciaAdmitida}
-        aviso={
-          distanciaAdmitida
-            ? undefined
-            : 'Necesitamos tu ubicación para filtrar por distancia.'
-        }
+      <ControlDistancia
+        criterios={criterios}
+        onAplicar={onAplicar}
+        onQuitar={onQuitar}
       />
     </section>
   )

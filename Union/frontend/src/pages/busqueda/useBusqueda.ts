@@ -45,7 +45,10 @@ export function useBusqueda(repositorio?: BusquedaRepository): UseBusquedaResult
   useEffect(() => {
     const baja = sesion.suscribir(redibujar)
     void sesion.iniciar()
-    return baja
+    return () => {
+      baja()
+      sesion.destruir()
+    }
   }, [sesion])
 
   const cambiarTexto = useCallback((texto: string) => void sesion.cambiarTexto(texto), [sesion])

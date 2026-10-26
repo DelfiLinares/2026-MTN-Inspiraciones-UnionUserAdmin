@@ -43,6 +43,22 @@ describe('CriteriosBusqueda — origen() y esBuscable()', () => {
     })
   })
 
+  describe('esTextoIncompleto()', () => {
+    it('es falso con texto vacío o solo espacios', () => {
+      expect(CriteriosBusqueda.vacio().esTextoIncompleto()).toBe(false)
+      expect(CriteriosBusqueda.vacio().conTexto('   ').esTextoIncompleto()).toBe(false)
+    })
+
+    it('es verdadero con 1 carácter (se evalúa normalizado)', () => {
+      expect(CriteriosBusqueda.vacio().conTexto('a').esTextoIncompleto()).toBe(true)
+      expect(CriteriosBusqueda.vacio().conTexto('   a   ').esTextoIncompleto()).toBe(true)
+    })
+
+    it('es falso con 2 o más caracteres', () => {
+      expect(CriteriosBusqueda.vacio().conTexto('ab').esTextoIncompleto()).toBe(false)
+    })
+  })
+
   describe('origen()', () => {
     it('es FYP con criterios vacíos', () => {
       expect(CriteriosBusqueda.vacio().origen()).toBe(OrigenFeed.FYP)

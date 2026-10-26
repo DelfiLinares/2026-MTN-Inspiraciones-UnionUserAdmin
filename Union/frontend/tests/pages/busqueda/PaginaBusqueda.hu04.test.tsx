@@ -74,6 +74,17 @@ describe('PaginaBusqueda — HU-04: reinicio al cambiar criterios', () => {
     expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }))
   })
 
+  it('cambiar un filtro lleva el scroll al inicio y reinicia la lista (CA-04.2)', async () => {
+    await conSegundaPagina()
+    scrollTo.mockClear()
+
+    await marcar(/^estilo$/i, 'Abstracto')
+
+    const esperados = todos.filter((d) => d.estilos.includes('abstracto'))
+    await waitFor(() => expect(titulos()).toEqual(titulosDe(esperados).slice(0, TAMANO_PAGINA)))
+    expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }))
+  })
+
   it('una búsqueda en curso de criterios anteriores se cancela o ignora (CA-04.3)', async () => {
     const { espias, originales } = renderizarPagina()
     await esperarTarjetas(TAMANO_PAGINA)

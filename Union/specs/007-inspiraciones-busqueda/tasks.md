@@ -105,7 +105,7 @@ Si se quisiera MSW igualmente, requiere enmendar la constitution del módulo ant
 - [x] **T036** [P] Caso de uso `ObtenerCatalogoFiltros` con manejo de error local. Archivo: `src/application/busqueda/ObtenerCatalogoFiltros.ts`. Dep.: T019
 - [x] **T037** Hook delgado `useBusqueda` que observa `SesionBusqueda` (sin reglas de negocio). Archivo: `src/pages/busqueda/useBusqueda.ts`. Dep.: T034a, T034b, T034c, T025
 - [x] **T038** [P] Hooks `useDebounce` (400 ms) y `useInfiniteScrollSentinel` (IntersectionObserver). Archivos: `src/pages/busqueda/useDebounce.ts`, `src/pages/busqueda/useInfiniteScrollSentinel.ts`. Dep.: T004
-- [ ] **T038b** [EN ESPERA: A-02 diferida al backend] Hook `useUbicacionPermiso` que consume el puerto `UbicacionPort` (no importa `geolocationClient`) y su test. Archivos: `src/pages/busqueda/useUbicacionPermiso.ts`, `tests/components/busqueda/useUbicacionPermiso.test.ts`. Dep.: T060, T004
+- [x] **T038b** [EN ESPERA: A-02 diferida al backend] Hook `useUbicacionPermiso` que consume el puerto `UbicacionPort` (no importa `geolocationClient`) y su test. Archivos: `src/pages/busqueda/useUbicacionPermiso.ts`, `tests/components/busqueda/useUbicacionPermiso.test.ts`. Dep.: T060, T004
 - [x] **T039** [P] Hook `useCriteriosEnUrl` (sincroniza query params ⇄ criterios usando `CodecCriteriosUrl` (T070); `replace` para texto, `push` para filtros). Archivo: `src/pages/busqueda/useCriteriosEnUrl.ts`. Dep.: T015, T070, T012
 
 ---
@@ -117,35 +117,35 @@ Si se quisiera MSW igualmente, requiere enmendar la constitution del módulo ant
 - [x] **T040** [P] `BarraBusqueda` (`role="search"`, etiqueta, botón borrar, debounce vía hook). Archivos: `src/components/busqueda/BarraBusqueda.tsx`, `src/components/busqueda/busqueda.css`. Dep.: T038, T062
 - [x] **T041** [P] `TarjetaPublicacion` (miniatura lazy con `aspect-ratio`, título, autor, `TipoContenido`; enlace accesible al detalle; placeholder si la imagen falla). Archivo: `src/components/busqueda/TarjetaPublicacion.tsx`. Dep.: T016, T063
 - [x] **T042a** [P] `PanelFiltros` + `SelectorFiltroCatalogo` (reutiliza/adapta `FiltroPanel`; selección múltiple; error local de catálogo con reintentar). Solo consulta al dominio; sin reglas. Archivos: `src/components/busqueda/PanelFiltros.tsx`, `src/components/busqueda/SelectorFiltroCatalogo.tsx`. Dep.: T004, T036, T064
-- [ ] **T042b** [EN ESPERA: A-02 diferida al backend] `ControlDistancia` (se muestra siempre deshabilitado con aviso mientras no exista mecanismo de ubicación; consulta `CriteriosBusqueda.admiteFiltro`). Archivo: `src/components/busqueda/ControlDistancia.tsx`. Dep.: T042a, T069, T038b
+- [x] **T042b** [EN ESPERA: A-02 diferida al backend] `ControlDistancia` (se muestra siempre deshabilitado con aviso mientras no exista mecanismo de ubicación; consulta `CriteriosBusqueda.admiteFiltro`). Archivo: `src/components/busqueda/ControlDistancia.tsx`. Dep.: T042a, T069, T038b
 - [x] **T043** [P] `ChipsFiltrosActivos` (reutiliza `FiltroChip`; botón "quitar" etiquetado; "Limpiar todos"). Archivo: `src/components/busqueda/ChipsFiltrosActivos.tsx`. Dep.: T004, T064
-- [ ] **T044** [P] Un componente por estado: `EsqueletoTarjetas`, `EstadoVacio` (con acción limpiar filtros), `EstadoError` (con Reintentar), `AvisoSinPermiso` (403). Archivos: `src/components/busqueda/EsqueletoTarjetas.tsx`, `src/components/busqueda/EstadoVacio.tsx`, `src/components/busqueda/EstadoError.tsx`, `src/components/busqueda/AvisoSinPermiso.tsx`. Dep.: T013, T052, T065
-- [ ] **T045a** [P] `GrillaPublicaciones` (grilla de tarjetas, región `aria-live`). Archivo: `src/components/busqueda/GrillaPublicaciones.tsx`. Dep.: T041, T066
-- [ ] **T045b** `FeedPublicaciones` + `PieCarga` (centinela de scroll infinito, fila de carga, botón "Cargar más" de respaldo; compone la grilla y los estados). Archivos: `src/components/busqueda/FeedPublicaciones.tsx`, `src/components/busqueda/PieCarga.tsx`. Dep.: T045a, T044, T038, T066
-- [ ] **T046** [P] Barrel `index.ts` del módulo de componentes. Archivo: `src/components/busqueda/index.ts`. Dep.: T040–T045
+- [x] **T044** [P] Un componente por estado: `EsqueletoTarjetas`, `EstadoVacio` (con acción limpiar filtros), `EstadoError` (con Reintentar), `AvisoSinPermiso` (403). Archivos: `src/components/busqueda/EsqueletoTarjetas.tsx`, `src/components/busqueda/EstadoVacio.tsx`, `src/components/busqueda/EstadoError.tsx`, `src/components/busqueda/AvisoSinPermiso.tsx`. Dep.: T013, T052, T065
+- [x] **T045a** [P] `GrillaPublicaciones` (grilla de tarjetas, región `aria-live`). Archivo: `src/components/busqueda/GrillaPublicaciones.tsx`. Dep.: T041, T066
+- [x] **T045b** `FeedPublicaciones` + `PieCarga` (centinela de scroll infinito, fila de carga, botón "Cargar más" de respaldo; compone la grilla y los estados). Archivos: `src/components/busqueda/FeedPublicaciones.tsx`, `src/components/busqueda/PieCarga.tsx`. Dep.: T045a, T044, T038, T066
+- [x] **T046** [P] Barrel `index.ts` del módulo de componentes. Archivo: `src/components/busqueda/index.ts`. Dep.: T040–T045
 
 ---
 
 ## Fase 6 — Pantallas y rutas
 
-- [ ] **T047** `PaginaBusqueda`: compone barra, chips, panel y feed; usa `useBusqueda`, `useCriteriosEnUrl`; decide qué estado mostrar solo leyendo `EstadoCarga`/`OrigenFeed`. Archivos: `src/pages/busqueda/PaginaBusqueda.tsx`, `src/pages/busqueda/busqueda-page.css`, `src/pages/busqueda/index.ts`. Dep.: T037, T039, T046, T067
-- [ ] **T048** Registrar la ruta de la página (definir ruta y su relación con `HomePage`; el destino de "abrir publicación" apunta a la ruta de detalle del otro módulo) y decidir si va protegida con `RutaProtegida`. Archivos: `src/routes/AppRoutes.tsx`, `src/routes/index.ts`. Dep.: T047
-- [ ] **T049** Manejo de 401 → login usando el puerto `SesionUsuarioPort` (T060), sin importar `sessionGuard` desde la UI. Archivo: `src/pages/busqueda/PaginaBusqueda.tsx`. Dep.: T047, T030, T060, T061
-- [ ] **T050** Conservación de scroll y criterios al volver del detalle (estrategia decidida en research §5: estado por encima de la ruta o `sessionStorage`). Archivos: `src/pages/busqueda/PaginaBusqueda.tsx`, `src/pages/busqueda/useRestauracionScroll.ts`. Dep.: T047, T048
-- [ ] **T051** Revisar que no se rompa `HomePage` ni rutas existentes (solo verificación). Archivos: `src/pages/home/HomePage.tsx`, `src/routes/AppRoutes.tsx`. Dep.: T048
+- [x] **T047** `PaginaBusqueda`: compone barra, chips, panel y feed; usa `useBusqueda`, `useCriteriosEnUrl`; decide qué estado mostrar solo leyendo `EstadoCarga`/`OrigenFeed`. Archivos: `src/pages/busqueda/PaginaBusqueda.tsx`, `src/pages/busqueda/busqueda-page.css`, `src/pages/busqueda/index.ts`. Dep.: T037, T039, T046, T067
+- [x] **T048** Registrar la ruta de la página (definir ruta y su relación con `HomePage`; el destino de "abrir publicación" apunta a la ruta de detalle del otro módulo) y decidir si va protegida con `RutaProtegida`. Archivos: `src/routes/AppRoutes.tsx`, `src/routes/index.ts`. Dep.: T047
+- [x] **T049** Manejo de 401 → login usando el puerto `SesionUsuarioPort` (T060), sin importar `sessionGuard` desde la UI. Archivo: `src/pages/busqueda/PaginaBusqueda.tsx`. Dep.: T047, T030, T060, T061
+- [x] **T050** Conservación de scroll y criterios al volver del detalle (estrategia decidida en research §5: estado por encima de la ruta o `sessionStorage`). Archivos: `src/pages/busqueda/PaginaBusqueda.tsx`, `src/pages/busqueda/useRestauracionScroll.ts`. Dep.: T047, T048
+- [x] **T051** Revisar que no se rompa `HomePage` ni rutas existentes (solo verificación). Archivos: `src/pages/home/HomePage.tsx`, `src/routes/AppRoutes.tsx`. Dep.: T048
 
 ---
 
 ## Fase 7 — Estados globales, errores, accesibilidad y rendimiento
 
-- [ ] **T052** [P] Textos de mensajes de estado (carga, vacío, errores 400/401/403/429/red) centralizados para evitar duplicación. Archivo: `src/components/busqueda/mensajes.ts`. Dep.: T013
-- [ ] **T053** [P] Auditoría de accesibilidad: foco visible, navegación por teclado, etiquetas, `aria-live`, contraste AA en `busqueda.css`. Archivos: `src/components/busqueda/busqueda.css`, `src/pages/busqueda/busqueda-page.css`. Dep.: T047
-- [ ] **T054** [P] Rendimiento de imágenes y layout: `loading="lazy"`, `decoding="async"`, `aspect-ratio` y esqueletos del mismo tamaño; verificar sin saltos de diseño. Archivo: `src/components/busqueda/TarjetaPublicacion.tsx`, `busqueda.css`. Dep.: T041
-- [ ] **T055** [P] Verificar cancelación al desmontar la página y limpieza del observer y de timers del debounce. Archivos: `src/pages/busqueda/useBusqueda.ts`, `useInfiniteScrollSentinel.ts`. Dep.: T037, T038
-- [ ] **T056** Revisión contra constitutions: ninguna regla de negocio en componentes, sin `instanceof` innecesario, sin filtrado/orden en memoria, sin funciones gigantes (checklist de plan.md §7). Dep.: T047
+- [x] **T052** [P] Textos de mensajes de estado (carga, vacío, errores 400/401/403/429/red) centralizados para evitar duplicación. Archivo: `src/components/busqueda/mensajes.ts`. Dep.: T013
+- [x] **T053** [P] Auditoría de accesibilidad: foco visible, navegación por teclado, etiquetas, `aria-live`, contraste AA en `busqueda.css`. Archivos: `src/components/busqueda/busqueda.css`, `src/pages/busqueda/busqueda-page.css`. Dep.: T047
+- [x] **T054** [P] Rendimiento de imágenes y layout: `loading="lazy"`, `decoding="async"`, `aspect-ratio` y esqueletos del mismo tamaño; verificar sin saltos de diseño. Archivo: `src/components/busqueda/TarjetaPublicacion.tsx`, `busqueda.css`. Dep.: T041
+- [x] **T055** [P] Verificar cancelación al desmontar la página y limpieza del observer y de timers del debounce. Archivos: `src/pages/busqueda/useBusqueda.ts`, `useInfiniteScrollSentinel.ts`. Dep.: T037, T038
+- [x] **T056** Revisión contra constitutions: ninguna regla de negocio en componentes, sin `instanceof` innecesario, sin filtrado/orden en memoria, sin funciones gigantes (checklist de plan.md §7). Dep.: T047
 - [x] **T057** Revisión de pendientes: A-10, A-11, A-12, A-17, A-18, A-19 y A-20 resueltas y reflejadas en spec.md (Clarifications y sección 10); A-02 queda diferida al backend y marcada `x-pending` en el OpenAPI. Archivos: `spec.md`, `contracts/openapi.yaml`. Dep.: —
-- [ ] **T058** Si se decide virtualizar (por mediciones o por A-18), crear una nueva tarea con justificación; por ahora **no se virtualiza** (research §4). Dep.: T057
-- [ ] **T059** Validación manual de los 12 escenarios de `quickstart.md` con el adaptador en memoria. Dep.: T047–T055
+- [x] **T058** Si se decide virtualizar (por mediciones o por A-18), crear una nueva tarea con justificación; por ahora **no se virtualiza** (research §4). Dep.: T057
+- [x] **T059** Validación manual de los 12 escenarios de `quickstart.md` con el adaptador en memoria. Dep.: T047–T055
 
 ---
 
@@ -159,22 +159,22 @@ Si se quisiera MSW igualmente, requiere enmendar la constitution del módulo ant
 - [x] **T065** [P] `EstadosFeed`: esqueletos, vacío con acción "limpiar filtros", error con Reintentar, aviso 403 — HU-05, RF-17–18. Archivo: `tests/components/busqueda/EstadosFeed.test.tsx`. Dep.: T002, T003
 - [x] **T066** [P] `FeedPublicaciones`: scroll infinito con `IntersectionObserver` simulado; no solicita cuando `cargando` o `hayMas=false`; orden preservado — HU-01, RF-06–08. Archivo: `tests/components/busqueda/FeedPublicaciones.test.tsx`. Dep.: T002, T003
 - [x] **T067** [P] `PaginaBusqueda` (integración UI + `SesionBusqueda` + adaptador en memoria): vacío→FYP, texto→resultados, filtros combinados, reinicio al cambiar criterios, respuestas obsoletas, estados carga/vacío/error, 401 redirige, 403 aviso, URL ⇄ criterios, scroll al volver — HU-01–HU-07. Se divide por historia en archivos `tests/pages/busqueda/PaginaBusqueda.hu01.test.tsx` … `hu07.test.tsx` (un archivo por HU). Dep.: T002, T003, T020a, T020b
-- [ ] **T068** Ejecutar toda la suite y verificar que ninguna regla de spec.md §7 quede sin test (matriz regla → test). Dep.: T047, T062–T067
+- [x] **T068** Ejecutar toda la suite y verificar que ninguna regla de spec.md §7 quede sin test (matriz regla → test). Dep.: T047, T062–T067
 
 ---
 
 ## Tareas añadidas tras el análisis
 
-- [ ] **T060** Puertos de `application` para dependencias de infraestructura: `UbicacionPort` (permiso/posición; **en espera por A-02**, solo se define la interfaz mínima) y `SesionUsuarioPort` (ante 401: ir a login). Archivos: `src/application/busqueda/UbicacionPort.ts`, `src/application/busqueda/SesionUsuarioPort.ts`. Dep.: T004
-- [ ] **T061** Adaptadores de infraestructura: `UbicacionAdapter` sobre `geolocationClient.ts` (en espera por A-02) y `SesionUsuarioAdapter` sobre `authService`/`AuthContext` (logout local y redirección a `/login`, igual que `RutaProtegida`); **no** usa `sessionGuard` (es de administración). No modifica el comportamiento existente. Archivos: `src/infrastructure/busqueda/UbicacionAdapter.ts`, `src/infrastructure/busqueda/SesionUsuarioAdapter.ts`. Dep.: T060
-- [ ] **T069** Tests de dominio de `admiteFiltro(tipo, contexto)` (DISTANCIA sin ubicación = no; resto = sí), y de la regla de texto de 1 carácter (`esBuscable()` falso, `origen()` = FYP; ver spec Clarifications). Archivo: `tests/domain/busqueda/CriteriosBusqueda.admision.test.ts`. Dep.: T002, T003
+- [x] **T060** Puertos de `application` para dependencias de infraestructura: `UbicacionPort` (permiso/posición; **en espera por A-02**, solo se define la interfaz mínima) y `SesionUsuarioPort` (ante 401: ir a login). Archivos: `src/application/busqueda/UbicacionPort.ts`, `src/application/busqueda/SesionUsuarioPort.ts`. Dep.: T004
+- [x] **T061** Adaptadores de infraestructura: `UbicacionAdapter` sobre `geolocationClient.ts` (en espera por A-02) y `SesionUsuarioAdapter` sobre `authService`/`AuthContext` (logout local y redirección a `/login`, igual que `RutaProtegida`); **no** usa `sessionGuard` (es de administración). No modifica el comportamiento existente. Archivos: `src/infrastructure/busqueda/UbicacionAdapter.ts`, `src/infrastructure/busqueda/SesionUsuarioAdapter.ts`. Dep.: T060
+- [x] **T069** Tests de dominio de `admiteFiltro(tipo, contexto)` (DISTANCIA sin ubicación = no; resto = sí), y de la regla de texto de 1 carácter (`esBuscable()` falso, `origen()` = FYP; ver spec Clarifications). Archivo: `tests/domain/busqueda/CriteriosBusqueda.admision.test.ts`. Dep.: T002, T003
 - [x] **T070** `CodecCriteriosUrl` (parseo/serialización de criterios ⇄ query params; mapeo `RangoDistancia` ⇄ km; ignora inválidos). Capa de dominio, separada de `CriteriosBusqueda`. Archivo: `src/domain/busqueda/CodecCriteriosUrl.ts`. Dep.: T015, T012
-- [ ] **T071** Test RF-16: el adaptador en memoria nunca devuelve ELIMINADA y la UI/sesión **no** filtra ni omite items (renderiza lo recibido); si llega una ELIMINADA se registra como violación de contrato. Archivo: `tests/services/busqueda/EliminadasContrato.test.ts`. Dep.: T020a, T034a
-- [ ] **T072** Scroll al inicio al cambiar texto o filtros (CA-04.2): comportamiento en el contenedor de la lista disparado por el cambio de criterios, sin reglas de negocio. Archivo: `src/pages/busqueda/useScrollAlInicio.ts`. Dep.: T037, T038
-- [ ] **T073** Test CA-04.2: cambiar criterios lleva el scroll al inicio y reinicia la lista. Archivo: `tests/pages/busqueda/PaginaBusqueda.hu04.test.tsx`. Dep.: T002, T003
-- [ ] **T074a** Test RF-19 (solo lectura): el puerto `BusquedaRepository` no expone operaciones de escritura y `BusquedaHttpRepository` solo emite GET. Archivo: `tests/services/busqueda/SoloLectura.test.ts`. Dep.: T022
-- [ ] **T074b** (alias interno) Consolidar el hook de scroll como dependencia de T072; no añade archivos. Dep.: T038
-- [ ] **T075** Constantes y reglas de soporte en dominio/aplicación: `TAMANO_PAGINA`=20, `DEBOUNCE_MS`=400, `MIN_CARACTERES`=2, `MAX_CARACTERES`=100, y mapeo `RangoDistancia` ⇄ km, con tests. Archivos: `src/domain/busqueda/constantes.ts`, `tests/domain/busqueda/constantes.test.ts`. Dep.: T013
+- [x] **T071** Test RF-16: el adaptador en memoria nunca devuelve ELIMINADA y la UI/sesión **no** filtra ni omite items (renderiza lo recibido); si llega una ELIMINADA se registra como violación de contrato. Archivo: `tests/services/busqueda/EliminadasContrato.test.ts`. Dep.: T020a, T034a
+- [x] **T072** Scroll al inicio al cambiar texto o filtros (CA-04.2): comportamiento en el contenedor de la lista disparado por el cambio de criterios, sin reglas de negocio. Archivo: `src/pages/busqueda/useScrollAlInicio.ts`. Dep.: T037, T038
+- [x] **T073** Test CA-04.2: cambiar criterios lleva el scroll al inicio y reinicia la lista. Archivo: `tests/pages/busqueda/PaginaBusqueda.hu04.test.tsx`. Dep.: T002, T003
+- [x] **T074a** Test RF-19 (solo lectura): el puerto `BusquedaRepository` no expone operaciones de escritura y `BusquedaHttpRepository` solo emite GET. Archivo: `tests/services/busqueda/SoloLectura.test.ts`. Dep.: T022
+- [x] **T074b** (alias interno) Consolidar el hook de scroll como dependencia de T072; no añade archivos. Dep.: T038
+- [x] **T075** Constantes y reglas de soporte en dominio/aplicación: `TAMANO_PAGINA`=20, `DEBOUNCE_MS`=400, `MIN_CARACTERES`=2, `MAX_CARACTERES`=100, y mapeo `RangoDistancia` ⇄ km, con tests. Archivos: `src/domain/busqueda/constantes.ts`, `tests/domain/busqueda/constantes.test.ts`. Dep.: T013
 
 **Test adicional en T029/T030**: cambio de filtros durante una carga adicional (la respuesta pendiente se descarta) y error local de catálogo (T036/T042a).
 

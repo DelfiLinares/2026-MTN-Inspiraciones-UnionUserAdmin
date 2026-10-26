@@ -27,7 +27,7 @@
   width: 100%;
   padding: 0.625rem 2.5rem 0.625rem 0.875rem;
   font: inherit;
-  border: 1px solid #c8ccd0;
+  border: 1px solid #6b7280;
   border-radius: 0.5rem;
   background: #fff;
 }
@@ -76,9 +76,10 @@
   text-decoration: none;
 }
 
+/* Offset interno: la tarjeta tiene overflow hidden y recortaría un anillo externo. */
 .tarjeta-publicacion__enlace:focus-visible {
   outline: 2px solid #2563eb;
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 /* Espacio reservado: evita saltos de diseño mientras la imagen carga o falla. */
@@ -107,16 +108,19 @@
   padding: 0.625rem 0.75rem 0.75rem;
 }
 
+/* Alturas de línea fijas: el esqueleto las replica para que no haya salto al cargar. */
 .tarjeta-publicacion__titulo {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1.5rem;
 }
 
 .tarjeta-publicacion__autor,
 .tarjeta-publicacion__tipo {
   margin: 0.125rem 0 0;
   font-size: 0.875rem;
+  line-height: 1.25rem;
   color: #6b7280;
 }
 
@@ -170,6 +174,22 @@
   gap: 0.5rem;
 }
 
+/* Foco visible en controles sin regla propia (Cargar más, chips, reintento y checkboxes). */
+.pie-carga button:focus-visible,
+.chips-filtros button:focus-visible,
+.panel-filtros__error button:focus-visible,
+.selector-filtro__opcion input:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* El icono de FiltroChip usa clases de Tailwind, que este proyecto no tiene: se dimensiona aquí. */
+.chips-filtros svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
 .chips-filtros__lista {
   display: flex;
   flex-wrap: wrap;
@@ -177,4 +197,96 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.esqueleto-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+}
+
+.esqueleto-tarjetas__tarjeta {
+  display: grid;
+  overflow: hidden;
+  padding-bottom: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.esqueleto-tarjetas__miniatura {
+  aspect-ratio: 4 / 3;
+  background: #e5e7eb;
+}
+
+/* Replica el cuerpo de TarjetaPublicacion (título, autor y tipo) con las mismas alturas y márgenes. */
+.esqueleto-tarjetas__linea,
+.esqueleto-tarjetas__tarjeta::after {
+  height: 1.25rem;
+  margin: 0.125rem 0.75rem 0;
+  border-radius: 0.25rem;
+  background: #e5e7eb;
+}
+
+.esqueleto-tarjetas__tarjeta::after {
+  content: '';
+  width: 55%;
+}
+
+.esqueleto-tarjetas__miniatura + .esqueleto-tarjetas__linea {
+  height: 1.5rem;
+  margin: 0.625rem 0.75rem 0;
+}
+
+.esqueleto-tarjetas__linea--corta {
+  width: 55%;
+}
+
+.estado-busqueda {
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.estado-busqueda p {
+  margin: 0;
+}
+
+.estado-busqueda p + p,
+.estado-busqueda button {
+  margin-top: 0.75rem;
+}
+
+.estado-busqueda--vacio {
+  background: #f8fafc;
+  color: #374151;
+}
+
+.estado-busqueda--error,
+.estado-busqueda--sin-permiso {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.estado-busqueda button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.grilla-publicaciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+}
+
+.pie-carga {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+
+.pie-carga__centinela {
+  width: 100%;
+  height: 1px;
 }

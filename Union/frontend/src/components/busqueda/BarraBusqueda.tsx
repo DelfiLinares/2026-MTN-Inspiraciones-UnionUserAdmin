@@ -71,8 +71,7 @@ export function BarraBusqueda({ valor, onCambiar }: BarraBusquedaProps) {
     if (evento.key === 'Escape' && texto !== '') borrar()
   }
 
-  const longitud = normalizar(texto).length
-  const avisoMinimo = longitud > 0 && longitud < MIN_CARACTERES
+  const avisoMinimo = CriteriosBusqueda.vacio().conTexto(texto).esTextoIncompleto()
 
   return (
     <form role="search" className="barra-busqueda" onSubmit={(e) => e.preventDefault()}>

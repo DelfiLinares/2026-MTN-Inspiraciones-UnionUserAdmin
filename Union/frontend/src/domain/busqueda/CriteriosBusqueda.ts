@@ -1,6 +1,7 @@
 import { FiltroActivo } from './FiltroActivo'
 import { TipoFiltro } from '../enums/TipoFiltro'
 import { OrigenFeed } from '../enums/OrigenFeed'
+import { MAX_CARACTERES, MIN_CARACTERES } from './constantes'
 
 /**
  * Contexto necesario para decidir si un filtro puede aplicarse.
@@ -9,10 +10,6 @@ import { OrigenFeed } from '../enums/OrigenFeed'
 export interface ContextoCriterios {
   readonly ubicacionConcedida: boolean
 }
-
-// Valores definidos en la spec (clarify A-07/A-08). T075 los centralizará en `constantes.ts`.
-const MIN_CARACTERES = 2
-const MAX_CARACTERES = 100
 
 function normalizarTexto(texto: string): string {
   const colapsado = (texto ?? '').replace(/\s+/g, ' ').trim()
@@ -55,6 +52,11 @@ export class CriteriosBusqueda {
 
   esBuscable(): boolean {
     return this.texto.length >= MIN_CARACTERES
+  }
+
+  /** Hay texto, pero aún no alcanza el mínimo para buscar (p. ej. 1 carácter). */
+  esTextoIncompleto(): boolean {
+    return this.texto.length > 0 && !this.esBuscable()
   }
 
   origen(): OrigenFeed {

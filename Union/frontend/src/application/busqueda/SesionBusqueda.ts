@@ -114,6 +114,12 @@ export class SesionBusqueda {
     await this.cargarPrimeraPagina()
   }
 
+  /** Cancela la petición en curso (si la hay), invalida su respuesta y suelta los oyentes. */
+  destruir(): void {
+    this.control.cancelar()
+    this.oyentes.clear()
+  }
+
   async cambiarTexto(texto: string): Promise<void> {
     await this.cambiarCriterios(this._criterios.conTexto(texto))
   }

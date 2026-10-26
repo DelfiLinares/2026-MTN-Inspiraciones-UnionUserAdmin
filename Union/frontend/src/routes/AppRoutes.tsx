@@ -11,7 +11,9 @@
  *   RF-05: si un usuario ya autenticado accede a `/login`, se lo redirige al home (`/feed`).
  *
  * Rutas protegidas (requieren sesión activa, `RutaProtegida`):
- * - `/feed`, `/perfil/:id`, `/editar-perfil`.
+ * - `/feed`, `/buscar`, `/perfil/:id`, `/editar-perfil`.
+ *   `/buscar` es la página de búsqueda y descubrimiento (módulo 007). Es una ruta propia, independiente
+ *   de `HomePage`: no se monta dentro del feed.
  *   Todas ellas, además, rechazan/redirigen cualquier cuenta con rol ADMIN (RF-78, Resuelto A14),
  *   reforzando lo ya aplicado en `LoginPage` (T084) a nivel de guard de rutas.
  */
@@ -26,6 +28,7 @@ import { RegistroPage } from '../pages/registro'
 import { HomePage } from '../pages/home'
 import { PerfilPage } from '../pages/perfil'
 import { EditarPerfilPage } from '../pages/editar-perfil'
+import { PaginaBusqueda } from '../pages/busqueda'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -72,6 +75,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaProtegida>
             <HomePage />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/buscar"
+        element={
+          <RutaProtegida>
+            <PaginaBusqueda />
           </RutaProtegida>
         }
       />

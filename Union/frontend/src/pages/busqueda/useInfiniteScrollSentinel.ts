@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 
 export interface OpcionesSentinel {
   /** Si es `false` no se observa (p. ej. cargando o sin más resultados). */
@@ -21,7 +21,8 @@ export function useInfiniteScrollSentinel<T extends Element = HTMLDivElement>(
   const callbackRef = useRef(alIntersectar)
   callbackRef.current = alIntersectar
 
-  useEffect(() => {
+  // Layout effect: el observer queda creado en el mismo commit en que aparece el centinela.
+  useLayoutEffect(() => {
     const elemento = ref.current
     if (!habilitado || elemento === null || typeof IntersectionObserver === 'undefined') return
 
