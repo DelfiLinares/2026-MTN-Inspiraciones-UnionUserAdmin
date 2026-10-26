@@ -18,6 +18,7 @@ import { CarpetaPostsPage } from '../presentation/carpetas/CarpetaPostsPage'
 import { CuestionarioPage } from '../presentation/cuestionario/CuestionarioPage'
 import { RecuperarContrasenaPage } from '../pages/recuperar'
 import { ApelarSuspensionPage } from '../pages/apelacion'
+import { PaginaBusqueda } from '../pages/busqueda'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -97,6 +98,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <RutaProtegida>
             <PerfilPage />
+          </RutaProtegida>
+        }
+      />
+      <Route
+        path="/buscar"
+        element={
+          <RutaProtegida>
+            <PaginaBusqueda />
           </RutaProtegida>
         }
       />
