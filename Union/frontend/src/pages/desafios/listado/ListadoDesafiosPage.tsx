@@ -2,6 +2,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { httpClient } from '../../../infrastructure/httpClient'
 import {
+  EstadoCargandoDesafios,
+  EstadoErrorRedDesafios,
+  EstadoVacioDesafios,
+  TarjetaDesafio,
+} from '../../../desafios/components'
+import {
   construirSearchDesdeFiltros,
   EstadoFiltroDesafio,
   FiltrosListadoDesafios,
@@ -199,6 +205,13 @@ export const ListadoDesafiosPage: React.FC = () => {
     actualizarFiltrosEnUrl({ ambitos: [], estado: undefined })
   }
 
+  const handleTarjetaClick = useCallback(
+    (desafioId: string) => {
+      navigate(`/desafios/${desafioId}`)
+    },
+    [navigate],
+  )
+
   const vacioConFiltros = desafios.length === 0 && !cargando && hayFiltrosActivos(filtros)
   const vacioSinFiltros = desafios.length === 0 && !cargando && !hayFiltrosActivos(filtros)
 
@@ -211,31 +224,42 @@ export const ListadoDesafiosPage: React.FC = () => {
 
       <section className="desafios-listado-filtros" aria-label="Filtros de desafíos">
         <div className="filtro-grupo">
-          <label htmlFor="filtro-estado">Estado</label>
+          <label htmlFor="filtro-estado">
+            Estado
+            <span aria-label="requerido">*</span>
+          </label>
           <select
             id="filtro-estado"
             value={filtros.estado ?? ''}
             onChange={(e) => onCambiarEstado(e.target.value)}
+            aria-describedby="filtro-estado-descripcion"
           >
             <option value="">Todos</option>
             <option value="PROGRAMADO">Programado</option>
             <option value="ACTIVO">Activo</option>
             <option value="FINALIZADO">Finalizado</option>
           </select>
+          <span id="filtro-estado-descripcion" className="filtro-ayuda">
+            Selecciona un estado para filtrar desafíos
+          </span>
         </div>
 
         <fieldset className="filtro-grupo filtro-ambitos">
-          <legend>Ámbitos</legend>
+          <legend>
+            Ámbitos
+            <span aria-label="opcional" className="filtro-ayuda-legend"> (opcional)</span>
+          </legend>
           {ambitosDisponibles.length === 0 && <span className="filtro-ayuda">Sin ámbitos cargados.</span>}
-          <div className="filtro-ambitos-opciones">
+          <div className="filtro-ambitos-opciones" role="group" aria-labelledby="ambitos-legend">
             {ambitosDisponibles.map((ambito) => (
-              <label key={ambito}>
+              <label key={ambito} className="filtro-ambito-label">
                 <input
                   type="checkbox"
                   checked={filtros.ambitos.includes(ambito)}
                   onChange={() => onAlternarAmbito(ambito)}
+                  aria-label={`Filtrar por ámbito: ${ambito}`}
                 />
-                {ambito}
+                <span>{ambito}</span>
               </label>
             ))}
           </div>
@@ -243,64 +267,42 @@ export const ListadoDesafiosPage: React.FC = () => {
       </section>
 
       {error && (
-        <div role="alert" className="desafios-listado-error">
-          <p>{error}</p>
-          <button type="button" onClick={() => void cargar(null, false)}>Reintentar</button>
-        </div>
+        <EstadoErrorRedDesafios
+          className="desafios-listado-error"
+          mensaje={error}
+          onReintentar={() => void cargar(null, false)}
+        />
       )}
 
       {vacioConFiltros && (
-        <section className="desafios-listado-vacio" aria-live="polite">
-          <h2>No encontramos desafíos con esos filtros</h2>
-          <p>Podés limpiar los filtros para ver más resultados.</p>
-          <button type="button" onClick={onLimpiarFiltros}>Limpiar filtros</button>
-        </section>
+        <EstadoVacioDesafios
+          className="desafios-listado-vacio"
+          variante="listado-con-filtros"
+          onLimpiarFiltros={onLimpiarFiltros}
+        />
       )}
 
       {vacioSinFiltros && (
-        <section className="desafios-listado-vacio" aria-live="polite">
-          <h2>No hay desafíos disponibles</h2>
-          <p>Cuando se publiquen desafíos, aparecerán acá.</p>
-        </section>
+        <EstadoVacioDesafios className="desafios-listado-vacio" variante="listado-sin-filtros" />
       )}
 
       {desafios.length > 0 && (
         <section className="desafios-listado-grid" aria-label="Listado de desafíos">
           {desafios.map((desafio) => (
-            <article key={desafio.id} className="desafio-card">
-              <div className="desafio-card-media">
-                {desafio.fotoPrincipalUrl ? (
-                  <img src={desafio.fotoPrincipalUrl} alt={desafio.nombre} loading="lazy" />
-                ) : (
-                  <div className="desafio-card-placeholder" aria-hidden="true" />
-                )}
-              </div>
-              <div className="desafio-card-contenido">
-                <h2>{desafio.nombre}</h2>
-                <p>
-                  <strong>Estado:</strong> {desafio.estado ?? '-'}
-                </p>
-                <p>
-                  <strong>Inicio:</strong> {formatearFecha(desafio.fechaInicio)}
-                </p>
-                <p>
-                  <strong>Fin:</strong> {formatearFecha(desafio.fechaFin)}
-                </p>
-                <p className="desafio-card-ambitos">
-                  {(desafio.ambitos ?? []).map((ambito) => (
-                    <span key={ambito}>#{ambito}</span>
-                  ))}
-                </p>
-              </div>
-            </article>
+            <TarjetaDesafio
+              key={desafio.id}
+              desafio={desafio}
+              onClick={handleTarjetaClick}
+            />
           ))}
         </section>
       )}
 
       {cargando && (
-        <p className="desafios-listado-loading" role="status">
-          {desafios.length === 0 ? 'Cargando desafíos...' : 'Cargando más desafíos...'}
-        </p>
+        <EstadoCargandoDesafios
+          className="desafios-listado-loading"
+          mensaje={desafios.length === 0 ? 'Cargando desafíos...' : 'Cargando más desafíos...'}
+        />
       )}
 
       {!cargando && desafios.length > 0 && hayMas && (

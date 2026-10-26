@@ -27,3 +27,23 @@ export type { RespuestasDesafioSectionProps } from './RespuestasDesafioSection'
 export { ModeracionRespuestasSection } from './ModeracionRespuestasSection'
 export type { ModeracionRespuestasSectionProps } from './ModeracionRespuestasSection'
 
+export {
+  EstadoVacioDesafios,
+  EstadoCargandoDesafios,
+  EstadoErrorRedDesafios,
+} from './EstadoVacioDesafios'
+export type {
+  EstadoVacioDesafiosProps,
+  VarianteEstadoVacioDesafios,
+  EstadoCargandoDesafiosProps,
+  EstadoErrorRedDesafiosProps,
+} from './EstadoVacioDesafios'
+
+export { EstadoDesafioBadge } from './EstadoDesafioBadge'
+export type { EstadoDesafioBadgeProps } from './EstadoDesafioBadge'
+
+export { FiltrosDesafio } from './FiltrosDesafio'
+export type { FiltrosDesafioProps } from './FiltrosDesafio'
+
+export { TarjetaDesafio } from './TarjetaDesafio'
+export type { TarjetaDesafioProps, DesafioCardItem } from './TarjetaDesafio'

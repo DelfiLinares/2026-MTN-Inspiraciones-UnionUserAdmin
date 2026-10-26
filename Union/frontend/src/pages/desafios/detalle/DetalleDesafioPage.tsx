@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { httpClient } from '../../../infrastructure/httpClient'
-import { ListaRespuestas } from '../../../desafios/components'
+import {
+  EstadoCargandoDesafios,
+  EstadoErrorRedDesafios,
+  EstadoVacioDesafios,
+  ListaRespuestas,
+} from '../../../desafios/components'
 import { RespuestaDesafio } from '../../../domain/RespuestaDesafio'
 import './detalle-desafios.css'
 
@@ -174,7 +179,7 @@ export const DetalleDesafioPage: React.FC = () => {
   if (cargandoDesafio) {
     return (
       <main className="detalle-desafios-page">
-        <p className="detalle-loading">Cargando desafío...</p>
+        <EstadoCargandoDesafios className="detalle-loading" mensaje="Cargando desafío..." />
       </main>
     )
   }
@@ -193,10 +198,11 @@ export const DetalleDesafioPage: React.FC = () => {
   if (error && !desafio) {
     return (
       <main className="detalle-desafios-page">
-        <div className="detalle-error" role="alert">
-          <h1>Error</h1>
-          <p>{error}</p>
-        </div>
+        <EstadoErrorRedDesafios
+          className="detalle-error"
+          mensaje={error}
+          onReintentar={() => window.location.reload()}
+        />
       </main>
     )
   }
@@ -266,26 +272,24 @@ export const DetalleDesafioPage: React.FC = () => {
         <h2 id="respuestas-titulo">Respuestas</h2>
 
         {error && (
-          <div role="alert" className="detalle-respuestas-error">
-            <p>{error}</p>
-            <button type="button" onClick={() => window.location.reload()}>
-              Reintentar
-            </button>
-          </div>
+          <EstadoErrorRedDesafios
+            className="detalle-respuestas-error"
+            mensaje={error}
+            onReintentar={() => window.location.reload()}
+          />
         )}
 
         {respuestas.length === 0 && !cargandoRespuestas && (
-          <div className="detalle-respuestas-vacio" role="status">
-            <p>No hay respuestas aún para este desafío.</p>
-          </div>
+          <EstadoVacioDesafios className="detalle-respuestas-vacio" variante="respuestas" />
         )}
 
         {respuestas.length > 0 && <ListaRespuestas respuestas={respuestas} />}
 
         {cargandoRespuestas && (
-          <p className="detalle-respuestas-loading" role="status">
-            {respuestas.length === 0 ? 'Cargando respuestas...' : 'Cargando más respuestas...'}
-          </p>
+          <EstadoCargandoDesafios
+            className="detalle-respuestas-loading"
+            mensaje={respuestas.length === 0 ? 'Cargando respuestas...' : 'Cargando más respuestas...'}
+          />
         )}
 
         {!cargandoRespuestas && respuestas.length > 0 && hayMasRespuestas && (
