@@ -1,139 +1,80 @@
-/**
- * `ModeracionDetalleReporte`: Componente de detalle de un reporte individual (HU-11).
- *
- * Nota de ubicación: `Union/specs/001-plataforma-unificada/tasks.md` (T098A) define este componente
- * dentro de `Admin/my-proyect/frontend-admin/src/presentation/moderacion/ModeracionDetalleReporte.tsx`.
- * Por instrucción explícita del usuario (misma confirmación que en T095/T096/T097A/T097B), la
- * implementación se coloca aquí, dentro de
- * `Union/frontend/src/presentation/moderacion/`, sin leer ni
- * modificar ningún archivo del proyecto `Admin/`.
- *
- * Fuente de verdad:
- * - Union/specs/001-plataforma-unificada/spec.md (HU-11, RF-62, RF-65, AC-11.3)
- * - Union/specs/001-plataforma-unificada/tasks.md (T098A, depende de T066)
- * - Union/specs/001-plataforma-unificada/contracts/api-contracts.md (`GET /admin/reportes/{id}`)
- *
- * Criterios de aceptación cubiertos:
- * - AC-11.3: Muestra motivo, fecha, publicación asociada y reportante.
- * - RF-65: Muestra prioridad/antigüedad del reporte.
- * - Integra `ModeracionAcciones` (T098B) para las acciones sensibles (eliminar publicación /
- *   resolver sin eliminar), recargando el detalle tras cada acción exitosa.
- */
-
 import React, { useCallback, useEffect, useState } from 'react'
-import { obtenerDetalleReporte } from '../../services/ModeracionService'
-import type { DetalleReporteModeracion } from '../../services/ModeracionService'
-import { Spinner, EmptyState } from '../../components/comunes'
-import { ModeracionAcciones } from './ModeracionAcciones'
+import { httpClientAdmin } from '../../infrastructure/httpClientAdmin'
+import { ConfirmacionAccionSensibleModal } from '../shared/ConfirmacionAccionSensibleModal'
 
-export interface ModeracionDetalleReporteProps {
-  reporteId: string
-  onVolver: () => void
+interface Detalle {
+  id: string; motivo: string; prioridad: string; estadoModeracion: string; fechaCreacion: string
+  objetivo: { tipo: 'PUBLICACION' | 'COMENTARIO'; id: string; publicacionId: string }
+  contenidoObjetivo: { contenido: string }
 }
-
-export const ModeracionDetalleReporte: React.FC<ModeracionDetalleReporteProps> = ({
-  reporteId,
-  onVolver,
-}) => {
-  const [detalle, setDetalle] = useState<DetalleReporteModeracion | null>(null)
+type Accion = 'iniciar-revision' | 'aceptar' | 'rechazar' | 'retirar'
+export interface ModeracionDetalleReporteProps { reporteId: string; onVolver: () => void }
+export const ModeracionDetalleReporte: React.FC<ModeracionDetalleReporteProps> = ({ reporteId, onVolver }) => {
+  const [detalle, setDetalle] = useState<Detalle | null>(null)
   const [cargando, setCargando] = useState(true)
-  const [errorMensaje, setErrorMensaje] = useState<string | null>(null)
-
-  const cargarDetalle = useCallback(async () => {
-    setCargando(true)
-    setErrorMensaje(null)
+  const [error, setError] = useState('')
+  const [motivo, setMotivo] = useState('')
+  const [procesando, setProcesando] = useState(false)
+  const [accion, setAccion] = useState<Accion | null>(null)
+  const [aviso, setAviso] = useState('')
+  const cargar = useCallback(async (signal?: AbortSignal) => {
+    setCargando(true); setError('')
     try {
-      const datos = await obtenerDetalleReporte(reporteId)
-      setDetalle(datos)
-    } catch {
-      setErrorMensaje('No se pudo cargar el detalle del reporte.')
-    } finally {
-      setCargando(false)
-    }
+      const datos = await httpClientAdmin.get<Detalle>('/admin/reportes/' + encodeURIComponent(reporteId), { signal })
+      if (!signal?.aborted) setDetalle(datos)
+    } catch { if (!signal?.aborted) setError('No pudimos cargar el reporte. Intentá nuevamente.') }
+    finally { if (!signal?.aborted) setCargando(false) }
   }, [reporteId])
-
-  useEffect(() => {
-    cargarDetalle()
-  }, [cargarDetalle])
-
-  const calcularAntiguedadDias = (fecha: string): number => {
-    const diferencia = Date.now() - new Date(fecha).getTime()
-    return Math.max(0, Math.floor(diferencia / (24 * 60 * 60 * 1000)))
+  useEffect(() => { const control = new AbortController(); void cargar(control.signal); return () => control.abort() }, [cargar])
+  async function ejecutar() {
+    if (!detalle || !accion || !motivo.trim()) return
+    setProcesando(true); setError(''); setAviso('')
+    try {
+      const body = { motivoAdmin: motivo.trim() }
+      if (accion === 'retirar') {
+        const objetivo = detalle.objetivo
+        const ruta = objetivo.tipo === 'COMENTARIO'
+          ? '/admin/publicaciones/' + encodeURIComponent(objetivo.publicacionId) + '/comentarios/' + encodeURIComponent(objetivo.id) + '/ocultar'
+          : '/admin/publicaciones/' + encodeURIComponent(objetivo.id) + '/eliminar'
+        await httpClientAdmin.post(ruta, body)
+        await httpClientAdmin.post('/admin/reportes/' + encodeURIComponent(detalle.id) + '/aceptar', body)
+      } else await httpClientAdmin.post('/admin/reportes/' + encodeURIComponent(detalle.id) + '/' + accion, body)
+      setAccion(null); setMotivo(''); setAviso('La decisión quedó guardada.')
+      await cargar()
+    } catch { setAccion(null); setError('No pudimos completar la acción. Recargá el reporte para comprobar su estado antes de reintentar.') }
+    finally { setProcesando(false) }
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <button
-          type="button"
-          onClick={onVolver}
-          className="mb-4 text-sm font-medium text-indigo-600 hover:text-indigo-800"
-        >
-          ← Volver al listado
-        </button>
-
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Detalle del reporte</h1>
-
-        {cargando && <Spinner tamano="lg" texto="Cargando detalle..." />}
-
-        {!cargando && errorMensaje && (
-          <EmptyState titulo="Error al cargar el detalle" mensaje={errorMensaje} onAccion={cargarDetalle} textoAccion="Reintentar" />
-        )}
-
-        {!cargando && !errorMensaje && detalle && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Motivo</span>
-                <span className="text-sm text-gray-900">{detalle.reporte.motivo}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Estado</span>
-                <span className="text-sm text-gray-900">{detalle.reporte.estado}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Publicación</span>
-                <span className="text-sm text-gray-900">{detalle.publicacion.id}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Autor de la publicación</span>
-                <span className="text-sm text-gray-900">{detalle.publicacion.autorId}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Reportante</span>
-                <span className="text-sm text-gray-900">{detalle.reportanteId}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Fecha del reporte</span>
-                <span className="text-sm text-gray-900">
-                  {new Date(detalle.reporte.fecha).toLocaleDateString()}
-                </span>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-gray-500">Antigüedad</span>
-                <span className="text-sm text-gray-900">
-                  {calcularAntiguedadDias(detalle.reporte.fecha)} día(s)
-                </span>
-              </div>
-              {detalle.reporte.prioridad && (
-                <div>
-                  <span className="block text-xs font-medium text-gray-500">Prioridad</span>
-                  <span className="text-sm text-gray-900">{detalle.reporte.prioridad}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4 border-t border-gray-100">
-              <ModeracionAcciones
-                reporte={detalle.reporte}
-                publicacion={detalle.publicacion}
-                onPublicacionEliminada={cargarDetalle}
-                onReporteResuelto={cargarDetalle}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
+  const abierto = detalle && ['PENDIENTE', 'EN_REVISION'].includes(detalle.estadoModeracion)
+  const deshabilitado = procesando || !motivo.trim() || !abierto
+  return <section>
+    <button type="button" onClick={onVolver} disabled={procesando}>← Volver al listado</button>
+    <h1>Detalle del reporte</h1>
+    {cargando && <p role="status">Cargando reporte…</p>}
+    {error && <div role="alert"><p>{error}</p><button type="button" disabled={procesando} onClick={() => void cargar()}>Recargar reporte</button></div>}
+    {aviso && <p role="status">{aviso}</p>}
+    {!cargando && detalle && <>
+      <dl>
+        <dt>Motivo del reporte</dt><dd>{detalle.motivo}</dd>
+        <dt>Estado</dt><dd>{detalle.estadoModeracion}</dd>
+        <dt>Prioridad</dt><dd>{detalle.prioridad}</dd>
+        <dt>Fecha</dt><dd>{new Date(detalle.fechaCreacion).toLocaleDateString('es-AR')}</dd>
+        <dt>Contenido reportado</dt><dd>{detalle.objetivo.tipo === 'COMENTARIO' ? 'Comentario' : 'Publicación'}</dd>
+      </dl>
+      <blockquote>{detalle.contenidoObjetivo.contenido}</blockquote>
+      {abierto ? <>
+        <label htmlFor="motivo-moderacion">Motivo de la decisión</label>
+        <textarea id="motivo-moderacion" maxLength={500} required value={motivo} disabled={procesando} onChange={e => setMotivo(e.target.value)} />
+        <p>Explicá la decisión para dejar constancia en el historial.</p>
+        <div role="group" aria-label="Acciones de moderación">
+          {detalle.estadoModeracion === 'PENDIENTE' && <button type="button" disabled={deshabilitado} onClick={() => setAccion('iniciar-revision')}>Iniciar revisión</button>}
+          <button type="button" disabled={deshabilitado} onClick={() => setAccion('aceptar')}>Resolver sin retirar contenido</button>
+          <button type="button" disabled={deshabilitado} onClick={() => setAccion('rechazar')}>Desestimar reporte</button>
+          <button type="button" disabled={deshabilitado} onClick={() => setAccion('retirar')}>{detalle.objetivo.tipo === 'COMENTARIO' ? 'Ocultar comentario' : 'Eliminar publicación'}</button>
+        </div>
+      </> : <p>Este reporte ya fue resuelto.</p>}
+      {accion && <ConfirmacionAccionSensibleModal abierto titulo="Confirmar decisión de moderación"
+        mensaje={accion === 'retirar' ? 'Se retirará el contenido reportado y se aceptará el reporte. Esta decisión quedará registrada con tu motivo.' : 'Se actualizará el estado del reporte con el motivo que ingresaste.'}
+        variante={accion === 'retirar' ? 'peligro' : 'neutra'} confirmando={procesando} onConfirmar={() => void ejecutar()} onCancelar={() => { if (!procesando) setAccion(null) }} />}
+    </>}
+  </section>
 }

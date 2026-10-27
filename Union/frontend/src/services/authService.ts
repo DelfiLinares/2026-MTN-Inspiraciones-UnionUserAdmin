@@ -137,7 +137,20 @@ export async function verificarSesionActual(): Promise<Usuario | null> {
  * Cierra la sesión local. El contrato de la API no expone un endpoint de logout.
  */
 export async function logout(): Promise<void> {
+  const dispositivo = typeof window === 'undefined' ? null : localStorage.getItem('inspiraciones.push.device')
+  const jwt = tokenStorage.getToken()
   tokenStorage.clearToken()
+  if (dispositivo && jwt) {
+    localStorage.removeItem('inspiraciones.push.device')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 3000)
+    try {
+      await httpClient.delete('/push-notifications/device-tokens', {
+        headers: { Authorization: `Bearer ${jwt}` }, signal: controller.signal,
+      }, { token: dispositivo })
+    } catch { /* Cerrar la sesión local sigue siendo posible si Push está caído. */ }
+    finally { clearTimeout(timeout) }
+  }
 }
 
 export const authService = {

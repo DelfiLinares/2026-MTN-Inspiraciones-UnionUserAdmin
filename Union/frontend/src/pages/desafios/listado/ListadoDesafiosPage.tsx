@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { httpClient } from '../../../infrastructure/httpClient'
 import {
   EstadoCargandoDesafios,
@@ -63,6 +63,7 @@ function mapearDesafioListado(dto: DesafioListadoDto): DesafioListadoItem {
 async function cargarPaginaDesafios(
   filtros: FiltrosListadoDesafios,
   cursor: string | null,
+  signal?: AbortSignal,
 ): Promise<PaginaDesafiosDto> {
   const params: Record<string, string | number | undefined> = {
     limite: 12,
@@ -73,6 +74,7 @@ async function cargarPaginaDesafios(
 
   const respuesta = await httpClient.get<PaginaDesafiosDto | DesafioListadoDto[]>('/desafios', {
     params,
+    signal,
   })
 
   if (Array.isArray(respuesta)) {
@@ -123,16 +125,21 @@ export const ListadoDesafiosPage: React.FC = () => {
   const [cargando, setCargando] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [ambitosDisponibles, setAmbitosDisponibles] = useState<string[]>([])
+  const peticion = useRef<AbortController | null>(null)
 
   const cargar = useCallback(
     async (cursor: string | null, append: boolean) => {
-      if (cargando) return
+      if (append && peticion.current) return
+      peticion.current?.abort()
+      const control = new AbortController()
+      peticion.current = control
 
       setCargando(true)
       setError(null)
 
       try {
-        const pagina = await cargarPaginaDesafios(filtros, cursor)
+        const pagina = await cargarPaginaDesafios(filtros, cursor, control.signal)
+        if (control.signal.aborted) return
         const itemsNuevos = (pagina.items ?? []).map(mapearDesafioListado)
 
         setDesafios((prev) => {
@@ -155,16 +162,20 @@ export const ListadoDesafiosPage: React.FC = () => {
         setCursorActual(proximoCursor)
         setHayMas(Boolean(proximoCursor) && itemsNuevos.length > 0)
       } catch {
-        setError('No se pudieron cargar los desafíos. Intentá nuevamente.')
+        if (!control.signal.aborted) setError('No se pudieron cargar los desafíos. Intentá nuevamente.')
       } finally {
-        setCargando(false)
+        if (peticion.current === control) {
+          peticion.current = null
+          setCargando(false)
+        }
       }
     },
-    [cargando, filtros],
+    [filtros],
   )
 
   useEffect(() => {
     void cargar(null, false)
+    return () => { peticion.current?.abort() }
   }, [cargar])
 
   useEffect(() => {
@@ -212,14 +223,15 @@ export const ListadoDesafiosPage: React.FC = () => {
     [navigate],
   )
 
-  const vacioConFiltros = desafios.length === 0 && !cargando && hayFiltrosActivos(filtros)
-  const vacioSinFiltros = desafios.length === 0 && !cargando && !hayFiltrosActivos(filtros)
+  const vacioConFiltros = desafios.length === 0 && !cargando && !error && hayFiltrosActivos(filtros)
+  const vacioSinFiltros = desafios.length === 0 && !cargando && !error && !hayFiltrosActivos(filtros)
 
   return (
     <main className="desafios-listado-page" aria-labelledby="desafios-listado-titulo">
       <header className="desafios-listado-header">
         <h1 id="desafios-listado-titulo">Desafíos</h1>
         <p>Explorá desafíos por ámbito y estado.</p>
+        <nav aria-label="Tus desafíos"><Link to="/desafios/solicitar">Proponer un desafío</Link> <Link to="/desafios/mis-solicitudes">Mis solicitudes</Link> <Link to="/feed">Volver al inicio</Link></nav>
       </header>
 
       <section className="desafios-listado-filtros" aria-label="Filtros de desafíos">

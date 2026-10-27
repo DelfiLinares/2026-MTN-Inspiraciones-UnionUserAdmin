@@ -14,6 +14,7 @@
 import { TipoContenido } from '../domain/enums/TipoContenido'
 
 const MIME_EXACTOS_POR_TIPO: Partial<Record<TipoContenido, string[]>> = {
+  [TipoContenido.MIXTO]: ['image/jpeg', 'image/png', 'image/webp'],
   [TipoContenido.IMAGEN]: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   [TipoContenido.VIDEO]: ['video/mp4', 'video/webm'],
   [TipoContenido.MUSICA]: ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg'],
@@ -31,6 +32,8 @@ const PREFIJOS_MIME_POR_TIPO: Partial<Record<TipoContenido, string[]>> = {
 }
 
 const EXTENSIONES_POR_TIPO: Record<TipoContenido, string[]> = {
+  [TipoContenido.TEXTO]: [],
+  [TipoContenido.MIXTO]: ['.jpg', '.jpeg', '.png', '.webp'],
   [TipoContenido.IMAGEN]: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
   [TipoContenido.VIDEO]: ['.mp4', '.webm'],
   [TipoContenido.MUSICA]: ['.mp3', '.wav', '.ogg'],

@@ -8,8 +8,8 @@ import type { PaginaResultados } from '../../domain/busqueda/PaginaResultados'
  * El orden y contenido de los resultados lo decide la API.
  */
 export interface BusquedaRepository {
-  /** Feed "Para ti" (sin texto ni filtros). `cursor` ausente = primera página. */
-  obtenerFyp(cursor?: string, signal?: AbortSignal): Promise<PaginaResultados>
+  /** Feed sin texto buscable, con filtros opcionales. `cursor` ausente = primera página. */
+  obtenerFyp(cursor?: string, signal?: AbortSignal, criterios?: CriteriosBusqueda): Promise<PaginaResultados>
 
   /** Búsqueda por texto y/o filtros. `cursor` ausente = primera página. */
   buscar(

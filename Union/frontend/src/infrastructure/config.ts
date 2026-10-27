@@ -18,12 +18,11 @@ export type BusquedaRepositorioModo = 'ejemplo' | 'http'
 
 /**
  * Módulo 007 (búsqueda y descubrimiento): selecciona el repositorio de datos.
- * Variable `VITE_BUSQUEDA_REPOSITORIO`: `ejemplo` (por defecto) | `http`.
- * Cualquier otro valor o ausencia se resuelve a `ejemplo`.
+ * Variable `VITE_BUSQUEDA_REPOSITORIO`: `http` (por defecto) | `ejemplo` (demo explícita).
  * Fuente: Union/specs/007-inspiraciones-busqueda/tasks.md (T005, T025)
  */
 function resolverBusquedaRepositorio(valor: string | undefined): BusquedaRepositorioModo {
-  return valor === 'http' ? 'http' : 'ejemplo'
+  return valor === 'ejemplo' ? 'ejemplo' : 'http'
 }
 
 export const config = {

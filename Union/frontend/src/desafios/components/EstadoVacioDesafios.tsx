@@ -89,7 +89,8 @@ export const EstadoErrorRedDesafios: React.FC<EstadoErrorRedDesafiosProps> = ({
 }) => {
   return (
     <section className={className} aria-live="polite">
-      <MensajeErrorDesafio codigo={undefined} mensaje={mensaje} onVolver={onReintentar} />
+      <MensajeErrorDesafio codigo={undefined} mensaje={mensaje} />
+      {onReintentar && <button type="button" onClick={onReintentar}>Reintentar</button>}
     </section>
   )
 }

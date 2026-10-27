@@ -15,6 +15,7 @@ import { BrowserRouter, useLocation } from 'react-router-dom'
 import { AuthProvider } from './services/AuthContext'
 import { AppRoutes } from './routes'
 import { AppRouterAdmin } from './presentation/AppRouterAdmin'
+import { AvisosComunidad } from './presentation/shared/AvisosComunidad'
 
 const RUTAS_CONSOLA_ADMIN = /^\/(?:login-admin(?:\/|$)|admin(?:\/|$)|(?:usuarios|publicaciones|promocion|reportes)\/?$)/
 
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <AuthProvider>
         <Raiz />
+        <AvisosComunidad />
       </AuthProvider>
     </BrowserRouter>
   )

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ObtenerCatalogoFiltros } from '../../application/busqueda/ObtenerCatalogoFiltros'
 import type { BusquedaRepository } from '../../application/busqueda/BusquedaRepository'
 import { CodecCriteriosUrl } from '../../domain/busqueda/CodecCriteriosUrl'
@@ -137,6 +137,7 @@ export function PaginaBusqueda({
 
   return (
     <main className="pagina-busqueda">
+      <Link to="/feed">Volver a InspiraBoard</Link>
       <div className="pagina-busqueda__barra">
         <BarraBusqueda valor={criterios.texto} onCambiar={cambiarTexto} />
         <ChipsFiltrosActivos

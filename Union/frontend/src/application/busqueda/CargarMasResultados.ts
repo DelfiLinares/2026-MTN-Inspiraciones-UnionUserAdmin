@@ -28,6 +28,6 @@ export class CargarMasResultados {
 
     return criterios.origen() === OrigenFeed.BUSQUEDA
       ? this.repositorio.buscar(criterios, pagina.cursorSiguiente, signal)
-      : this.repositorio.obtenerFyp(pagina.cursorSiguiente, signal)
+      : this.repositorio.obtenerFyp(pagina.cursorSiguiente, signal, criterios)
   }
 }

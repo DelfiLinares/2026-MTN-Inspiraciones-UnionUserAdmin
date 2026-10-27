@@ -18,7 +18,7 @@ interface SolicitudDto {
   estado?: string
   fotos?: Array<{ id?: string; url: string; formato: string; principal: boolean }>
   rango?: { inicio: string; fin: string }
-  ambitos?: Array<{ valor: string }>
+  ambitos?: Array<string | { valor: string }>
   version?: number
   createdAt?: string
 }
@@ -101,7 +101,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
           : undefined
 
         const ambitos = respuestaSolicitud.ambitos?.map(a =>
-          new AmbitoDesafio({ valor: a.valor })
+          new AmbitoDesafio({ valor: typeof a === 'string' ? a : a.valor })
         ) ?? []
 
         const solicitudDominio = new SolicitudDesafio({
@@ -197,7 +197,7 @@ export const DetalleSolicitudAdminPage: React.FC = () => {
           : undefined
 
         const ambitos = respuesta.ambitos?.map(a =>
-          new AmbitoDesafio({ valor: a.valor })
+          new AmbitoDesafio({ valor: typeof a === 'string' ? a : a.valor })
         ) ?? []
 
         const solicitudActualizada = new SolicitudDesafio({

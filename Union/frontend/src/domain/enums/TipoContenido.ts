@@ -1,4 +1,6 @@
 export enum TipoContenido {
+  TEXTO = "TEXTO",
+  MIXTO = "MIXTO",
   IMAGEN = "IMAGEN",
   VIDEO = "VIDEO",
   MUSICA = "MUSICA",

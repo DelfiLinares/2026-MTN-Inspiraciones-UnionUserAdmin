@@ -458,7 +458,7 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
       {/* TODO (T023): PhotoUploadField para cambio de foto */}
       <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f3f4f6', borderRadius: '6px' }}>
         <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
-          📷 Cambio de foto: Usar componente PhotoUploadField (T023)
+          Podés cambiar tu foto desde el botón de tu perfil.
         </p>
       </div>
 

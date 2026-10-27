@@ -6,6 +6,8 @@ import { TipoContenido } from '../../domain/enums/TipoContenido'
 import './busqueda.css'
 
 const ETIQUETA_TIPO: Readonly<Record<TipoContenido, string>> = {
+  [TipoContenido.TEXTO]: 'Texto',
+  [TipoContenido.MIXTO]: 'Imagen y texto',
   [TipoContenido.IMAGEN]: 'Imagen',
   [TipoContenido.VIDEO]: 'Video',
   [TipoContenido.MUSICA]: 'Música',
@@ -34,7 +36,7 @@ export function TarjetaPublicacion({ publicacion }: TarjetaPublicacionProps) {
     <article className="tarjeta-publicacion">
       <Link to={abrirPublicacion.ejecutar(publicacion)} className="tarjeta-publicacion__enlace">
         <div className="tarjeta-publicacion__miniatura" data-testid="tarjeta-miniatura">
-          {imagenFallida ? (
+          {imagenFallida || !publicacion.miniaturaUrl ? (
             <div
               role="img"
               aria-label="Imagen no disponible"

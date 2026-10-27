@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { useAuth } from '../../../services/AuthContext'
+import { Desafio } from '../../../domain/Desafio'
+import { RespuestasDesafioSection } from '../../../desafios/components/RespuestasDesafioSection/RespuestasDesafioSection'
 import { httpClient } from '../../../infrastructure/httpClient'
 import {
   EstadoCargandoDesafios,
@@ -47,6 +50,7 @@ function mapearRespuestaDto(dto: any, desafioId: string): RespuestaDesafio {
     id: dto.id,
     desafioId,
     autorId: dto.autorId,
+    version: dto.version,
     contenido: dto.contenido,
   })
 }
@@ -59,6 +63,7 @@ function formatearFecha(valor?: string): string {
 }
 
 export const DetalleDesafioPage: React.FC = () => {
+  const { usuario, rol } = useAuth()
   const { desafioId } = useParams<{ desafioId: string }>()
 
   const [desafio, setDesafio] = useState<DesafioDetalleDto | null>(null)
@@ -216,6 +221,7 @@ export const DetalleDesafioPage: React.FC = () => {
 
   return (
     <main className="detalle-desafios-page" aria-labelledby="detalle-titulo">
+      <Link to="/desafios">Volver a desafíos</Link>
       {/* Galerías de fotos */}
       {fotosArray.length > 0 && (
         <section className="detalle-fotos" aria-label="Fotos del desafío">
@@ -279,11 +285,12 @@ export const DetalleDesafioPage: React.FC = () => {
           />
         )}
 
-        {respuestas.length === 0 && !cargandoRespuestas && (
-          <EstadoVacioDesafios className="detalle-respuestas-vacio" variante="respuestas" />
-        )}
-
-        {respuestas.length > 0 && <ListaRespuestas respuestas={respuestas} />}
+        <RespuestasDesafioSection desafio={new Desafio({ id: desafio.id, nombre: desafio.nombre, activo: desafio.estado === 'ACTIVO', formatosContenidoAceptados: ['imagen', 'video', 'audio'] })}
+          respuestas={respuestas} cargando={cargandoRespuestas}
+          sesionActual={usuario ? { usuarioId: usuario.id, rol: rol === 'ADMIN' ? 'ADMIN' : 'USER' } : undefined}
+          onRespuestaEnviada={respuesta => setRespuestas(prev => [...prev, respuesta])}
+          onRespuestaEditada={respuesta => setRespuestas(prev => prev.map(r => r.id === respuesta.id ? respuesta : r))}
+          onRespuestaEliminada={id => setRespuestas(prev => prev.filter(r => r.id !== id))} />
 
         {cargandoRespuestas && (
           <EstadoCargandoDesafios

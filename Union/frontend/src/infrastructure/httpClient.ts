@@ -189,7 +189,7 @@ export const httpClient = {
     return request<T>(path, { method: 'PUT', body }, options)
   },
 
-  delete<T>(path: string, options?: HttpRequestOptions): Promise<T> {
-    return request<T>(path, { method: 'DELETE' }, options)
+  delete<T>(path: string, options?: HttpRequestOptions, data?: unknown): Promise<T> {
+    return request<T>(path, { method: 'DELETE', body: data === undefined ? undefined : JSON.stringify(data) }, options)
   },
 }

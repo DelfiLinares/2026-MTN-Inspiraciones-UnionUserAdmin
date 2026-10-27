@@ -27,6 +27,7 @@ import { CerrarSesionButton } from '../../presentation/shared/CerrarSesionButton
 import type { Publicacion } from '../../domain/Publicacion'
 import type { MotivoReporte } from '../../domain/enums/MotivoReporte'
 import './home.css'
+import { ChallengeInicio } from './ChallengeInicio'
 
 const obtenerVarianteTarjeta = (indiceColumna: number, indiceEnColumna: number) => {
   if (indiceColumna === 1 && indiceEnColumna === 0) {
@@ -157,7 +158,8 @@ export const HomePage: React.FC = () => {
       <header className="home-site-header">
         <Link className="home-brand" to="/feed">InspiraBoard</Link>
         <nav className="home-site-nav" aria-label="Navegación principal">
-          <a href="#comunidad">Descubre</a>
+            <Link to="/buscar">Descubre</Link>
+            <Link to="/notificaciones">Notificaciones</Link>
           <a href="#challenge">Challenge</a>
           <Link
             className="home-profile"
@@ -177,18 +179,10 @@ export const HomePage: React.FC = () => {
 
       <main>
         <section className="home-hero" aria-label="Contenido destacado">
-          <button className="home-hero-arrow home-hero-arrow--previous" type="button" aria-label="Anterior" disabled />
-          <button className="home-hero-arrow home-hero-arrow--next" type="button" aria-label="Siguiente" disabled />
+          <div><h1>Ideas que invitan a crear</h1><p>Encontrá referencias de la comunidad para tu próximo proyecto.</p><Link to="/buscar">Buscar inspiración</Link></div>
         </section>
 
-        <section className="home-challenge" id="challenge" aria-labelledby="home-challenge-title">
-          <div className="home-challenge-art" aria-hidden="true" />
-          <div className="home-challenge-copy">
-            <h2 id="home-challenge-title">Challenge semanal</h2>
-            <p>Te invitamos a hacer el challenge de esta semana, el cual consiste en:</p>
-            <p className="home-challenge-details">pipipipi<br />pipippfiṕfa<br />fjskfhñfhñf</p>
-          </div>
-        </section>
+        <ChallengeInicio />
 
         <section className="home-community" id="comunidad" aria-labelledby="home-community-title">
           <h1 id="home-community-title">Inspirate de nuestra comunidad</h1>

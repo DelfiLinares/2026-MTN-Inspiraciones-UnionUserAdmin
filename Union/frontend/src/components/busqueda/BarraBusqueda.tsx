@@ -84,7 +84,7 @@ export function BarraBusqueda({ valor, onCambiar }: BarraBusquedaProps) {
           id={idCampo}
           type="search"
           className="barra-busqueda__input"
-          placeholder="Buscar publicaciones"
+          placeholder="Inspiración para un dibujo realista…"
           autoComplete="off"
           value={texto}
           onChange={alCambiar}

@@ -74,7 +74,7 @@ export const LoginPage: React.FC = () => {
 
       // Login de usuario normal exitoso
       iniciarSesion(resultado.usuario)
-      navigate(destinoPostLogin, { replace: true })
+      navigate('/notificaciones/configuracion', { replace: true, state: { destino: destinoPostLogin } })
     } catch (err: unknown) {
       if (err instanceof CuentaBloqueadaError) {
         // AC-04.9, RF-77: Mensaje específico para cuenta BANEADA o ELIMINADA

@@ -51,7 +51,7 @@ export const AppRouterAdmin: React.FC = () => (
       <Route path="solicitudes" element={<BandejaSolicitudesPage />} />
       <Route path="solicitudes/:solicitudId" element={<DetalleSolicitudAdminPage />} />
       <Route path="reportes" element={<ReportesAnaliticaPage />} />
-      <Route path="reportes/gestion" element={<ReportesPage httpClient={httpClientAdmin} />} />
+      <Route path="reportes/gestion" element={<Navigate to="/admin/moderacion" replace />} />
       <Route path="apelaciones" element={<ApelacionesAdminPage />} />
       <Route path="*" element={<AdminNoEncontrado />} />
     </Route>

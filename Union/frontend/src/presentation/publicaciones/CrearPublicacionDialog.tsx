@@ -3,6 +3,7 @@ import {
   buscarUsuariosEtiquetables,
   crearPublicacionCompleta,
   obtenerCategoriasPublicacion,
+  subirImagenPublicacion,
 } from '../../services/publicacionService'
 import type { CategoriaPublicacionDto, PublicUserSummaryDto } from '../../services/publicacionService'
 
@@ -55,13 +56,20 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
   const [tipo, setTipo] = useState<'TEXTO' | 'IMAGEN'>('TEXTO')
-  const [fotoUrl, setFotoUrl] = useState('')
+  const [imagen, setImagen] = useState<File | null>(null)
+  const [vistaPrevia, setVistaPrevia] = useState('')
   const [hashtagsTexto, setHashtagsTexto] = useState('')
   const [categorias, setCategorias] = useState<CategoriaPublicacionDto[]>([])
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState<string[]>([])
   const [busqueda, setBusqueda] = useState('')
   const [resultadosBusqueda, setResultadosBusqueda] = useState<PublicUserSummaryDto[]>([])
   const [etiquetadas, setEtiquetadas] = useState<PublicUserSummaryDto[]>([])
+  useEffect(() => {
+    if (!imagen) { setVistaPrevia(''); return }
+    const url = URL.createObjectURL(imagen)
+    setVistaPrevia(url)
+    return () => URL.revokeObjectURL(url)
+  }, [imagen])
 
   useEffect(() => {
     let activo = true
@@ -121,8 +129,8 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
       return
     }
 
-    if (tipo === 'IMAGEN' && !fotoUrl.trim()) {
-      setError('Indica la URL de la imagen.')
+    if (tipo === 'IMAGEN' && !imagen) {
+      setError('Elegí una imagen de tu dispositivo.')
       return
     }
 
@@ -134,6 +142,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
     setEnviando(true)
     setError('')
     try {
+      const fotoUrl = tipo === 'IMAGEN' && imagen ? await subirImagenPublicacion(imagen) : undefined
       await crearPublicacionCompleta({
         contenido: texto,
         tipoContenido: tipo,
@@ -163,6 +172,8 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
+        padding: '16px',
+        boxSizing: 'border-box',
       }}
     >
       <div
@@ -171,6 +182,8 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
           borderRadius: '8px',
           padding: '1.5rem',
           width: '100%',
+          boxSizing: 'border-box',
+          minWidth: 0,
           maxWidth: '480px',
           maxHeight: '90vh',
           overflowY: 'auto',
@@ -182,6 +195,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
         </h2>
 
         <textarea
+          aria-label="Contenido de la publicación"
           value={contenido}
           onChange={(e) => setContenido(e.target.value)}
           placeholder="Escribe algo para compartir..."
@@ -217,15 +231,23 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
 
         {tipo === 'IMAGEN' && (
           <label style={etiquetaCampo}>
-            URL de la imagen
+            Imagen del dispositivo
             <input
-              type="url"
-              value={fotoUrl}
-              onChange={(e) => setFotoUrl(e.target.value)}
-              placeholder="https://..."
+              type="file"
+              accept="image/png,image/jpeg"
+              onChange={(e) => {
+                const archivo = e.target.files?.[0]
+                if (!archivo) { setImagen(null); return }
+                if (!['image/png', 'image/jpeg'].includes(archivo.type) || archivo.size > 5 * 1024 * 1024) {
+                  setError('Elegí una imagen PNG o JPEG de hasta 5 MB.'); setImagen(null); e.target.value = ''; return
+                }
+                setError(''); setImagen(archivo)
+              }}
               disabled={enviando}
               style={campo}
             />
+            <span>PNG o JPEG, hasta 5 MB.</span>
+            {vistaPrevia && <img src={vistaPrevia} alt="Vista previa de la imagen seleccionada" style={{ width: '100%', maxHeight: 240, objectFit: 'contain', marginTop: 12, borderRadius: 8 }} />}
           </label>
         )}
 

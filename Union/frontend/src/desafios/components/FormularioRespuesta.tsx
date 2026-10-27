@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { RespuestaDesafio, ContenidoRespuesta, FormatoContenido } from '../../domain/RespuestaDesafio'
 import { Desafio, TipoContenidoRespuesta } from '../../domain/Desafio'
+import { leerArchivoPersistente } from '../../services/imagenPersistente'
 
 /**
  * Props para FormularioRespuesta (T055)
@@ -121,7 +122,9 @@ export const FormularioRespuesta: React.FC<FormularioRespuestaProps> = ({
 
       // Crear contenido usando type narrowing
       const id = `respuesta-${Date.now()}`
-      const url = previewUrl || ''
+      let url = previewUrl || ''
+      try { if (archivoSeleccionado) url = await leerArchivoPersistente(archivoSeleccionado) }
+      catch (e) { setErrores({ contenido: e instanceof Error ? e.message : 'No pudimos leer el archivo.' }); return }
       const formato = obtenerFormato(archivoSeleccionado?.name || '')
       
       const nuevoContenido: ContenidoRespuesta = 

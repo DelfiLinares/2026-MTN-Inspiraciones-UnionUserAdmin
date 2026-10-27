@@ -28,7 +28,7 @@ interface DesafioDetailDto {
     inicio: string
     fin: string
   }
-  ambitos?: Array<{
+  ambitos?: Array<string | {
     valor: string
   }>
   version?: number
@@ -109,7 +109,7 @@ export const EditarDesafioPage: React.FC = () => {
             : undefined
 
           const ambitos = (desafioResp.ambitos || []).map(
-            a => new AmbitoDesafio({ valor: a.valor })
+            a => new AmbitoDesafio({ valor: typeof a === 'string' ? a : a.valor })
           )
 
           const desafioEntity = new Desafio({

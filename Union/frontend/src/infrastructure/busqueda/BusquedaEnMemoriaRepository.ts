@@ -57,9 +57,10 @@ export class BusquedaEnMemoriaRepository implements BusquedaRepository {
     this.antesDeResponder = opciones.antesDeResponder
   }
 
-  async obtenerFyp(cursor?: string, signal?: AbortSignal): Promise<PaginaResultados> {
+  async obtenerFyp(cursor?: string, signal?: AbortSignal, criterios?: CriteriosBusqueda): Promise<PaginaResultados> {
     await this.esperar(signal)
-    return this.paginar(this.datos, cursor)
+    const datos = criterios ? this.datos.filter(d => this.coincide(d, criterios.limpiarTexto())) : this.datos
+    return this.paginar(datos, cursor)
   }
 
   async buscar(

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { Foto, FormatoFoto } from '../domain/Foto'
+import { leerImagenPersistente } from '../services/imagenPersistente'
 
 /**
  * Props para SelectorFotos (T051)
@@ -35,14 +36,17 @@ export const SelectorFotos: React.FC<SelectorFotosProps> = ({
   deshabilitado = false,
 }) => {
   const [inputKey, setInputKey] = useState(0)
+  const [leyendo, setLeyendo] = useState(false)
+  const [errorArchivo, setErrorArchivo] = useState('')
 
   const handleArchivoSeleccionado = useCallback(
-    (evento: React.ChangeEvent<HTMLInputElement>) => {
+    async (evento: React.ChangeEvent<HTMLInputElement>) => {
       const archivos = evento.currentTarget.files
       if (!archivos) return
 
       const nuevasFotos: Foto[] = [...fotos]
-
+      setLeyendo(true); setErrorArchivo('')
+      try {
       for (let i = 0; i < archivos.length && nuevasFotos.length < 5; i++) {
         const archivo = archivos[i]
         const formato = archivo.type === 'image/jpeg' ? 'JPEG' : 
@@ -51,7 +55,7 @@ export const SelectorFotos: React.FC<SelectorFotosProps> = ({
         if (formato) {
           const foto = new Foto({
             id: `temp-${Date.now()}-${Math.random()}`,
-            url: URL.createObjectURL(archivo),
+            url: await leerImagenPersistente(archivo),
             formato: formato as FormatoFoto,
             principal: nuevasFotos.length === 0, // Primera foto es principal por defecto
           })
@@ -61,6 +65,8 @@ export const SelectorFotos: React.FC<SelectorFotosProps> = ({
 
       onCambio(nuevasFotos)
       setInputKey(prev => prev + 1) // Reiniciar input para permitir el mismo archivo
+      } catch (e) { setErrorArchivo(e instanceof Error ? e.message : 'No pudimos leer la imagen.') }
+      finally { setLeyendo(false) }
     },
     [fotos, onCambio]
   )
@@ -98,6 +104,8 @@ export const SelectorFotos: React.FC<SelectorFotosProps> = ({
 
   return (
     <div className="space-y-4">
+      {errorArchivo && <p role="alert">{errorArchivo}</p>}
+      {leyendo && <p role="status">Preparando imágenes…</p>}
       <div>
         <label htmlFor="selector-fotos" className="block text-sm font-medium text-gray-700 mb-2">
           Fotos del desafío
@@ -112,7 +120,7 @@ export const SelectorFotos: React.FC<SelectorFotosProps> = ({
             multiple
             accept="image/jpeg,image/png"
             onChange={handleArchivoSeleccionado}
-            disabled={deshabilitado}
+            disabled={deshabilitado || leyendo}
             className="block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-full file:border-0

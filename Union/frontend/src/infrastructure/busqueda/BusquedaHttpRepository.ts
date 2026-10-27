@@ -13,7 +13,7 @@ export interface HttpClientBusqueda {
   get<T>(path: string, options?: HttpRequestOptions): Promise<T>
 }
 
-export const RUTA_FYP = '/feed/fyp'
+export const RUTA_FYP = '/feed/recomendaciones'
 export const RUTA_BUSQUEDA = '/publicaciones/busqueda'
 export const RUTA_CATALOGO = '/filtros/catalogo'
 
@@ -27,7 +27,7 @@ const PARAM_POR_FILTRO: ReadonlyArray<readonly [TipoFiltro, string]> = [
 
 /**
  * Repositorio contra la API REST de búsqueda (contrato: contracts/openapi.yaml).
- * No hay API real todavía: no se usa salvo con `VITE_BUSQUEDA_REPOSITORIO=http`.
+ * Usa las rutas de la API Java; las demostraciones en memoria requieren selección explícita.
  *
  * - Los arrays se serializan como claves repetidas dentro del path (el `httpClient`
  *   compartido solo admite `params` de clave única y no se modifica).
@@ -37,10 +37,22 @@ const PARAM_POR_FILTRO: ReadonlyArray<readonly [TipoFiltro, string]> = [
 export class BusquedaHttpRepository implements BusquedaRepository {
   constructor(private readonly http: HttpClientBusqueda = httpClient) {}
 
-  async obtenerFyp(cursor?: string, signal?: AbortSignal): Promise<PaginaResultados> {
+  async obtenerFyp(cursor?: string, signal?: AbortSignal, criterios?: CriteriosBusqueda): Promise<PaginaResultados> {
+    // La API de recomendaciones no recibe filtros. La búsqueda admite q vacío y
+    // devuelve el catálogo filtrado, con su propio cursor, sin filtrar una sola página localmente.
+    if (criterios?.filtros.length) return this.buscar(criterios.limpiarTexto(), cursor, signal)
     const query = new URLSearchParams()
     this.agregarPaginacion(query, cursor)
-    return mapearPagina(await this.obtener(RUTA_FYP, query, signal))
+    const raw = await this.obtener(RUTA_FYP, query, signal)
+    if (!raw || typeof raw !== 'object' || !Array.isArray((raw as { items?: unknown }).items)) return mapearPagina(raw)
+    const pagina = raw as { items: Array<{ id: string; contenido: string; usuarioId: string; fotoUrl?: string; tipoContenido: string; estado: string }>; nextCursor?: string | null }
+    return mapearPagina({
+      items: pagina.items.map(p => ({ id: p.id, titulo: p.contenido,
+        autor: { id: p.usuarioId, nombre: 'Ver autor' }, miniaturaUrl: p.fotoUrl ?? '',
+        tipoContenido: p.tipoContenido,
+        estado: p.estado })),
+      cursorSiguiente: pagina.nextCursor ?? null,
+    })
   }
 
   async buscar(

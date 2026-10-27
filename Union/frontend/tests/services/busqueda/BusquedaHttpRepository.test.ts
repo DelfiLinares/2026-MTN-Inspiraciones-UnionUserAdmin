@@ -28,7 +28,9 @@ const paginaDto = {
 }
 
 function clienteFalso(respuesta: unknown = paginaDto) {
-  const get = vi.fn(async (_ruta: string, _opciones?: { signal?: AbortSignal }) => respuesta)
+  const get = vi.fn(async (ruta: string, _opciones?: { signal?: AbortSignal }) => ruta.startsWith(RUTA_FYP) && respuesta === paginaDto ? {
+    items: [{ id: 'p1', contenido: 'Obra', usuarioId: 'a', fotoUrl: 'https://x/1.jpg', tipoContenido: 'IMAGEN', estado: 'ACTIVA' }], nextCursor: 'sig',
+  } : respuesta)
   return { get: get as unknown as HttpClientBusqueda['get'], mock: get }
 }
 
@@ -39,6 +41,25 @@ function clienteQueFalla(error: unknown) {
 const f = (tipo: TipoFiltro, valor: string) => new FiltroActivo(tipo, valor)
 
 describe('BusquedaHttpRepository — peticiones', () => {
+  it('aplica filtros sin texto y conserva los criterios y el cursor al paginar', async () => {
+    const { get, mock } = clienteFalso()
+    const repo = new BusquedaHttpRepository({ get })
+    const criterios = CriteriosBusqueda.vacio().conTexto('a')
+      .conFiltro(f(TipoFiltro.ESTILO, 'Realismo'))
+      .conFiltro(f(TipoFiltro.TECNICA, 'Grafito'))
+    const ctrl = new AbortController()
+    await repo.obtenerFyp(undefined, ctrl.signal, criterios)
+    await repo.obtenerFyp('20', ctrl.signal, criterios)
+    for (const [ruta, opciones] of mock.mock.calls) {
+      expect(ruta.startsWith(`${RUTA_BUSQUEDA}?`)).toBe(true)
+      const query = new URLSearchParams(ruta.split('?')[1])
+      expect(query.get('q')).toBe('')
+      expect(query.get('estilo')).toBe('Realismo')
+      expect(query.get('tecnica')).toBe('Grafito')
+      expect(opciones?.signal).toBe(ctrl.signal)
+    }
+    expect(new URLSearchParams(mock.mock.calls[1][0].split('?')[1]).get('cursor')).toBe('20')
+  })
   it('obtenerFyp: GET /feed/fyp con limite=20 y sin cursor en la primera página', async () => {
     const { get, mock } = clienteFalso()
     const pagina = await new BusquedaHttpRepository({ get }).obtenerFyp()

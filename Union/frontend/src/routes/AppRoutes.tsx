@@ -19,6 +19,9 @@ import { CuestionarioPage } from '../presentation/cuestionario/CuestionarioPage'
 import { RecuperarContrasenaPage } from '../pages/recuperar'
 import { ApelarSuspensionPage } from '../pages/apelacion'
 import { PaginaBusqueda } from '../pages/busqueda'
+import { NotificacionesPage } from '../pages/notificaciones/NotificacionesPage'
+import { ConfiguracionNotificacionesPage } from '../pages/notificaciones/ConfiguracionNotificacionesPage'
+import { DetalleInspiracionPage } from '../pages/busqueda/DetalleInspiracionPage'
 
 /**
  * Envuelve las rutas públicas de autenticación (login/registro).
@@ -41,6 +44,9 @@ const RutaPublicaDeAutenticacion: React.FC<{ children: React.ReactNode }> = ({ c
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
+      <Route path="/publicaciones/:id" element={<RutaProtegida><DetalleInspiracionPage /></RutaProtegida>} />
+      <Route path="/notificaciones" element={<RutaProtegida><NotificacionesPage /></RutaProtegida>} />
+      <Route path="/notificaciones/configuracion" element={<RutaProtegida><ConfiguracionNotificacionesPage /></RutaProtegida>} />
       {/* Rutas públicas */}
       <Route
         path="/login"

@@ -23,8 +23,9 @@ export const PerfilSiteHeader: React.FC<PerfilSiteHeaderProps> = ({ usuario }) =
           InspiraBoard
         </Link>
         <nav className="home-site-nav" aria-label="Navegación principal">
-          <Link to="/feed#comunidad">Descubre</Link>
-          <Link to="/feed#challenge">Challenge</Link>
+          <Link to="/buscar">Descubre</Link>
+          <Link to="/notificaciones">Notificaciones</Link>
+          <Link to="/desafios">Challenge</Link>
           <Link className="home-profile" to="/perfil" aria-label="Mi perfil">
             <span aria-hidden="true">{inicial}</span>
           </Link>

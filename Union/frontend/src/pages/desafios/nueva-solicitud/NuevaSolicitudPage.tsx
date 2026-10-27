@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FormularioSolicitud } from '../../../desafios/components/FormularioSolicitud'
 import { SolicitudDesafio } from '../../../domain/SolicitudDesafio'
@@ -9,6 +9,14 @@ export const NuevaSolicitudPage: React.FC = () => {
   const navigate = useNavigate()
   const [enviando, setEnviando] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [ambitos, setAmbitos] = useState<string[]>([])
+  useEffect(() => {
+    const control = new AbortController()
+    httpClient.get<Array<{ valor: string }>>('/ambitos', { signal: control.signal })
+      .then(lista => { if (!control.signal.aborted) setAmbitos(lista.map(a => a.valor)) })
+      .catch(() => { if (!control.signal.aborted) setError('No pudimos cargar los ámbitos. Recargá la página para reintentar.') })
+    return () => control.abort()
+  }, [])
 
   const handleEnviarSolicitud = async (solicitud: SolicitudDesafio) => {
     setEnviando(true)
@@ -80,7 +88,7 @@ export const NuevaSolicitudPage: React.FC = () => {
       )}
 
       <section className="nueva-solicitud-formulario">
-        <FormularioSolicitud onEnviar={handleEnviarSolicitud} cargando={enviando} />
+        <FormularioSolicitud ambitorDisponibles={ambitos} onEnviar={handleEnviarSolicitud} cargando={enviando} />
       </section>
 
       <footer className="nueva-solicitud-ayuda">

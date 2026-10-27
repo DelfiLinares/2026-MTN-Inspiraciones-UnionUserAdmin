@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { describe, expect, it, vi } from 'vitest'
 // Lectura del contrato como texto (solo lectura; sin @types/node ni parser YAML).
-import yaml from '../../../../specs/007-inspiraciones-busqueda/contracts/openapi.yaml?raw'
+import contratoYaml from '../../../../specs/007-inspiraciones-busqueda/contracts/openapi.yaml?raw'
 import {
   BusquedaHttpRepository,
   RUTA_BUSQUEDA,
@@ -19,6 +19,9 @@ import {
 import { EstadoPublicacion } from '../../../src/domain/enums/EstadoPublicacion'
 import { TipoContenido } from '../../../src/domain/enums/TipoContenido'
 import { TipoFiltro } from '../../../src/domain/enums/TipoFiltro'
+
+// Git puede convertir los saltos a CRLF en Windows; el contrato conserva el mismo contenido.
+const yaml = contratoYaml.replace(/\r\n/g, '\n')
 
 /**
  * T024 (opcional): el cliente HTTP coincide con contracts/openapi.yaml.

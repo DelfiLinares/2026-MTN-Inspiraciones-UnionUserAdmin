@@ -24,6 +24,13 @@ import { Publicacion } from '../domain/Publicacion'
 import { TipoContenido } from '../domain/enums/TipoContenido'
 import { EstadoPublicacion } from '../domain/enums/EstadoPublicacion'
 
+export async function subirImagenPublicacion(imagen: File): Promise<string> {
+  const formulario = new FormData()
+  formulario.append('imagen', imagen)
+  const resultado = await httpClient.post<{ url: string }>('/imagenes', formulario)
+  return resultado.url
+}
+
 export interface LikeResponseDto {
   cantidadLikes?: number
   reaccionesCount?: number
@@ -349,7 +356,7 @@ export async function crearPublicacionCompleta(datos: NuevaPublicacionInput): Pr
   }
   const fotoUrl = datos.fotoUrl?.trim()
   if (datos.tipoContenido === 'IMAGEN' && !fotoUrl) {
-    throw new Error('Las publicaciones con imagen necesitan una URL de foto.')
+    throw new Error('Elegí una imagen para la publicación.')
   }
 
   const dto = await httpClient.post<PublicacionDto>(apiEndpoints.publicaciones(), {

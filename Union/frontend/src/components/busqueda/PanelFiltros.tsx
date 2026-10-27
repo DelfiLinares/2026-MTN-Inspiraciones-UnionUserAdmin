@@ -18,10 +18,14 @@ export interface PanelFiltrosProps {
 }
 
 const TIPOS_CONTENIDO = [
+  { valor: TipoContenido.TEXTO, etiqueta: 'Texto' },
+  { valor: TipoContenido.MIXTO, etiqueta: 'Mixto' },
   { valor: TipoContenido.IMAGEN, etiqueta: 'Imagen' },
   { valor: TipoContenido.VIDEO, etiqueta: 'Video' },
   { valor: TipoContenido.MUSICA, etiqueta: 'Música' },
   { valor: TipoContenido.TUTORIAL, etiqueta: 'Tutorial' },
+  { valor: TipoContenido.ESCULTURA, etiqueta: 'Escultura' },
+  { valor: TipoContenido.DIGITAL, etiqueta: 'Digital' },
 ]
 
 const GRUPOS_DE_CATALOGO = [

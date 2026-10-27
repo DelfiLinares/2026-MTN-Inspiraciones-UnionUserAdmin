@@ -1,29 +1,44 @@
 openapi: 3.0.3
 info:
-  title: API de Búsqueda y Descubrimiento de Publicaciones (contrato para el backend futuro)
-  version: 0.1.0
+  title: API de Búsqueda y Descubrimiento de Publicaciones
+  version: 0.2.0
   description: |
-    Contrato que deberá cumplir la API REST de Java. No se implementa en este repositorio.
+    Contrato integrado con la API REST de Java. El adaptador del front transforma el feed Java a tarjetas de búsqueda.
     Solo lectura. Elementos marcados con `x-pending` dependen de ambigüedades de spec.md y NO están decididos.
 servers:
-  - url: /api/v1
+  - url: /api
 security:
   - bearerAuth: []
 paths:
-  /feed/fyp:
+  /feed/recomendaciones:
     get:
       operationId: obtenerFeedFyp
       summary: Página del feed "Para ti". El orden y contenido los decide la API.
       parameters:
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limite'
-        - $ref: '#/components/parameters/Estilo'
-        - $ref: '#/components/parameters/Tecnica'
-        - $ref: '#/components/parameters/TipoArte'
-        - $ref: '#/components/parameters/TipoContenido'
-        - $ref: '#/components/parameters/Distancia'
       responses:
-        '200': { $ref: '#/components/responses/Pagina' }
+        '200':
+          description: Feed personalizado de Java, con cursor opaco independiente del cursor de búsqueda.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, nextCursor]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, usuarioId, contenido, tipoContenido, estado]
+                      properties:
+                        id: { type: string }
+                        usuarioId: { type: string }
+                        contenido: { type: string }
+                        fotoUrl: { type: string, nullable: true }
+                        tipoContenido: { type: string, enum: [TEXTO, IMAGEN, MIXTO] }
+                        estado: { $ref: '#/components/schemas/EstadoPublicacion' }
+                  nextCursor: { type: string, nullable: true }
         '400': { $ref: '#/components/responses/Error400' }
         '401': { $ref: '#/components/responses/Error401' }
         '403': { $ref: '#/components/responses/Error403' }

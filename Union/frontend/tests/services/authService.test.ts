@@ -34,6 +34,7 @@ vi.mock('../../src/infrastructure/httpClient', async (importOriginal: () => Prom
     httpClient: {
       post: vi.fn(),
       get: vi.fn(),
+      delete: vi.fn(),
     },
   }
 })

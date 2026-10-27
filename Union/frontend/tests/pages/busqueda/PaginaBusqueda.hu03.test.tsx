@@ -144,12 +144,7 @@ describe('PaginaBusqueda — HU-03: filtros', () => {
     }
   })
 
-  /**
-   * CA-03.6: los filtros aplican también al FYP (sin texto buscable). Este caso depende de que
-   * `CargarFeedFyp` reciba los criterios: el puerto `obtenerFyp(cursor?, signal?)` (T019) hoy no
-   * los recibe, aunque plan.md y `GET /feed/fyp` del contrato sí admiten filtros. Es la
-   * inconsistencia abierta; hasta resolverla este test fallará, a propósito.
-   */
+  /** CA-03.6: los filtros se conservan también sin texto buscable. */
   it('sin texto buscable, los filtros también se aplican al FYP (CA-03.6)', async () => {
     renderizarPagina()
     await esperarTarjetas(TAMANO_PAGINA)

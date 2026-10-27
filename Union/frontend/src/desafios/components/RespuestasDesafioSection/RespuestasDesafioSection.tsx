@@ -69,21 +69,23 @@ export const RespuestasDesafioSection: React.FC<RespuestasDesafioSectionProps> =
       // Preparar payload
       const payload = {
         contenido: respuesta.contenido,
+        version: respuestaEnEdicion?.version,
       }
 
       // Si es edición, usar PUT; si es creación, usar POST
       if (respuestaEnEdicion?.id) {
         // Editar respuesta existente
-        await httpClient.put(`/desafios/${desafio.id}/respuestas/${respuestaEnEdicion.id}`, payload)
+        const actualizada = await httpClient.put<{ version: number }>(`/desafios/${desafio.id}/respuestas/${respuestaEnEdicion.id}`, payload)
         const respuestaActualizada = new RespuestaDesafio({
           ...respuestaEnEdicion,
           ...respuesta,
           desafioId: desafio.id,
+          version: actualizada.version,
         })
         onRespuestaEditada?.(respuestaActualizada)
       } else {
         // Crear nueva respuesta
-        const resultado = await httpClient.post<{ id: string }>(
+        const resultado = await httpClient.post<{ id: string; version: number }>(
           `/desafios/${desafio.id}/respuestas`,
           payload,
         )
@@ -91,6 +93,7 @@ export const RespuestasDesafioSection: React.FC<RespuestasDesafioSectionProps> =
         if (resultado?.id) {
           const respuestaCreada = new RespuestaDesafio({
             id: resultado.id,
+            version: resultado.version,
             desafioId: desafio.id,
             autorId: sesionActual?.usuarioId,
             contenido: respuesta.contenido,
