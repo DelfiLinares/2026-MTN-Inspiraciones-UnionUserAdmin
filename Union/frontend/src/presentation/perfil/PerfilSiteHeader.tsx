@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import '../../pages/home/home.css'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { CerrarSesionButton } from '../shared/CerrarSesionButton'
+import { Marca } from '../shared/Marca'
 
 /**
  * `PerfilSiteHeader`: Barra de navegación del sitio para las vistas de perfil.
@@ -20,12 +21,12 @@ export const PerfilSiteHeader: React.FC<PerfilSiteHeaderProps> = ({ usuario }) =
     <div className="home-page" style={{ minHeight: 'auto' }}>
       <header className="home-site-header">
         <Link className="home-brand" to="/feed">
-          InspiraBoard
+          <Marca />
         </Link>
         <nav className="home-site-nav" aria-label="Navegación principal">
-          <Link to="/buscar">Descubre</Link>
+          <Link to="/buscar">Descubrir</Link>
           <Link to="/notificaciones">Notificaciones</Link>
-          <Link to="/desafios">Challenge</Link>
+          <Link to="/desafios">Desafíos</Link>
           <Link className="home-profile" to="/perfil" aria-label="Mi perfil">
             <span aria-hidden="true">{inicial}</span>
           </Link>

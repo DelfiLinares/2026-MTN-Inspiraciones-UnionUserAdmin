@@ -10,7 +10,7 @@
 .publicar-desafio-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--color-subtle);
   padding: 2rem 1rem;
 }
 
@@ -29,7 +29,7 @@
 
 .publicar-desafio-subtitulo {
   font-size: 1.1rem;
-  color: #6b7280;
+  color: var(--color-muted);
   margin: 0;
 }
 
@@ -44,10 +44,10 @@
 .publicar-desafio-error {
   grid-column: 1 / -1;
   padding: 1rem;
-  background-color: #fee2e2;
+  background-color: var(--color-error-surface);
   border: 1px solid #fecaca;
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--color-error);
   margin-bottom: 2rem;
 }
 
@@ -55,12 +55,12 @@
   background-color: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .publicar-desafio-ayuda {
   background-color: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-action);
   border-radius: 8px;
   padding: 1.5rem;
 }
@@ -68,7 +68,7 @@
 .publicar-desafio-ayuda h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--color-action);
   margin-top: 0;
   margin-bottom: 1rem;
 }
@@ -81,19 +81,19 @@
 
 .publicar-desafio-ayuda li {
   padding: 0.5rem 0;
-  color: #1e40af;
+  color: var(--color-action);
   line-height: 1.6;
 }
 
 .publicar-desafio-ayuda strong {
   font-weight: 600;
-  color: #1e40af;
+  color: var(--color-action);
 }
 
 .publicar-desafio-nota {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: #dbeafe;
+  background-color: var(--color-selection);
   border-radius: 4px;
   color: #0c4a6e;
   font-size: 0.9rem;

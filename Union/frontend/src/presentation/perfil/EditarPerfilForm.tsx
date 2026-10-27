@@ -257,15 +257,10 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
 
   return (
     <form
+      className="trama-edit-profile"
       onSubmit={handleSubmit}
-      style={{
-        maxWidth: '500px',
-        margin: '0 auto',
-        padding: '2rem',
-        fontFamily: 'sans-serif',
-      }}
     >
-      <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '1.5rem', color: '#1f2937' }}>
+      <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--color-text)' }}>
         Editar Perfil
       </h2>
 
@@ -273,13 +268,13 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
       {errorServidor && (
         <div
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--color-error-surface)',
+            border: '1px solid var(--color-error)',
+            borderRadius: '10px',
             padding: '0.75rem',
             marginBottom: '1.5rem',
-            fontSize: '13px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--color-error)',
           }}
         >
           {errorServidor}
@@ -290,13 +285,13 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
       {errores.general && (
         <div
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--color-error-surface)',
+            border: '1px solid var(--color-error)',
+            borderRadius: '10px',
             padding: '0.75rem',
             marginBottom: '1.5rem',
-            fontSize: '13px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--color-error)',
           }}
         >
           {errores.general}
@@ -309,10 +304,10 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="nombreUsuario"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--color-text)',
           }}
         >
           Nombre de usuario *
@@ -335,20 +330,20 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.nombreUsuario ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.nombreUsuario ? '1px solid #ef4444' : '1px solid var(--color-control)',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontFamily: 'inherit',
             boxSizing: 'border-box',
           }}
           maxLength={10}
         />
         {errores.nombreUsuario && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-error)' }}>
             {errores.nombreUsuario}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-muted)' }}>
           Máximo 10 caracteres, sin espacios. Solo letras, números, guiones bajos y puntos.
         </p>
       </div>
@@ -359,10 +354,10 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="sobreMi"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--color-text)',
           }}
         >
           Sobre mí
@@ -385,21 +380,21 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.sobreMi ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.sobreMi ? '1px solid #ef4444' : '1px solid var(--color-control)',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontFamily: 'inherit',
             boxSizing: 'border-box',
             resize: 'vertical',
           }}
           maxLength={80}
         />
         {errores.sobreMi && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-error)' }}>
             {errores.sobreMi}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-muted)' }}>
           {sobreMi.length}/80 caracteres
         </p>
       </div>
@@ -410,10 +405,10 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="descripcion"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--color-text)',
           }}
         >
           Descripción
@@ -436,28 +431,28 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.descripcion ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.descripcion ? '1px solid #ef4444' : '1px solid var(--color-control)',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontFamily: 'inherit',
             boxSizing: 'border-box',
             resize: 'vertical',
           }}
           maxLength={200}
         />
         {errores.descripcion && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-error)' }}>
             {errores.descripcion}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-muted)' }}>
           {descripcion.length}/200 caracteres
         </p>
       </div>
 
       {/* TODO (T023): PhotoUploadField para cambio de foto */}
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f3f4f6', borderRadius: '6px' }}>
-        <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
+      <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'var(--color-subtle)', borderRadius: '10px' }}>
+        <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-muted)' }}>
           Podés cambiar tu foto desde el botón de tu perfil.
         </p>
       </div>
@@ -470,11 +465,11 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             flex: 1,
             padding: '0.75rem',
-            backgroundColor: '#4b5563',
+            backgroundColor: 'var(--color-action)',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
+            borderRadius: '10px',
+            fontSize: '14px',
             fontWeight: '600',
             cursor: enviando ? 'not-allowed' : 'pointer',
             opacity: enviando ? 0.6 : 1,
@@ -490,11 +485,11 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
             style={{
               flex: 1,
               padding: '0.75rem',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
+              backgroundColor: 'var(--color-border)',
+              color: 'var(--color-text)',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
+              borderRadius: '10px',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: enviando ? 'not-allowed' : 'pointer',
             }}

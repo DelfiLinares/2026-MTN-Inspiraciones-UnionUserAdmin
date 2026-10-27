@@ -18,7 +18,7 @@ export const DashboardPage: React.FC = () => {
   useEffect(() => { void cargar() }, [cargar])
   const valor = (n: number | undefined) => n === undefined ? 'Sin datos' : n.toLocaleString('es-AR')
   return <section>
-    <AdminHeading titulo="Resumen de la comunidad" descripcion="El estado de InspiraBoard y las tareas que necesitan tu atención.">
+    <AdminHeading titulo="Resumen de la comunidad" descripcion="El estado de Trama y las tareas que necesitan tu atención.">
       <button type="button" onClick={cargar} disabled={cargando}>{cargando ? 'Actualizando…' : 'Actualizar'}</button>
     </AdminHeading>
     {cargando && <Spinner texto="Cargando indicadores..." tamano="lg" />}

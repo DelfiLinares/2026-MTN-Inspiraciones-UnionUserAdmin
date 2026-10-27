@@ -15,6 +15,7 @@ import {
   obtenerMisInteresesOnboarding,
 } from '../../services/onboardingInteresesService';
 import { CerrarSesionButton } from '../shared/CerrarSesionButton';
+import { Marca } from '../shared/Marca';
 import './cuestionario.css';
 
 /**
@@ -261,6 +262,7 @@ export const CuestionarioPage: React.FC<CuestionarioPageProps> = ({
     <div className="cuestionario-page">
       <div className="cuestionario-page__container">
         <div className="cuestionario-page__toolbar">
+          <Marca />
           <CerrarSesionButton />
         </div>
         {/* Bienvenida */}

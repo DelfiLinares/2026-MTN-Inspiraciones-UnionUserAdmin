@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { ObtenerCatalogoFiltros } from '../../application/busqueda/ObtenerCatalogoFiltros'
 import type { BusquedaRepository } from '../../application/busqueda/BusquedaRepository'
 import { CodecCriteriosUrl } from '../../domain/busqueda/CodecCriteriosUrl'
 import type { CatalogoFiltros } from '../../domain/busqueda/CatalogoFiltros'
-import type { CriteriosBusqueda } from '../../domain/busqueda/CriteriosBusqueda'
 import type { ErrorBusqueda } from '../../domain/busqueda/ErrorBusqueda'
 import type { SesionUsuarioPort } from '../../application/busqueda/SesionUsuarioPort'
 import { EstadoCarga } from '../../domain/enums/EstadoCarga'
@@ -137,7 +136,7 @@ export function PaginaBusqueda({
 
   return (
     <main className="pagina-busqueda">
-      <Link to="/feed">Volver a InspiraBoard</Link>
+      <h1>Descubrir</h1>
       <div className="pagina-busqueda__barra">
         <BarraBusqueda valor={criterios.texto} onCambiar={cambiarTexto} />
         <ChipsFiltrosActivos

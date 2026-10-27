@@ -1,3 +1,51 @@
+@font-face {
+  font-family: Inter;
+  src: url('/Inter-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #202327;
+  background: #faf9f6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --color-background: #faf9f6;
+  --color-surface: #fff;
+  --color-subtle: #f1f2f4;
+  --color-text: #202327;
+  --color-muted: #62666d;
+  --color-border: #dedfe3;
+  --color-control: #82858b;
+  --color-action: #2447d8;
+  --color-action-hover: #1c37b0;
+  --color-action-pressed: #182f96;
+  --color-on-action: #fff;
+  --color-selection: #e8edff;
+  --color-disabled: #e7e8eb;
+  --color-disabled-text: #777a80;
+  --color-success: #18734f;
+  --color-success-surface: #e7f4ec;
+  --color-error: #b42338;
+  --color-error-surface: #fdecef;
+  --color-warning: #7a4d00;
+  --color-warning-surface: #fff3d6;
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --radius-overlay: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body,
 #root {
@@ -7,4 +55,70 @@ body,
 
 body {
   min-width: 320px;
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--color-action);
+  background: var(--color-selection);
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+.trama-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text);
+  font: 600 1.8rem/1 Inter, system-ui, sans-serif;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.trama-marca img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

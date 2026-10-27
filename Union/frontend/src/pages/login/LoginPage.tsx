@@ -24,6 +24,7 @@ import {
   MENSAJE_CREDENCIALES_INVALIDAS,
 } from '../../services/authService'
 import './login.css'
+import { Marca } from '../../presentation/shared/Marca'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
@@ -105,8 +106,9 @@ export const LoginPage: React.FC = () => {
       </div>
 
       <section className="login-column" aria-labelledby="login-title">
+        <Link to="/login" aria-label="Trama, ingreso"><Marca /></Link>
         <h1 className="login-title" id="login-title">
-          Bienvenido de<br />vuelta
+          Ingresar
         </h1>
 
         <form className="login-form" onSubmit={handleSubmitMailPassword}>

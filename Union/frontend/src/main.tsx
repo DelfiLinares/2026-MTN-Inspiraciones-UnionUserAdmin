@@ -13,6 +13,7 @@ import ReactDOM from 'react-dom/client'
 import { App } from './App'
 import { config } from './infrastructure/config'
 import './global.css'
+import './trama.css'
 
 const contenedorRaiz = document.getElementById('root')
 

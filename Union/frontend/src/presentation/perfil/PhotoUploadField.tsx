@@ -160,12 +160,12 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
     <div
       style={{
         padding: '1.5rem',
-        backgroundColor: '#f9fafb',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
+        backgroundColor: 'var(--color-subtle)',
+        border: '1px solid var(--color-border)',
+        borderRadius: '12px',
       }}
     >
-      <h3 style={{ margin: '0 0 1rem 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+      <h3 style={{ margin: '0 0 1rem 0', fontSize: '14px', fontWeight: '600', color: 'var(--color-text)' }}>
         Foto de perfil
       </h3>
 
@@ -180,11 +180,11 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
               height: '120px',
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '2px solid #d1d5db',
+              border: '2px solid var(--color-control)',
             }}
           />
           {nombreArchivo && (
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+            <p style={{ margin: '0.5rem 0 0 0', fontSize: '14px', color: 'var(--color-muted)' }}>
               {nombreArchivo}
             </p>
           )}
@@ -206,13 +206,13 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
       {errorLocal && (
         <div
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--color-error-surface)',
+            border: '1px solid var(--color-error)',
+            borderRadius: '10px',
             padding: '0.75rem',
             marginBottom: '1rem',
-            fontSize: '12px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--color-error)',
           }}
         >
           {errorLocal}
@@ -223,13 +223,13 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
       {error && (
         <div
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--color-error-surface)',
+            border: '1px solid var(--color-error)',
+            borderRadius: '10px',
             padding: '0.75rem',
             marginBottom: '1rem',
-            fontSize: '12px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--color-error)',
           }}
         >
           {error}
@@ -242,10 +242,10 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
           style={{
             backgroundColor: '#dcfce7',
             border: '1px solid #bbf7d0',
-            borderRadius: '6px',
+            borderRadius: '10px',
             padding: '0.75rem',
             marginBottom: '1rem',
-            fontSize: '12px',
+            fontSize: '14px',
             color: '#166534',
           }}
         >
@@ -256,13 +256,13 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
       {/* Información sobre restricciones A2 */}
       <div
         style={{
-          backgroundColor: '#f3f4f6',
-          border: '1px solid #d1d5db',
-          borderRadius: '6px',
+          backgroundColor: 'var(--color-subtle)',
+          border: '1px solid var(--color-control)',
+          borderRadius: '10px',
           padding: '0.75rem',
           marginBottom: '1rem',
-          fontSize: '11px',
-          color: '#374151',
+          fontSize: '14px',
+          color: 'var(--color-text)',
         }}
       >
         <p style={{ margin: '0 0 0.25rem 0', fontWeight: '500' }}>Requisitos (A2):</p>
@@ -282,11 +282,11 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
           style={{
             flex: 1,
             padding: '0.5rem 1rem',
-            backgroundColor: '#4b5563',
+            backgroundColor: 'var(--color-action)',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '12px',
+            borderRadius: '10px',
+            fontSize: '14px',
             fontWeight: '600',
             cursor: enviando ? 'not-allowed' : 'pointer',
             opacity: enviando ? 0.6 : 1,
@@ -301,11 +301,11 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
             onClick={handleLimpiar}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
+              backgroundColor: 'var(--color-border)',
+              color: 'var(--color-text)',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '12px',
+              borderRadius: '10px',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
             }}

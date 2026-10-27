@@ -10,7 +10,7 @@
 .bandeja-solicitudes-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--color-subtle);
   padding: 2rem 1rem;
 }
 
@@ -29,7 +29,7 @@
 
 .bandeja-solicitudes-subtitulo {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--color-muted);
   margin: 0;
 }
 
@@ -37,10 +37,10 @@
   max-width: 1000px;
   margin: 0 auto 1.5rem;
   padding: 1rem;
-  background-color: #fee2e2;
+  background-color: var(--color-error-surface);
   border: 1px solid #fecaca;
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--color-error);
   font-size: 0.95rem;
 }
 
@@ -54,8 +54,8 @@
   border-radius: 8px;
   padding: 3rem;
   text-align: center;
-  color: #6b7280;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: var(--color-muted);
+  box-shadow: none;
 }
 
 .bandeja-solicitudes-vacio p {
@@ -78,7 +78,7 @@
   background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -87,7 +87,7 @@
 }
 
 .bandeja-solicitudes-item:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .bandeja-solicitudes-info {
@@ -104,7 +104,7 @@
 
 .bandeja-solicitudes-descripcion {
   margin: 0 0 0.75rem;
-  color: #4b5563;
+  color: var(--color-muted);
   line-height: 1.5;
   word-break: break-word;
 }
@@ -139,7 +139,7 @@
 }
 
 .bandeja-solicitudes-btn-aprobar:hover:not(:disabled) {
-  background-color: #059669;
+  background-color: var(--color-success);
 }
 
 .bandeja-solicitudes-btn-rechazar {
@@ -148,7 +148,7 @@
 }
 
 .bandeja-solicitudes-btn-rechazar:hover:not(:disabled) {
-  background-color: #dc2626;
+  background-color: var(--color-error);
 }
 
 .bandeja-solicitudes-btn-aprobar:disabled,
@@ -160,7 +160,7 @@
 .bandeja-solicitudes-cargando {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .bandeja-solicitudes-cargar-mas {
@@ -170,7 +170,7 @@
 
 .bandeja-solicitudes-btn-cargar {
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: var(--color-action);
   color: white;
   border: none;
   border-radius: 6px;
@@ -180,7 +180,7 @@
 }
 
 .bandeja-solicitudes-btn-cargar:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--color-action);
 }
 
 .bandeja-solicitudes-btn-cargar:disabled {
@@ -193,7 +193,7 @@
   margin: 3rem auto 0;
   padding: 1.5rem;
   background-color: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-action);
   border-radius: 8px;
 }
 
@@ -202,19 +202,19 @@
   margin-bottom: 1rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--color-action);
 }
 
 .bandeja-solicitudes-nota p {
   margin: 0.5rem 0;
   font-size: 0.9rem;
-  color: #1e40af;
+  color: var(--color-action);
   line-height: 1.5;
 }
 
 .bandeja-solicitudes-nota strong {
   font-weight: 600;
-  color: #1e40af;
+  color: var(--color-action);
 }
 
 /* Responsive */

@@ -27,14 +27,14 @@
   width: 100%;
   padding: 0.625rem 2.5rem 0.625rem 0.875rem;
   font: inherit;
-  border: 1px solid #6b7280;
+  border: 1px solid var(--color-muted);
   border-radius: 0.5rem;
   background: #fff;
 }
 
 .barra-busqueda__input:focus-visible,
 .barra-busqueda__borrar:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-action);
   outline-offset: 2px;
 }
 
@@ -45,7 +45,7 @@
   height: 2rem;
   font-size: 1.25rem;
   line-height: 1;
-  color: #4b5563;
+  color: var(--color-muted);
   background: transparent;
   border: 0;
   border-radius: 50%;
@@ -59,14 +59,14 @@
 .barra-busqueda__aviso {
   margin: 0.375rem 0 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 /* TarjetaPublicacion (T041) */
 .tarjeta-publicacion {
   overflow: hidden;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
 }
 
@@ -78,7 +78,7 @@
 
 /* Offset interno: la tarjeta tiene overflow hidden y recortaría un anillo externo. */
 .tarjeta-publicacion__enlace:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-action);
   outline-offset: -2px;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .tarjeta-publicacion__placeholder {
-  background: repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 8px, #f1f3f5 8px, #f1f3f5 16px);
+  background: var(--color-subtle);
 }
 
 .tarjeta-publicacion__cuerpo {
@@ -121,7 +121,7 @@
   margin: 0.125rem 0 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .panel-filtros {
@@ -133,14 +133,14 @@
 .panel-filtros__error {
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--color-error-surface);
+  color: var(--color-error);
 }
 
 .selector-filtro {
   margin: 0;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
 }
 
@@ -151,7 +151,7 @@
 .selector-filtro__aviso {
   margin: 0 0 0.25rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .selector-filtro__opciones {
@@ -179,7 +179,7 @@
 .chips-filtros button:focus-visible,
 .panel-filtros__error button:focus-visible,
 .selector-filtro__opcion input:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-action);
   outline-offset: 2px;
 }
 
@@ -209,14 +209,14 @@
   display: grid;
   overflow: hidden;
   padding-bottom: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   background: #fff;
 }
 
 .esqueleto-tarjetas__miniatura {
   aspect-ratio: 4 / 3;
-  background: #e5e7eb;
+  background: var(--color-border);
 }
 
 /* Replica el cuerpo de TarjetaPublicacion (título, autor y tipo) con las mismas alturas y márgenes. */
@@ -225,7 +225,7 @@
   height: 1.25rem;
   margin: 0.125rem 0.75rem 0;
   border-radius: 0.25rem;
-  background: #e5e7eb;
+  background: var(--color-border);
 }
 
 .esqueleto-tarjetas__tarjeta::after {
@@ -258,17 +258,17 @@
 
 .estado-busqueda--vacio {
   background: #f8fafc;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .estado-busqueda--error,
 .estado-busqueda--sin-permiso {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--color-error-surface);
+  color: var(--color-error);
 }
 
 .estado-busqueda button:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-action);
   outline-offset: 2px;
 }
 

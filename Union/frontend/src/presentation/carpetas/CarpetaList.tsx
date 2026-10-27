@@ -305,7 +305,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
           marginBottom: '1rem',
         }}
       >
-        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'var(--color-text)' }}>
           Carpetas {paginacion?.total !== undefined ? `(${paginacion.total})` : ''}
         </h2>
 
@@ -317,11 +317,11 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             title={alcanzoBtnCrear ? 'Has alcanzado el límite de 50 carpetas' : ''}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: alcanzoBtnCrear ? '#d1d5db' : '#4b5563',
+              backgroundColor: alcanzoBtnCrear ? 'var(--color-control)' : 'var(--color-muted)',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '12px',
+              borderRadius: '10px',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: alcanzoBtnCrear ? 'not-allowed' : 'pointer',
               opacity: alcanzoBtnCrear ? 0.5 : 1,
@@ -342,16 +342,16 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
           style={{
             padding: '2rem',
             textAlign: 'center',
-            backgroundColor: '#f9fafb',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            color: '#6b7280',
+            backgroundColor: 'var(--color-subtle)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '10px',
+            color: 'var(--color-muted)',
           }}
         >
           <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
             {esPerfilPropio ? 'No hay carpetas aún' : 'Sin carpetas públicas'}
           </p>
-          <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>
             {esPerfilPropio
               ? 'Crea una carpeta para organizar tus posts guardados'
               : 'Este usuario no tiene carpetas públicas'}
@@ -376,28 +376,28 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             key={carpeta.id}
             onClick={() => handleSelectCarpeta(carpeta)}
             style={{
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
+              backgroundColor: 'var(--color-subtle)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '10px',
               padding: '1rem',
               cursor: esPerfilPropio ? 'default' : 'pointer',
               transition: 'border-color 0.2s',
             }}
             onMouseEnter={(e) => {
               if (!esPerfilPropio) {
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#6b7280'
+                (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-muted)'
               }
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = '#e5e7eb'
+              (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--color-border)'
             }}
           >
             {/* AC-08.2: Nombre + postCount */}
             <div style={{ marginBottom: '0.75rem' }}>
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
+              <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'var(--color-text)' }}>
                 {carpeta.nombre}
               </p>
-              <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--color-muted)' }}>
                 {carpeta.postCount} post{carpeta.postCount !== 1 ? 's' : ''}
               </p>
             </div>
@@ -445,8 +445,8 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                     style={{
                       flex: 1,
                       padding: '0.4rem 0.5rem',
-                      backgroundColor: '#fee2e2',
-                      color: '#dc2626',
+                      backgroundColor: 'var(--color-error-surface)',
+                      color: 'var(--color-error)',
                       border: '1px solid #fca5a5',
                       borderRadius: '4px',
                       fontSize: '10px',
@@ -455,10 +455,10 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                       transition: 'background-color 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#fecaca'
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-error)'
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#fee2e2'
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-error-surface)'
                     }}
                   >
                     Eliminar
@@ -475,7 +475,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                     style={{
                       flex: 1,
                       padding: '0.4rem 0.5rem',
-                      backgroundColor: '#d1fae5',
+                      backgroundColor: 'var(--color-success-surface)',
                       color: '#0d9488',
                       border: '1px solid #6ee7b7',
                       borderRadius: '4px',
@@ -488,7 +488,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#a7f3d0'
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#d1fae5'
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-success-surface)'
                     }}
                   >
                     Publicaciones ({carpeta.postCount})
@@ -503,7 +503,7 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
 
       {/* Spinner mientras se cargan más (A6, paginación) */}
       {cargando && carpetas.length > 0 && (
-        <div style={{ textAlign: 'center', padding: '1rem', color: '#9ca3af', fontSize: '12px' }}>
+        <div style={{ textAlign: 'center', padding: '1rem', color: '#9ca3af', fontSize: '14px' }}>
           Cargando carpetas...
         </div>
       )}
@@ -516,11 +516,11 @@ export const CarpetaList: React.FC<CarpetaListProps> = ({
             disabled={cargandoMas}
             style={{
               padding: '0.5rem 1.5rem',
-              backgroundColor: '#f3f4f6',
-              color: '#374151',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '12px',
+              backgroundColor: 'var(--color-subtle)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-control)',
+              borderRadius: '10px',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: cargandoMas ? 'not-allowed' : 'pointer',
             }}

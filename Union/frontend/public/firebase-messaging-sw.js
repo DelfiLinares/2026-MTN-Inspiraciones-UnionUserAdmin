@@ -8,7 +8,7 @@ firebase.messaging().onBackgroundMessage(payload => {
   const tipo = payload.data?.tipo;
   const titulo = tipo === 'COMMENT' ? 'Nuevo comentario' : 'A alguien le gustó tu publicación';
   return self.registration.showNotification(titulo, {
-    body: 'Entrá a InspiraBoard para ver tu publicación.',
+    body: 'Entrá a Trama para ver tu publicación.',
     data: { resourceId: payload.data?.resourceId },
   });
 });

@@ -13,7 +13,6 @@ export function ChallengeInicio() {
     return () => control.abort()
   }, [])
   return <section className="home-challenge" id="challenge" aria-labelledby="home-challenge-title">
-    <div className="home-challenge-art" aria-hidden="true" />
     <div className="home-challenge-copy">
       <h2 id="home-challenge-title">{actual?.titulo ?? 'Desafíos de la comunidad'}</h2>
       <p>{actual?.descripcion ?? (error ? 'No pudimos cargar el desafío. Podés volver a intentarlo desde la lista.' : 'Explorá las consignas o proponé una idea para el próximo desafío.')}</p>

@@ -23,24 +23,11 @@ import { publicacionService } from '../../services/publicacionService'
 import { reporteService } from '../../services/reporteService'
 import { ApiError } from '../../infrastructure/httpClient'
 import { useInfiniteList } from '../../services/useInfiniteList'
-import { CerrarSesionButton } from '../../presentation/shared/CerrarSesionButton'
+import { Heart } from 'lucide-react'
 import type { Publicacion } from '../../domain/Publicacion'
 import type { MotivoReporte } from '../../domain/enums/MotivoReporte'
 import './home.css'
 import { ChallengeInicio } from './ChallengeInicio'
-
-const obtenerVarianteTarjeta = (indiceColumna: number, indiceEnColumna: number) => {
-  if (indiceColumna === 1 && indiceEnColumna === 0) {
-    return 'long'
-  }
-  if (indiceColumna === 2) {
-    return indiceEnColumna % 2 === 0 ? 'tall' : 'long'
-  }
-  if (indiceColumna === 0 && indiceEnColumna % 2 === 1) {
-    return 'tall'
-  }
-  return 'normal'
-}
 
 export const HomePage: React.FC = () => {
   const { usuario, estaAutenticado } = useAuth()
@@ -148,67 +135,33 @@ export const HomePage: React.FC = () => {
     }
   }
 
-  const columnas: Publicacion[][] = [[], [], []]
-  items.forEach((publicacion, indice) => {
-    columnas[indice % columnas.length].push(publicacion)
-  })
-
   return (
     <div className="home-page">
-      <header className="home-site-header">
-        <Link className="home-brand" to="/feed">InspiraBoard</Link>
-        <nav className="home-site-nav" aria-label="Navegación principal">
-            <Link to="/buscar">Descubre</Link>
-            <Link to="/notificaciones">Notificaciones</Link>
-          <a href="#challenge">Challenge</a>
-          <Link
-            className="home-profile"
-            to={usuario?.id ? `/perfil/${usuario.id}` : '/login'}
-            aria-label="Mi perfil"
-          >
-            <span aria-hidden="true">
-              {`${usuario?.nombre ?? ''} ${usuario?.apellido ?? ''}`
-                .trim()
-                .charAt(0)
-                .toUpperCase()}
-            </span>
-          </Link>
-            <CerrarSesionButton />
-        </nav>
-      </header>
-
       <main>
-        <section className="home-hero" aria-label="Contenido destacado">
-          <div><h1>Ideas que invitan a crear</h1><p>Encontrá referencias de la comunidad para tu próximo proyecto.</p><Link to="/buscar">Buscar inspiración</Link></div>
-        </section>
-
-        <ChallengeInicio />
-
         <section className="home-community" id="comunidad" aria-labelledby="home-community-title">
-          <h1 id="home-community-title">Inspirate de nuestra comunidad</h1>
+          <h1 id="home-community-title">Inicio</h1>
+
+          <ChallengeInicio />
 
           {items.length > 0 && (
             <div className="home-post-grid">
-              {columnas.map((columna, indiceColumna) => (
-                <div className="home-post-column" key={`columna-${indiceColumna}`}>
-                  {columna.map((publicacion, indiceEnColumna) => {
-                    const variante = obtenerVarianteTarjeta(indiceColumna, indiceEnColumna)
+                  {items.map((publicacion) => {
                     const contenido = String(publicacion.tipoContenido).toLocaleLowerCase('es-AR')
                     const likeEnCurso = idsConLikeEnCurso.has(publicacion.id)
                     const reportada = publicacion.reportadaPorUsuarioActual || idsReportados.has(publicacion.id)
 
                     return (
                       <article
-                        className={`home-post-card home-post-card--${variante}`}
+                        className="home-post-card"
                         key={publicacion.id}
                       >
-                        <div className="home-post-media">
+                        <Link className="home-post-media" to={`/publicaciones/${publicacion.id}`} aria-label={`Ver publicación: ${publicacion.contenido || contenido}`}>
                           {publicacion.fotoUrl ? (
                             <img src={publicacion.fotoUrl} alt={`Imagen de publicación: ${publicacion.contenido ?? contenido}`} />
                           ) : (
                             <span className="home-post-media-fallback" aria-hidden="true">{contenido}</span>
                           )}
-                        </div>
+                        </Link>
                         <div className="home-post-copy">
                           <div className="home-post-author">
                             <span className="home-post-avatar" aria-hidden="true">A</span>
@@ -234,9 +187,7 @@ export const HomePage: React.FC = () => {
                               disabled={likeEnCurso}
                               aria-label={publicacion.likeDelUsuarioActual ? 'Quitar Me gusta' : 'Dar Me gusta'}
                             >
-                              <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                              </svg>
+                              <Heart size={20} aria-hidden="true" />
                               <span>{publicacion.cantidadLikes}</span>
                             </button>
                             <button
@@ -254,15 +205,14 @@ export const HomePage: React.FC = () => {
                       </article>
                     )
                   })}
-                </div>
-              ))}
             </div>
           )}
 
           {!cargando && items.length === 0 && !error && (
             <div className="home-empty-state">
               <h2>Tu feed está vacío</h2>
-              <p>Seguí a otros artistas para ver sus publicaciones acá.</p>
+              <p>Todavía no hay obras para mostrar.</p>
+              <Link to="/buscar">Descubrir obras</Link>
             </div>
           )}
 

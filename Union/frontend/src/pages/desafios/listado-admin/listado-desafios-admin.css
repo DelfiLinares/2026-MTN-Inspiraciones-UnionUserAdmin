@@ -10,7 +10,7 @@
 .listado-desafios-admin-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--color-subtle);
   padding: 2rem 1rem;
 }
 
@@ -43,17 +43,17 @@
 }
 
 .listado-desafios-admin-btn-nuevo:hover {
-  background-color: #059669;
+  background-color: var(--color-success);
 }
 
 .listado-desafios-admin-error {
   max-width: 1200px;
   margin: 0 auto 1.5rem;
   padding: 1rem;
-  background-color: #fee2e2;
+  background-color: var(--color-error-surface);
   border: 1px solid #fecaca;
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--color-error);
   font-size: 0.95rem;
 }
 
@@ -67,7 +67,7 @@
   border-radius: 8px;
   padding: 3rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .listado-desafios-admin-vacio p {
@@ -77,7 +77,7 @@
 
 .listado-desafios-admin-btn-vacio {
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: var(--color-action);
   color: white;
   border: none;
   border-radius: 6px;
@@ -87,7 +87,7 @@
 }
 
 .listado-desafios-admin-btn-vacio:hover {
-  background-color: #2563eb;
+  background-color: var(--color-action);
 }
 
 .listado-desafios-admin-tabla {
@@ -96,36 +96,36 @@
   border-collapse: collapse;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .listado-desafios-admin-tabla thead {
-  background-color: #f3f4f6;
-  border-bottom: 2px solid #e5e7eb;
+  background-color: var(--color-subtle);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .listado-desafios-admin-tabla th {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
   font-size: 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 .listado-desafios-admin-tabla tbody tr {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border);
   transition: background-color 0.2s ease;
 }
 
 .listado-desafios-admin-tabla tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-subtle);
 }
 
 .listado-desafios-admin-tabla td {
   padding: 1rem;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .listado-desafios-admin-nombre {
@@ -142,7 +142,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f3f4f6;
+  background-color: var(--color-subtle);
   border-radius: 4px;
   overflow: hidden;
   flex-shrink: 0;
@@ -156,12 +156,12 @@
 
 .listado-desafios-admin-ambitos {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .listado-desafios-admin-fechas {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--color-muted);
   white-space: nowrap;
 }
 
@@ -179,23 +179,23 @@
 }
 
 .estado-activo {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--color-success-surface);
+  color: var(--color-success);
 }
 
 .estado-programado {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--color-warning-surface);
+  color: var(--color-warning);
 }
 
 .estado-finalizado {
-  background-color: #e0e7ff;
+  background-color: var(--color-selection);
   color: #3730a3;
 }
 
 .estado-eliminado {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--color-error-surface);
+  color: var(--color-error);
 }
 
 .listado-desafios-admin-acciones {
@@ -216,7 +216,7 @@
 }
 
 .listado-desafios-admin-btn-editar {
-  background-color: #e0e7ff;
+  background-color: var(--color-selection);
   color: #3730a3;
 }
 
@@ -225,8 +225,8 @@
 }
 
 .listado-desafios-admin-btn-eliminar {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--color-error-surface);
+  color: var(--color-error);
 }
 
 .listado-desafios-admin-btn-eliminar:hover {
@@ -236,7 +236,7 @@
 .listado-desafios-admin-cargando {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .listado-desafios-admin-cargar-mas {
@@ -246,7 +246,7 @@
 
 .listado-desafios-admin-btn-cargar {
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: var(--color-action);
   color: white;
   border: none;
   border-radius: 6px;
@@ -256,7 +256,7 @@
 }
 
 .listado-desafios-admin-btn-cargar:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--color-action);
 }
 
 .listado-desafios-admin-btn-cargar:disabled {
@@ -312,7 +312,7 @@
     display: block;
     margin-bottom: 1rem;
     background-color: white;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     overflow: hidden;
   }
@@ -324,7 +324,7 @@
     margin-bottom: 0.25rem;
     font-size: 0.75rem;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--color-muted);
   }
 
   .listado-desafios-admin-acciones {

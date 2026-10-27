@@ -76,7 +76,7 @@ describe('PerfilPropio categorías favoritas', () => {
     expect(screen.getByText('Pop')).toBeInTheDocument()
 
     const editButton = screen.getByRole('button', { name: 'Editar perfil' })
-    expect(editButton).toHaveStyle({ backgroundColor: '#4b5563' })
+    expect(editButton).toHaveClass('trama-primary')
 
     fireEvent.click(screen.getByRole('button', { name: 'Cambiar categorías' }))
     expect(await screen.findByText('Formulario de categorías')).toBeInTheDocument()

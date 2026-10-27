@@ -4,6 +4,7 @@ import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '../services/AuthContext'
 import { RutaProtegida } from './RutaProtegida'
+import { UserLayout } from '../presentation/shared/UserLayout'
 
 import { LoginPage } from '../pages/login'
 import { RegistroPage } from '../pages/registro'
@@ -44,6 +45,7 @@ const RutaPublicaDeAutenticacion: React.FC<{ children: React.ReactNode }> = ({ c
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
+      <Route element={<UserLayout />}>
       <Route path="/publicaciones/:id" element={<RutaProtegida><DetalleInspiracionPage /></RutaProtegida>} />
       <Route path="/notificaciones" element={<RutaProtegida><NotificacionesPage /></RutaProtegida>} />
       <Route path="/notificaciones/configuracion" element={<RutaProtegida><ConfiguracionNotificacionesPage /></RutaProtegida>} />
@@ -179,6 +181,7 @@ export const AppRoutes: React.FC = () => {
       {/* Redirecciones por defecto */}
       <Route path="/" element={<Navigate to="/feed" replace />} />
       <Route path="*" element={<Navigate to="/feed" replace />} />
+      </Route>
     </Routes>
   )
 }

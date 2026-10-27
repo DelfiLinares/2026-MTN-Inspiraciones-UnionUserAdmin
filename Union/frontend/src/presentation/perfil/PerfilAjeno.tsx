@@ -280,25 +280,17 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div className="trama-profile">
       {/* AC-03.1: Encabezado de perfil ajeno con datos públicos */}
-      <section
-        style={{
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <section className="trama-profile-header">
+        <div className="trama-profile-identity">
           {/* Foto de perfil */}
           <div
             style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              backgroundColor: '#e5e7eb',
+              backgroundColor: 'var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -313,7 +305,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#6b7280' }}>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--color-muted)' }}>
                 {usuario.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -325,7 +317,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
               <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '20px', fontWeight: '700' }}>
                 @{usuario.username}
               </h1>
-              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: '#6b7280' }}>
+              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: 'var(--color-muted)' }}>
                 {usuario.cantidadSeguidores} {usuario.cantidadSeguidores === 1 ? 'seguidor' : 'seguidores'}
               </p>
             </div>
@@ -333,14 +325,14 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             {/* Sobre mí */}
             {usuario.sobreMi && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>{usuario.sobreMi}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text)' }}>{usuario.sobreMi}</p>
               </div>
             )}
 
             {/* Descripción */}
             {usuario.descripcion && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>{usuario.descripcion}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-muted)' }}>{usuario.descripcion}</p>
               </div>
             )}
 
@@ -371,7 +363,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
               padding: '1rem',
               backgroundColor: '#fee',
               border: '1px solid #fcc',
-              borderRadius: '6px',
+              borderRadius: '10px',
               color: '#c33',
               marginBottom: '1rem',
               fontSize: '14px',
@@ -391,16 +383,16 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--color-subtle)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '10px',
+              color: 'var(--color-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay carpetas
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>
               Este usuario aún no ha creado carpetas
             </p>
           </div>
@@ -425,7 +417,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
               padding: '1rem',
               backgroundColor: '#fee',
               border: '1px solid #fcc',
-              borderRadius: '6px',
+              borderRadius: '10px',
               color: '#c33',
               marginBottom: '1rem',
               fontSize: '14px',
@@ -445,16 +437,16 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--color-subtle)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '10px',
+              color: 'var(--color-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay publicaciones
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>
               Este usuario aún no ha compartido publicaciones
             </p>
           </div>

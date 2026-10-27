@@ -370,25 +370,17 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div className="trama-profile">
       {/* AC-01.1: Encabezado de perfil con datos personales */}
-      <section
-        style={{
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <section className="trama-profile-header">
+        <div className="trama-profile-identity">
           {/* Foto de perfil */}
           <div
             style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              backgroundColor: '#e5e7eb',
+              backgroundColor: 'var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -407,7 +399,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#6b7280' }}>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--color-muted)' }}>
                 {usuario.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -421,7 +413,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '600',
                 }}
               >
@@ -441,13 +433,13 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 aria-label="Categorías favoritas"
                 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.5rem' }}
               >
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>Favoritas:</span>
+                <span style={{ fontSize: '14px', color: 'var(--color-muted)' }}>Favoritas:</span>
                 {cargandoCategoriasFavoritas ? (
-                  <span role="status" style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span role="status" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
                     Cargando...
                   </span>
                 ) : errorCategoriasFavoritas ? (
-                  <span role="alert" style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span role="alert" style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
                     {errorCategoriasFavoritas}
                   </span>
                 ) : categoriasFavoritas.length > 0 ? (
@@ -456,18 +448,18 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                       key={categoria}
                       style={{
                         padding: '0.2rem 0.5rem',
-                        backgroundColor: '#f3f4f6',
-                        border: '1px solid #d1d5db',
+                        backgroundColor: 'var(--color-subtle)',
+                        border: '1px solid var(--color-control)',
                         borderRadius: '999px',
-                        color: '#374151',
-                        fontSize: '12px',
+                        color: 'var(--color-text)',
+                        fontSize: '14px',
                       }}
                     >
                       {categoria}
                     </span>
                   ))
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--color-muted)' }}>
                     Sin categorías favoritas
                   </span>
                 )}
@@ -476,11 +468,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   onClick={() => navigate('/cuestionario')}
                   style={{
                     padding: '0.3rem 0.6rem',
-                    backgroundColor: '#e5e7eb',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '12px',
+                    backgroundColor: 'var(--color-border)',
+                    color: 'var(--color-text)',
+                    border: '1px solid var(--color-control)',
+                    borderRadius: '10px',
+                    fontSize: '14px',
                     fontWeight: '600',
                     cursor: 'pointer',
                   }}
@@ -488,7 +480,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   Cambiar categorías
                 </button>
               </div>
-              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: '#6b7280' }}>
+              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: 'var(--color-muted)' }}>
                 {usuario.cantidadSeguidores} {usuario.cantidadSeguidores === 1 ? 'seguidor' : 'seguidores'}
               </p>
             </div>
@@ -496,28 +488,29 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
             {/* Sobre mí */}
             {usuario.sobreMi && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>{usuario.sobreMi}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text)' }}>{usuario.sobreMi}</p>
               </div>
             )}
 
             {/* Descripción */}
             {usuario.descripcion && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>{usuario.descripcion}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-muted)' }}>{usuario.descripcion}</p>
               </div>
             )}
 
             {/* AC-01.4: Botones de acción para perfil propio */}
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
               <button
+                className="trama-primary"
                 onClick={handleEditarPerfil}
                 style={{
                   padding: '0.5rem 1rem',
-                  backgroundColor: '#4b5563',
+                  backgroundColor: 'var(--color-action)',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
+                  borderRadius: '10px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                 }}
@@ -539,7 +532,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               padding: '1rem',
               backgroundColor: '#fee',
               border: '1px solid #fcc',
-              borderRadius: '6px',
+              borderRadius: '10px',
               color: '#c33',
               marginBottom: '1rem',
               fontSize: '14px',
@@ -585,7 +578,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               marginBottom: '1rem',
             }}
           >
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'var(--color-text)' }}>
               Publicaciones
             </h2>
             <button
@@ -593,11 +586,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               onClick={() => setMostrarCrearPublicacion(true)}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#4b5563',
+                backgroundColor: 'var(--color-action)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
-                fontSize: '12px',
+                borderRadius: '10px',
+                fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}
@@ -611,7 +604,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               padding: '1rem',
               backgroundColor: '#fee',
               border: '1px solid #fcc',
-              borderRadius: '6px',
+              borderRadius: '10px',
               color: '#c33',
               marginBottom: '1rem',
               fontSize: '14px',
@@ -631,16 +624,16 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--color-subtle)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '10px',
+              color: 'var(--color-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay publicaciones aún
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>
               Comparte tu primer post para que otros puedan verlo
             </p>
           </div>
@@ -689,7 +682,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           <div
             style={{
               backgroundColor: 'white',
-              borderRadius: '8px',
+              borderRadius: '12px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
               maxWidth: '600px',
               width: '90%',
@@ -723,14 +716,14 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           <div
             style={{
               backgroundColor: 'white',
-              borderRadius: '8px',
+              borderRadius: '12px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
               maxWidth: '500px',
               width: '90%',
               padding: '2rem',
             }}
           >
-            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '18px', fontWeight: '700', color: 'var(--color-text)' }}>
               Cambiar foto de perfil
             </h2>
             <PhotoUploadField fotoActual={usuarioActualizado.foto} onFotoActualizada={handleFotoActualizada} />
@@ -740,11 +733,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 width: '100%',
                 marginTop: '1rem',
                 padding: '0.5rem',
-                backgroundColor: '#e5e7eb',
-                color: '#374151',
+                backgroundColor: 'var(--color-border)',
+                color: 'var(--color-text)',
                 border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
+                borderRadius: '10px',
+                fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}

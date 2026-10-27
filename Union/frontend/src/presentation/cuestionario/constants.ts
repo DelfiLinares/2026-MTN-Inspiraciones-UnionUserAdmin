@@ -11,13 +11,13 @@
  * - RF-01: Mostrar eslogan de bienvenida en la parte superior
  * - RF-02: Breve, atractivo y coherente con identidad
  * - RNF-02: Breve y fácil de comprender
- * - A-7: "Descubre inspiraciones artísticas acordes a tus gustos"
+ * - Identidad verbal: Manual de Trama, versión 2.0
  *
  * Este texto invita al usuario a responder el cuestionario y descubrir
  * publicaciones relacionadas con sus intereses artísticos, musicales y de pintura.
  */
 export const ESLOGAN_BIENVENIDA =
-  'Descubre inspiraciones artísticas acordes a tus gustos';
+  '¿Qué te inspira?';
 
 /**
  * Subtítulo o texto descriptivo adicional (opcional)
@@ -25,4 +25,4 @@ export const ESLOGAN_BIENVENIDA =
  * Proporciona contexto adicional sobre qué esperar del cuestionario.
  */
 export const SUBTITULO_BIENVENIDA =
-  'Responde unas preguntas breves para personalizar tu experiencia';
+  'Elegí tus intereses. Podés cambiarlos después desde tu perfil.';

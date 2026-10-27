@@ -446,7 +446,7 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
 
         .form-group input:focus {
           outline: none;
-          border-color: #6b7280;
+          border-color: var(--color-muted);
           box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.15);
         }
 
@@ -522,12 +522,12 @@ export const RenameCarpetaDialog: React.FC<RenameCarpetaDialogProps> = ({
         }
 
         .btn-primary {
-          background-color: #4b5563;
+          background-color: var(--color-muted);
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background-color: #374151;
+          background-color: var(--color-text);
         }
 
         .btn-secondary {

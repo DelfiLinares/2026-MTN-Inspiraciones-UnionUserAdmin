@@ -27,6 +27,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { authAdminService, CuentaBloqueadaError } from '../../services/AuthAdminService'
 import { RolNoAutorizadoError } from '../../infrastructure/sessionGuard'
 import { MENSAJE_CREDENCIALES_INVALIDAS } from '../../services/authService'
+import { Marca } from '../shared/Marca'
 import '../admin/admin.css'
 
 export const LoginAdminPage: React.FC = () => {
@@ -72,7 +73,7 @@ export const LoginAdminPage: React.FC = () => {
     <div className="admin-console">
       <main className="admin-login">
         <section className="admin-login-form" aria-labelledby="login-title">
-          <span className="admin-brand">InspiraBoard</span>
+          <span className="admin-brand"><Marca /></span>
           <h1 id="login-title">Ingreso al módulo administrativo</h1>
           <p>Iniciá sesión para gestionar el contenido y cuidar la comunidad.</p>
           <form onSubmit={handleSubmit} aria-label="Formulario de login de administrador">

@@ -26,6 +26,7 @@ import { adaptarApiError } from '../../infrastructure/apiErrorAdapter'
 import { ApiError } from '../../infrastructure/httpClient'
 import '../login/login.css'
 import './registro.css'
+import { Marca } from '../../presentation/shared/Marca'
 
 export interface CriteriosPassword {
   longitudMinima: boolean
@@ -160,6 +161,7 @@ export const RegistroPage: React.FC = () => {
       </div>
 
       <section className="login-column registro-column" aria-labelledby="registro-title">
+        <Link to="/login" aria-label="Trama, ingreso"><Marca /></Link>
         <h1 className="login-title registro-title" id="registro-title">
           Crear cuenta
         </h1>

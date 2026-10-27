@@ -302,7 +302,7 @@ const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: '20px',
     backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
+    borderRadius: '12px',
     maxWidth: '600px',
     margin: '0 auto',
   },
@@ -328,7 +328,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   contador: {
     color: '#666',
-    fontSize: '12px',
+    fontSize: '14px',
   },
   imagen: {
     maxWidth: '100%',
@@ -342,13 +342,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '14px',
     border: '1px solid #ccc',
     borderRadius: '4px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: 'inherit',
     resize: 'vertical',
     boxSizing: 'border-box',
   },
   errorValidacion: {
     color: '#d9534f',
-    fontSize: '12px',
+    fontSize: '14px',
     marginTop: '5px',
   },
   errorServidor: {
@@ -357,7 +357,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #f5c6cb',
     borderRadius: '4px',
     color: '#721c24',
-    fontSize: '13px',
+    fontSize: '14px',
     marginBottom: '15px',
   },
   botones: {

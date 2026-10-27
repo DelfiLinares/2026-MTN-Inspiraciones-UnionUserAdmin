@@ -45,8 +45,8 @@ export function NotificacionesPage() {
   }
   return <main className="bandeja-notificaciones">
     <header className="bandeja-notificaciones__cabecera">
-      <Link className="preferencias-notificaciones__marca" to="/feed">InspiraBoard</Link>
-      <nav aria-label="Navegación de notificaciones"><Link to="/feed">Inicio</Link><Link to="/buscar">Descubre</Link></nav>
+      <Link className="preferencias-notificaciones__marca" to="/feed">trama</Link>
+      <nav aria-label="Navegación de notificaciones"><Link to="/feed">Inicio</Link><Link to="/buscar">Descubrir</Link></nav>
     </header>
     <section className="bandeja-notificaciones__contenido" aria-labelledby="bandeja-titulo">
       <div className="bandeja-notificaciones__titulo"><div><h1 id="bandeja-titulo">Notificaciones</h1><p>Las novedades de tu comunidad que todavía no viste.</p></div>
