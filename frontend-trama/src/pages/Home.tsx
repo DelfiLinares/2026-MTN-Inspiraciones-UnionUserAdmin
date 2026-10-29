@@ -1,0 +1,43 @@
+import { Fragment } from 'react'
+import { ArrowRight, Trophy, Users } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useDemo } from '../context/DemoContext'
+import { challengeStatus, searchPosts, visiblePosts } from '../data/store'
+import type { Challenge } from '../data/model'
+import { Badge, EmptyState, ErrorMessage, PageTitle, Tabs } from '../components/UI'
+import { PostCard } from '../components/PostCard'
+
+export function ChallengeNudge({ challenge }: { challenge: Challenge }) {
+  return <article className="challenge-nudge post-card">
+    <span className="challenge-nudge-label"><Trophy size={19} aria-hidden="true" />Una invitación a crear</span>
+    <img src={challenge.cover} alt="" width="240" height="140" />
+    <Badge status="open">Desafío abierto</Badge>
+    <h2>{challenge.title}</h2><p>No hace falta tenerlo todo resuelto. Dale forma a tu propia respuesta.</p>
+    <Link to={`/desafios/${challenge.id}`}>Ver la consigna<ArrowRight size={18} aria-hidden="true" /></Link>
+  </article>
+}
+
+export function HomePage() {
+  const { state, user } = useDemo()
+  const [params, setParams] = useSearchParams()
+  const requested = params.get('vista') ?? 'para-vos'
+  const tab = ['para-vos', 'seguidos', 'desafios'].includes(requested) ? requested : 'para-vos'
+  const challenge = state.challenges.find(item => challengeStatus(item) === 'open')
+  const posts = tab === 'seguidos' ? user ? searchPosts(state, { following: user.id }) : []
+    : tab === 'desafios' ? visiblePosts(state).filter(post => post.challengeId) : visiblePosts(state)
+  return <>
+    <PageTitle title="Encontrá tu próxima inspiración" description="Una obra, un proceso, una idea. Todo puede ser un punto de partida." />
+    {requested !== tab && <ErrorMessage message="La vista de ese enlace no existe. Podés elegir una de las pestañas de Inicio." />}
+    <Tabs label="Contenido de Inicio" value={tab} items={[{ value: 'para-vos', label: 'Para vos' }, { value: 'seguidos', label: 'Seguidos' }, { value: 'desafios', label: 'Desafíos' }]}
+      onChange={value => setParams(value === 'para-vos' ? {} : { vista: value }, { replace: true, preventScrollReset: true })}>
+      {posts.length ? <div className="artwork-grid home-grid">
+        {posts.map((post, index) => <Fragment key={post.id}><PostCard post={post} eager={index < 3} />
+          {index === Math.min(1, posts.length - 1) && challenge && <ChallengeNudge challenge={challenge} />}
+        </Fragment>)}
+      </div> : <EmptyState icon={tab === 'seguidos' ? Users : Trophy}
+        title={tab === 'seguidos' ? user ? 'Encontrá otras miradas' : 'Tu comunidad empieza acá' : 'Todavía no hay obras para mostrar'}
+        description={tab === 'seguidos' ? 'Seguí artistas para reunir sus publicaciones en este espacio.' : 'Las respuestas de la comunidad a los desafíos van a aparecer en esta pestaña.'}
+        action={<Link className="button button-primary" to={tab === 'seguidos' ? user ? '/descubrir?tipo=artistas' : '/ingresar' : '/desafios'}>{tab === 'seguidos' ? user ? 'Descubrir artistas' : 'Ingresar a la demo' : 'Explorar desafíos'}</Link>} />}
+    </Tabs>
+  </>
+}
