@@ -6,6 +6,7 @@ import {
   subirImagenPublicacion,
 } from '../../services/publicacionService'
 import type { CategoriaPublicacionDto, PublicUserSummaryDto } from '../../services/publicacionService'
+import { useModalFocus } from '../admin/useModalFocus'
 
 /**
  * `CrearPublicacionDialog`: Modal para crear una publicación de texto desde el perfil propio.
@@ -23,28 +24,28 @@ const etiquetaCampo: React.CSSProperties = {
   flexDirection: 'column',
   gap: '0.25rem',
   marginTop: '0.75rem',
-  fontSize: '13px',
-  color: '#374151',
+  fontSize: '14px',
+  color: 'var(--trama-ink)',
 }
 const campo: React.CSSProperties = {
   padding: '0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '6px',
-  fontSize: '14px',
+  border: '1px solid var(--trama-control)',
+  borderRadius: 'var(--trama-radius)',
+  fontSize: '16px',
 }
 const chip: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   padding: '0.25rem 0.625rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '999px',
+  border: '1px solid var(--trama-line)',
+  borderRadius: 'var(--trama-radius)',
   background: 'white',
-  fontSize: '12px',
+  fontSize: '14px',
   cursor: 'pointer',
 }
 const chipActivo: React.CSSProperties = {
-  backgroundColor: '#4b5563',
-  borderColor: '#4b5563',
+  backgroundColor: 'var(--trama-action)',
+  borderColor: 'var(--trama-muted)',
   color: 'white',
 }
 
@@ -64,6 +65,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
   const [busqueda, setBusqueda] = useState('')
   const [resultadosBusqueda, setResultadosBusqueda] = useState<PublicUserSummaryDto[]>([])
   const [etiquetadas, setEtiquetadas] = useState<PublicUserSummaryDto[]>([])
+  const modalRef = useModalFocus(true, onCancel, enviando)
   useEffect(() => {
     if (!imagen) { setVistaPrevia(''); return }
     const url = URL.createObjectURL(imagen)
@@ -177,9 +179,11 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
       }}
     >
       <div
+        ref={modalRef}
+        tabIndex={-1}
         style={{
           backgroundColor: 'white',
-          borderRadius: '8px',
+          borderRadius: '16px',
           padding: '1.5rem',
           width: '100%',
           boxSizing: 'border-box',
@@ -187,7 +191,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
           maxWidth: '480px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          fontFamily: 'sans-serif',
+          fontFamily: 'var(--font-family-primary)',
         }}
       >
         <h2 id="crear-publicacion-titulo" style={{ margin: '0 0 1rem 0', fontSize: '18px' }}>
@@ -206,13 +210,13 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
             width: '100%',
             boxSizing: 'border-box',
             padding: '0.5rem',
-            border: '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '14px',
+            border: '1px solid var(--trama-control)',
+            borderRadius: 'var(--trama-radius)',
+            fontSize: '16px',
             resize: 'vertical',
           }}
         />
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#6b7280', textAlign: 'right' }}>
+        <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-muted)', textAlign: 'right' }}>
           {contenido.length}/{LIMITE_CONTENIDO}
         </p>
 
@@ -320,7 +324,7 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
         </div>
 
         {error && (
-          <p role="alert" style={{ margin: '0.5rem 0', color: '#c33', fontSize: '13px' }}>
+          <p role="alert" style={{ margin: '0.5rem 0', color: 'var(--trama-error)', fontSize: '14px' }}>
             {error}
           </p>
         )}
@@ -333,8 +337,8 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
             style={{
               padding: '0.5rem 1rem',
               backgroundColor: 'white',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
+              border: '1px solid var(--trama-line)',
+              borderRadius: 'var(--trama-radius)',
               cursor: 'pointer',
             }}
           >
@@ -346,10 +350,10 @@ export const CrearPublicacionDialog: React.FC<CrearPublicacionDialogProps> = ({
             disabled={enviando}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#4b5563',
+              backgroundColor: 'var(--trama-action)',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: 'var(--trama-radius)',
               fontWeight: 600,
               cursor: enviando ? 'wait' : 'pointer',
             }}

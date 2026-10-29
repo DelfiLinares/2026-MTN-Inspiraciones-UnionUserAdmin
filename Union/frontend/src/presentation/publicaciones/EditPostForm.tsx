@@ -236,7 +236,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
           rows={6}
           style={{
             ...styles.textarea,
-            borderColor: validacion.esValido ? '#ccc' : '#d9534f',
+            borderColor: validacion.esValido ? 'var(--trama-control)' : 'var(--trama-error)',
             opacity: enviando || deshabilitado ? 0.6 : 1,
           }}
         />
@@ -301,8 +301,8 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
 const styles: Record<string, React.CSSProperties> = {
   container: {
     padding: '20px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
+    backgroundColor: 'var(--trama-subtle)',
+    borderRadius: 'var(--trama-radius)',
     maxWidth: '600px',
     margin: '0 auto',
   },
@@ -310,7 +310,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '20px',
     fontWeight: 'bold',
     marginBottom: '20px',
-    color: '#333',
+    color: 'var(--trama-ink)',
   },
   seccionImagen: {
     marginBottom: '20px',
@@ -324,40 +324,40 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '14px',
     fontWeight: '500',
     marginBottom: '8px',
-    color: '#333',
+    color: 'var(--trama-ink)',
   },
   contador: {
-    color: '#666',
-    fontSize: '12px',
+    color: 'var(--trama-muted)',
+    fontSize: '14px',
   },
   imagen: {
     maxWidth: '100%',
     height: 'auto',
-    borderRadius: '4px',
-    backgroundColor: '#e9ecef',
+    borderRadius: 'var(--trama-radius)',
+    backgroundColor: 'var(--trama-subtle)',
   },
   textarea: {
     width: '100%',
     padding: '10px',
-    fontSize: '14px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    fontSize: '16px',
+    border: '1px solid var(--trama-control)',
+    borderRadius: 'var(--trama-radius)',
     fontFamily: 'Arial, sans-serif',
     resize: 'vertical',
     boxSizing: 'border-box',
   },
   errorValidacion: {
-    color: '#d9534f',
-    fontSize: '12px',
+    color: 'var(--trama-error)',
+    fontSize: '14px',
     marginTop: '5px',
   },
   errorServidor: {
     padding: '12px',
-    backgroundColor: '#f8d7da',
-    border: '1px solid #f5c6cb',
-    borderRadius: '4px',
-    color: '#721c24',
-    fontSize: '13px',
+    backgroundColor: 'var(--trama-error-surface)',
+    border: '1px solid var(--trama-error)',
+    borderRadius: 'var(--trama-radius)',
+    color: 'var(--trama-error)',
+    fontSize: '14px',
     marginBottom: '15px',
   },
   botones: {
@@ -368,20 +368,19 @@ const styles: Record<string, React.CSSProperties> = {
   botonCancelar: {
     padding: '10px 20px',
     fontSize: '14px',
-    backgroundColor: '#e9ecef',
-    color: '#333',
-    border: '1px solid #dee2e6',
-    borderRadius: '4px',
+    backgroundColor: 'var(--trama-subtle)',
+    color: 'var(--trama-ink)',
+    border: '1px solid var(--trama-line)',
+    borderRadius: 'var(--trama-radius)',
     fontWeight: '500',
   },
   botonGuardar: {
     padding: '10px 20px',
     fontSize: '14px',
-    backgroundColor: '#28a745',
+    backgroundColor: 'var(--trama-success)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: 'var(--trama-radius)',
     fontWeight: '500',
   },
 }
-

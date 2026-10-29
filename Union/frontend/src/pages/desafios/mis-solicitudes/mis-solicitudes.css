@@ -1,3 +1,4 @@
+@layer legacy {
 .mis-solicitudes-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -7,26 +8,26 @@
 .mis-solicitudes-loading,
 .mis-solicitudes-error h1 {
   text-align: center;
-  color: #555;
+  color: var(--trama-muted);
   font-size: 1.1rem;
 }
 
 .mis-solicitudes-error {
   padding: 2rem;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
+  background-color: var(--trama-subtle);
+  border: 1px solid var(--trama-line);
   text-align: center;
 }
 
 .mis-solicitudes-error p {
-  color: #777;
+  color: var(--trama-muted);
   margin: 0.5rem 0 1rem;
 }
 
 .mis-solicitudes-error button {
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
+  background-color: var(--trama-action);
   color: white;
   border: none;
   border-radius: 4px;
@@ -36,25 +37,25 @@
 }
 
 .mis-solicitudes-error button:hover {
-  background-color: #0056b3;
+  background-color: var(--trama-action);
 }
 
 /* Encabezado */
 .mis-solicitudes-encabezado {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--trama-line);
 }
 
 .mis-solicitudes-encabezado h1 {
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
-  color: #222;
+  color: var(--trama-ink);
 }
 
 .mis-solicitudes-descripcion {
-  color: #666;
+  color: var(--trama-muted);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -63,26 +64,26 @@
 .mis-solicitudes-vacio {
   padding: 3rem 2rem;
   text-align: center;
-  background-color: #f9f9f9;
+  background-color: var(--trama-subtle);
   border-radius: 8px;
-  border: 1px dashed #ddd;
+  border: 1px dashed var(--trama-line);
 }
 
 .mis-solicitudes-vacio p {
   margin: 0;
-  color: #666;
+  color: var(--trama-muted);
   font-size: 0.95rem;
 }
 
 .mis-solicitudes-vacio p:first-child {
   font-size: 1.1rem;
-  color: #333;
+  color: var(--trama-ink);
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .mis-solicitudes-vacio-subtexto {
-  color: #999 !important;
+  color: var(--trama-muted) !important;
   font-size: 0.9rem !important;
 }
 
@@ -99,7 +100,7 @@
   border-radius: 8px;
   overflow: hidden;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--trama-line);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
@@ -113,8 +114,8 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--trama-subtle);
+  border-bottom: 1px solid var(--trama-line);
 }
 
 .mis-solicitudes-imagen img {
@@ -135,7 +136,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
-  color: #222;
+  color: var(--trama-ink);
   line-height: 1.3;
 }
 
@@ -157,26 +158,26 @@
 }
 
 .mis-solicitudes-estado.estado-pendiente {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffc107;
+  background-color: var(--trama-warning-surface);
+  color: var(--trama-warning);
+  border: 1px solid var(--trama-warning);
 }
 
 .mis-solicitudes-estado.estado-aprobada {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #28a745;
+  background-color: var(--trama-success-surface);
+  color: var(--trama-success);
+  border: 1px solid var(--trama-success);
 }
 
 .mis-solicitudes-estado.estado-rechazada {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #dc3545;
+  background-color: var(--trama-error-surface);
+  color: var(--trama-error);
+  border: 1px solid var(--trama-error);
 }
 
 /* Descripción breve */
 .mis-solicitudes-descripcion-breve {
-  color: #666;
+  color: var(--trama-muted);
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
@@ -195,8 +196,8 @@
 
 .mis-solicitudes-ambito {
   display: inline-block;
-  background-color: #e8f4f8;
-  color: #007bff;
+  background-color: var(--trama-selection);
+  color: var(--trama-action);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -208,7 +209,7 @@
   gap: 0.75rem;
   margin-top: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--trama-line);
 }
 
 .btn {
@@ -224,28 +225,28 @@
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: var(--trama-action);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: var(--trama-action);
   transform: scale(1.02);
 }
 
 .btn-danger {
-  background-color: #dc3545;
+  background-color: var(--trama-error);
   color: white;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: var(--trama-error);
   transform: scale(1.02);
 }
 
 .mis-solicitudes-estado-fijo {
   margin: 0;
-  color: #999;
+  color: var(--trama-muted);
   font-size: 0.85rem;
   font-style: italic;
   text-align: center;
@@ -257,7 +258,7 @@
 }
 
 .mis-solicitudes-tarjeta.estado-aprobada .mis-solicitudes-imagen {
-  border-bottom-color: #28a745;
+  border-bottom-color: var(--trama-success);
 }
 
 /* Responsive */
@@ -281,4 +282,6 @@
   .btn {
     flex: 1;
   }
+}
+
 }

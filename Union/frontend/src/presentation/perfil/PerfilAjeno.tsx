@@ -106,6 +106,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
 }) => {
   const navigate = useNavigate()
   const [seguimientoLocal, setSeguimientoLocal] = useState<SeguimientoRelacion | undefined>(seguimiento)
+  const [pestana, setPestana] = useState<'obras' | 'carpetas'>('obras')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState<string | undefined>()
 
@@ -280,25 +281,17 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div className="trama-profile">
       {/* AC-03.1: Encabezado de perfil ajeno con datos públicos */}
-      <section
-        style={{
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <section className="trama-profile-header">
+        <div className="trama-profile-identity">
           {/* Foto de perfil */}
           <div
             style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              backgroundColor: '#e5e7eb',
+              backgroundColor: 'var(--trama-line)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -313,19 +306,19 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#6b7280' }}>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--trama-muted)' }}>
                 {usuario.username.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
 
           {/* Datos personales */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ marginBottom: '1rem' }}>
               <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '20px', fontWeight: '700' }}>
                 @{usuario.username}
               </h1>
-              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: '#6b7280' }}>
+              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: 'var(--trama-muted)' }}>
                 {usuario.cantidadSeguidores} {usuario.cantidadSeguidores === 1 ? 'seguidor' : 'seguidores'}
               </p>
             </div>
@@ -333,14 +326,14 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             {/* Sobre mí */}
             {usuario.sobreMi && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>{usuario.sobreMi}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-ink)' }}>{usuario.sobreMi}</p>
               </div>
             )}
 
             {/* Descripción */}
             {usuario.descripcion && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>{usuario.descripcion}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>{usuario.descripcion}</p>
               </div>
             )}
 
@@ -361,18 +354,22 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
           </div>
         </div>
       </section>
+      <nav className="trama-tabs" aria-label="Contenido del perfil">
+        <button type="button" aria-pressed={pestana === 'obras'} aria-controls="perfil-ajeno-obras" onClick={() => setPestana('obras')}>Obras</button>
+        <button type="button" aria-pressed={pestana === 'carpetas'} aria-controls="perfil-ajeno-carpetas" onClick={() => setPestana('carpetas')}>Colecciones públicas</button>
+      </nav>
 
       {/* AC-03.5: Carpetas ajenas en modo consulta (T046: Integración de CarpetaList) */}
       {/* T074: Estados de loading/empty/error para carpetas */}
-      <section style={{ marginBottom: '2rem' }}>
+      <section id="perfil-ajeno-carpetas" hidden={pestana !== 'carpetas'} style={{ marginBottom: '2rem' }}>
         {errorCarpetas && (
           <div
             style={{
               padding: '1rem',
-              backgroundColor: '#fee',
-              border: '1px solid #fcc',
-              borderRadius: '6px',
-              color: '#c33',
+              backgroundColor: 'var(--trama-error-surface)',
+              border: '1px solid var(--trama-error-surface)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-error)',
               marginBottom: '1rem',
               fontSize: '14px',
             }}
@@ -382,7 +379,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         )}
 
         {cargandoCarpetas ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--trama-muted)' }}>
             <p>Cargando carpetas...</p>
           </div>
         ) : carpetasActuales.length === 0 ? (
@@ -391,16 +388,16 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--trama-subtle)',
+              border: '1px solid var(--trama-line)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay carpetas
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>
               Este usuario aún no ha creado carpetas
             </p>
           </div>
@@ -418,15 +415,15 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
 
       {/* AC-03.1 + AC-03.5: Publicaciones ajenas en modo lectura (T057: Integración con PublicacionList sin callbacks) */}
       {/* T074: Estados de loading/empty/error para publicaciones */}
-      <section>
+      <section id="perfil-ajeno-obras" hidden={pestana !== 'obras'}>
         {errorPublicaciones && (
           <div
             style={{
               padding: '1rem',
-              backgroundColor: '#fee',
-              border: '1px solid #fcc',
-              borderRadius: '6px',
-              color: '#c33',
+              backgroundColor: 'var(--trama-error-surface)',
+              border: '1px solid var(--trama-error-surface)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-error)',
               marginBottom: '1rem',
               fontSize: '14px',
             }}
@@ -436,7 +433,7 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
         )}
 
         {cargandoPublicaciones ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--trama-muted)' }}>
             <p>Cargando publicaciones...</p>
           </div>
         ) : publicacionesActuales.length === 0 ? (
@@ -445,16 +442,16 @@ export const PerfilAjeno: React.FC<PerfilAjenoProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--trama-subtle)',
+              border: '1px solid var(--trama-line)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay publicaciones
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>
               Este usuario aún no ha compartido publicaciones
             </p>
           </div>

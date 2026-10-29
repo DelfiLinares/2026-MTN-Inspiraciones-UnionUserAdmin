@@ -258,28 +258,25 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        maxWidth: '500px',
-        margin: '0 auto',
-        padding: '2rem',
-        fontFamily: 'sans-serif',
-      }}
+      className="trama-form"
     >
-      <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '1.5rem', color: '#1f2937' }}>
+      <h1>
         Editar Perfil
-      </h2>
+      </h1>
+      <p className="trama-muted">Dale contexto a lo que creás. Tu presentación acompaña tus obras.</p>
 
       {/* AC-02.8: Mostrar error del servidor */}
       {errorServidor && (
         <div
+          role="alert"
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--trama-error-surface)',
+            border: '1px solid var(--trama-error-surface)',
+            borderRadius: 'var(--trama-radius)',
             padding: '0.75rem',
             marginBottom: '1.5rem',
-            fontSize: '13px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--trama-error)',
           }}
         >
           {errorServidor}
@@ -289,14 +286,15 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
       {/* AC-02.7: Mostrar error general */}
       {errores.general && (
         <div
+          role="alert"
           style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '6px',
+            backgroundColor: 'var(--trama-error-surface)',
+            border: '1px solid var(--trama-error-surface)',
+            borderRadius: 'var(--trama-radius)',
             padding: '0.75rem',
             marginBottom: '1.5rem',
-            fontSize: '13px',
-            color: '#991b1b',
+            fontSize: '14px',
+            color: 'var(--trama-error)',
           }}
         >
           {errores.general}
@@ -309,16 +307,18 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="nombreUsuario"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--trama-ink)',
           }}
         >
           Nombre de usuario *
         </label>
         <input
           id="nombreUsuario"
+          aria-invalid={Boolean(errores.nombreUsuario)}
+          aria-describedby={errores.nombreUsuario ? 'nombreUsuario-ayuda nombreUsuario-error' : 'nombreUsuario-ayuda'}
           type="text"
           value={nombreUsuario}
           onChange={(e) => {
@@ -335,20 +335,20 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.nombreUsuario ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.nombreUsuario ? '1px solid var(--trama-error)' : '1px solid var(--trama-control)',
+            borderRadius: 'var(--trama-radius)',
+            fontSize: '16px',
+            fontFamily: 'var(--font-family-primary)',
             boxSizing: 'border-box',
           }}
           maxLength={10}
         />
         {errores.nombreUsuario && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p id="nombreUsuario-error" role="alert" style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-error)' }}>
             {errores.nombreUsuario}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p id="nombreUsuario-ayuda" style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-muted)' }}>
           Máximo 10 caracteres, sin espacios. Solo letras, números, guiones bajos y puntos.
         </p>
       </div>
@@ -359,16 +359,18 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="sobreMi"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--trama-ink)',
           }}
         >
           Sobre mí
         </label>
         <textarea
           id="sobreMi"
+          aria-invalid={Boolean(errores.sobreMi)}
+          aria-describedby="sobreMi-ayuda"
           value={sobreMi}
           onChange={(e) => {
             setSobreMi(e.target.value.substring(0, 80))
@@ -385,21 +387,21 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.sobreMi ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.sobreMi ? '1px solid var(--trama-error)' : '1px solid var(--trama-control)',
+            borderRadius: 'var(--trama-radius)',
+            fontSize: '16px',
+            fontFamily: 'var(--font-family-primary)',
             boxSizing: 'border-box',
             resize: 'vertical',
           }}
           maxLength={80}
         />
         {errores.sobreMi && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-error)' }}>
             {errores.sobreMi}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p id="sobreMi-ayuda" style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-muted)' }}>
           {sobreMi.length}/80 caracteres
         </p>
       </div>
@@ -410,16 +412,18 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           htmlFor="descripcion"
           style={{
             display: 'block',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             marginBottom: '0.5rem',
-            color: '#1f2937',
+            color: 'var(--trama-ink)',
           }}
         >
           Descripción
         </label>
         <textarea
           id="descripcion"
+          aria-invalid={Boolean(errores.descripcion)}
+          aria-describedby="descripcion-ayuda"
           value={descripcion}
           onChange={(e) => {
             setDescripcion(e.target.value.substring(0, 200))
@@ -436,45 +440,45 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
           style={{
             width: '100%',
             padding: '0.5rem 0.75rem',
-            border: errores.descripcion ? '1px solid #ef4444' : '1px solid #d1d5db',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
+            border: errores.descripcion ? '1px solid var(--trama-error)' : '1px solid var(--trama-control)',
+            borderRadius: 'var(--trama-radius)',
+            fontSize: '16px',
+            fontFamily: 'var(--font-family-primary)',
             boxSizing: 'border-box',
             resize: 'vertical',
           }}
           maxLength={200}
         />
         {errores.descripcion && (
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '12px', color: '#dc2626' }}>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-error)' }}>
             {errores.descripcion}
           </p>
         )}
-        <p style={{ margin: '0.25rem 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+        <p id="descripcion-ayuda" style={{ margin: '0.25rem 0 0 0', fontSize: '14px', color: 'var(--trama-muted)' }}>
           {descripcion.length}/200 caracteres
         </p>
       </div>
 
       {/* TODO (T023): PhotoUploadField para cambio de foto */}
-      <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f3f4f6', borderRadius: '6px' }}>
-        <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>
           Podés cambiar tu foto desde el botón de tu perfil.
         </p>
       </div>
 
       {/* Botones */}
-      <div style={{ display: 'flex', gap: '1rem' }}>
+      <div className="trama-form-actions">
         <button
           type="submit"
           disabled={enviando}
           style={{
             flex: 1,
             padding: '0.75rem',
-            backgroundColor: '#4b5563',
+            backgroundColor: 'var(--trama-action)',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '13px',
+            borderRadius: 'var(--trama-radius)',
+            fontSize: '14px',
             fontWeight: '600',
             cursor: enviando ? 'not-allowed' : 'pointer',
             opacity: enviando ? 0.6 : 1,
@@ -490,11 +494,11 @@ export const EditarPerfilForm: React.FC<EditarPerfilFormProps> = ({
             style={{
               flex: 1,
               padding: '0.75rem',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
+              backgroundColor: 'var(--trama-line)',
+              color: 'var(--trama-ink)',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
+              borderRadius: 'var(--trama-radius)',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: enviando ? 'not-allowed' : 'pointer',
             }}

@@ -125,7 +125,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
-        backgroundColor: '#f9fafb',
+        backgroundColor: 'var(--trama-subtle)',
         padding: '1rem',
       }}
     >
@@ -134,8 +134,8 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           maxWidth: '500px',
           width: '100%',
           backgroundColor: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
+          border: '1px solid var(--trama-line)',
+          borderRadius: 'var(--trama-radius)',
           padding: '3rem 2rem',
           textAlign: 'center',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
@@ -146,7 +146,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           style={{
             fontSize: '64px',
             marginBottom: '1.5rem',
-            color: '#dc2626',
+            color: 'var(--trama-error)',
           }}
         >
           🔒
@@ -158,7 +158,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
             fontSize: '24px',
             fontWeight: '700',
             margin: '0 0 1rem 0',
-            color: '#1f2937',
+            color: 'var(--trama-ink)',
           }}
         >
           {titulo}
@@ -168,7 +168,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
         <p
           style={{
             fontSize: '16px',
-            color: '#374151',
+            color: 'var(--trama-ink)',
             margin: '0 0 0.75rem 0',
             lineHeight: '1.6',
           }}
@@ -180,7 +180,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
         <p
           style={{
             fontSize: '14px',
-            color: '#6b7280',
+            color: 'var(--trama-muted)',
             margin: '0 0 2rem 0',
             lineHeight: '1.6',
           }}
@@ -193,20 +193,20 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           onClick={handleVolver}
           style={{
             padding: '0.75rem 1.5rem',
-            backgroundColor: '#4b5563',
+            backgroundColor: 'var(--trama-action)',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
+            borderRadius: 'var(--trama-radius)',
             fontSize: '14px',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'background-color 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            ;(e.target as HTMLButtonElement).style.backgroundColor = '#374151'
+            ;(e.target as HTMLButtonElement).style.backgroundColor = 'var(--trama-ink)'
           }}
           onMouseLeave={(e) => {
-            ;(e.target as HTMLButtonElement).style.backgroundColor = '#4b5563'
+            ;(e.target as HTMLButtonElement).style.backgroundColor = 'var(--trama-muted)'
           }}
         >
           Volver
@@ -215,8 +215,8 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
         {/* Enlace alternativo al home */}
         <p
           style={{
-            fontSize: '13px',
-            color: '#6b7280',
+            fontSize: '14px',
+            color: 'var(--trama-muted)',
             margin: '1.5rem 0 0 0',
           }}
         >
@@ -224,7 +224,7 @@ export const ProfileNotFoundView: React.FC<ProfileNotFoundViewProps> = ({
           <a
             href="/"
             style={{
-              color: '#4b5563',
+              color: 'var(--trama-muted)',
               textDecoration: 'none',
               fontWeight: '600',
               cursor: 'pointer',

@@ -10,9 +10,8 @@
  * - Usa `feedService.obtenerPagina` (T056) como fuente de datos paginados del feed.
  * - Usa `useInfiniteList` (T054) para orquestar la paginación/scroll infinito, exponiendo el
  *   estado explícito de fin de resultados (CB-05).
- * - Renderiza cada publicación mediante `PublicacionCard` (T080), delegando alternar-like y
- *   reporte a `publicacionService` (RF-31 a RF-35).
- * - Usa `InfiniteScrollList` (T083) para los estados de carga/vacío/fin de lista reutilizables.
+ * - Presenta publicaciones y una consigna real en una grilla, sin carrusel.
+ * - Conserva los servicios de likes y reportes y sus estados de carga/error.
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
@@ -23,27 +22,17 @@ import { publicacionService } from '../../services/publicacionService'
 import { reporteService } from '../../services/reporteService'
 import { ApiError } from '../../infrastructure/httpClient'
 import { useInfiniteList } from '../../services/useInfiniteList'
-import { CerrarSesionButton } from '../../presentation/shared/CerrarSesionButton'
+import { useModalFocus } from '../../presentation/admin/useModalFocus'
 import type { Publicacion } from '../../domain/Publicacion'
 import type { MotivoReporte } from '../../domain/enums/MotivoReporte'
 import './home.css'
 import { ChallengeInicio } from './ChallengeInicio'
 
-const obtenerVarianteTarjeta = (indiceColumna: number, indiceEnColumna: number) => {
-  if (indiceColumna === 1 && indiceEnColumna === 0) {
-    return 'long'
-  }
-  if (indiceColumna === 2) {
-    return indiceEnColumna % 2 === 0 ? 'tall' : 'long'
-  }
-  if (indiceColumna === 0 && indiceEnColumna % 2 === 1) {
-    return 'tall'
-  }
-  return 'normal'
-}
-
 export const HomePage: React.FC = () => {
   const { usuario, estaAutenticado } = useAuth()
+  const [seccion, setSeccion] = useState<'recomendados' | 'desafios'>('recomendados')
+  const [errorLike, setErrorLike] = useState<string | null>(null)
+  const [errorMotivos, setErrorMotivos] = useState(false)
 
   const [idsConLikeEnCurso, setIdsConLikeEnCurso] = useState<Set<string>>(new Set())
   const [idsReportados, setIdsReportados] = useState<Set<string>>(new Set())
@@ -63,7 +52,7 @@ export const HomePage: React.FC = () => {
   }, [avisoReporte])
 
   useEffect(() => {
-    reporteService.obtenerMotivos().then(setMotivosReporte).catch(() => setMotivosReporte([]))
+    reporteService.obtenerMotivos().then(setMotivosReporte).catch(() => setErrorMotivos(true))
   }, [])
   const {
     items,
@@ -95,6 +84,7 @@ export const HomePage: React.FC = () => {
       }
 
       marcarLikeEnCurso(publicacionId, true)
+      setErrorLike(null)
       try {
         await publicacionService.alternarLike(
           publicacionActual,
@@ -103,7 +93,7 @@ export const HomePage: React.FC = () => {
         )
         await recargar()
       } catch {
-        // El servicio ya gestiona la reversión optimista internamente ante fallo (CB-02)
+        setErrorLike('No pudimos actualizar el Me gusta. Volvé a intentar.')
       } finally {
         marcarLikeEnCurso(publicacionId, false)
       }
@@ -123,6 +113,7 @@ export const HomePage: React.FC = () => {
       setPublicacionAReportar(null)
     }
   }
+  const reporteModalRef = useModalFocus(publicacionAReportar !== null, cerrarModalReporte, enviandoReporte)
 
   const confirmarReporte = async () => {
     if (!publicacionAReportar || !motivoReporte) {
@@ -148,72 +139,54 @@ export const HomePage: React.FC = () => {
     }
   }
 
-  const columnas: Publicacion[][] = [[], [], []]
-  items.forEach((publicacion, indice) => {
-    columnas[indice % columnas.length].push(publicacion)
-  })
-
   return (
     <div className="home-page">
-      <header className="home-site-header">
-        <Link className="home-brand" to="/feed">InspiraBoard</Link>
-        <nav className="home-site-nav" aria-label="Navegación principal">
-            <Link to="/buscar">Descubre</Link>
-            <Link to="/notificaciones">Notificaciones</Link>
-          <a href="#challenge">Challenge</a>
-          <Link
-            className="home-profile"
-            to={usuario?.id ? `/perfil/${usuario.id}` : '/login'}
-            aria-label="Mi perfil"
-          >
-            <span aria-hidden="true">
-              {`${usuario?.nombre ?? ''} ${usuario?.apellido ?? ''}`
-                .trim()
-                .charAt(0)
-                .toUpperCase()}
-            </span>
-          </Link>
-            <CerrarSesionButton />
-        </nav>
-      </header>
-
       <main>
-        <section className="home-hero" aria-label="Contenido destacado">
-          <div><h1>Ideas que invitan a crear</h1><p>Encontrá referencias de la comunidad para tu próximo proyecto.</p><Link to="/buscar">Buscar inspiración</Link></div>
-        </section>
+        <div className="home-heading">
+          <div><p className="trama-eyebrow">Comunidad creativa</p><h1>Tu próxima idea empieza acá</h1></div>
+          <Link to="/buscar">Explorar con filtros →</Link>
+        </div>
+        <nav className="trama-tabs" aria-label="Contenido de inicio">
+          <button type="button" aria-pressed={seccion === 'recomendados'} onClick={() => setSeccion('recomendados')}>Para vos</button>
+          <button type="button" aria-pressed={seccion === 'desafios'} onClick={() => setSeccion('desafios')}>Desafíos</button>
+        </nav>
+        {seccion === 'desafios' ? (
+          <section aria-label="Desafíos de inicio">
+            <ChallengeInicio />
+            <div className="home-challenge-links">
+              <Link to="/desafios">Explorar todas las consignas</Link>
+              <Link to="/desafios/solicitar">Proponer un desafío</Link>
+              <Link to="/desafios/mis-solicitudes">Mis solicitudes</Link>
+            </div>
+          </section>
+        ) : (
+        <section className="home-community" id="comunidad" aria-label="Publicaciones recomendadas">
+          {errorLike && <p role="alert">{errorLike}</p>}
 
-        <ChallengeInicio />
-
-        <section className="home-community" id="comunidad" aria-labelledby="home-community-title">
-          <h1 id="home-community-title">Inspirate de nuestra comunidad</h1>
-
-          {items.length > 0 && (
             <div className="home-post-grid">
-              {columnas.map((columna, indiceColumna) => (
-                <div className="home-post-column" key={`columna-${indiceColumna}`}>
-                  {columna.map((publicacion, indiceEnColumna) => {
-                    const variante = obtenerVarianteTarjeta(indiceColumna, indiceEnColumna)
+              <ChallengeInicio />
+                  {items.map((publicacion) => {
                     const contenido = String(publicacion.tipoContenido).toLocaleLowerCase('es-AR')
                     const likeEnCurso = idsConLikeEnCurso.has(publicacion.id)
                     const reportada = publicacion.reportadaPorUsuarioActual || idsReportados.has(publicacion.id)
 
                     return (
                       <article
-                        className={`home-post-card home-post-card--${variante}`}
+                        className="home-post-card"
                         key={publicacion.id}
                       >
-                        <div className="home-post-media">
+                        <Link className="home-post-media" to={`/publicaciones/${encodeURIComponent(publicacion.id)}`} aria-label={publicacion.contenido || `Ver publicación de ${contenido}`}>
                           {publicacion.fotoUrl ? (
                             <img src={publicacion.fotoUrl} alt={`Imagen de publicación: ${publicacion.contenido ?? contenido}`} />
                           ) : (
                             <span className="home-post-media-fallback" aria-hidden="true">{contenido}</span>
                           )}
-                        </div>
+                        </Link>
                         <div className="home-post-copy">
                           <div className="home-post-author">
                             <span className="home-post-avatar" aria-hidden="true">A</span>
                             <div>
-                              <span className="home-post-author-name">Artista</span>
+                              <Link className="home-post-author-name" to={`/perfil/${encodeURIComponent(publicacion.autorId)}`}>Ver artista</Link>
                               <span className="home-post-type">{contenido}</span>
                             </div>
                           </div>
@@ -233,6 +206,7 @@ export const HomePage: React.FC = () => {
                               onClick={() => handleToggleLike(publicacion.id)}
                               disabled={likeEnCurso}
                               aria-label={publicacion.likeDelUsuarioActual ? 'Quitar Me gusta' : 'Dar Me gusta'}
+                              aria-pressed={publicacion.likeDelUsuarioActual}
                             >
                               <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -254,15 +228,13 @@ export const HomePage: React.FC = () => {
                       </article>
                     )
                   })}
-                </div>
-              ))}
             </div>
-          )}
 
           {!cargando && items.length === 0 && !error && (
             <div className="home-empty-state">
               <h2>Tu feed está vacío</h2>
-              <p>Seguí a otros artistas para ver sus publicaciones acá.</p>
+              <p>Todavía no hay obras para mostrar. Explorá otras disciplinas.</p>
+              <Link to="/buscar">Descubrir obras</Link>
             </div>
           )}
 
@@ -287,9 +259,8 @@ export const HomePage: React.FC = () => {
             <div className="home-feed-sentinel" ref={centinelaRef} aria-hidden="true" />
           )}
         </section>
+        )}
       </main>
-
-      <footer className="home-site-footer" aria-label="Pie de página" />
 
       {avisoReporte && (
         <div className="home-report-toast" role="status">{avisoReporte}</div>
@@ -299,6 +270,8 @@ export const HomePage: React.FC = () => {
         <div className="home-report-backdrop" onClick={cerrarModalReporte}>
           <div
             className="home-report-modal"
+            ref={reporteModalRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="home-report-title"
@@ -306,6 +279,7 @@ export const HomePage: React.FC = () => {
           >
             <h2 id="home-report-title">Reportar publicación</h2>
             <p>Elegí el motivo del reporte:</p>
+            {errorMotivos && <p role="alert">No pudimos cargar los motivos. Cerrá este diálogo y recargá la página para volver a intentar.</p>}
             <div className="home-report-options">
               {motivosReporte.map((motivo) => (
                 <label key={motivo.codigo}>

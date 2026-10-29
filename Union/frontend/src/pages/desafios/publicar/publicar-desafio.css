@@ -1,3 +1,4 @@
+@layer legacy {
 /**
  * Estilos para PublicarDesafioPage (T062)
  * 
@@ -10,7 +11,7 @@
 .publicar-desafio-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--trama-subtle);
   padding: 2rem 1rem;
 }
 
@@ -23,13 +24,13 @@
 .publicar-desafio-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--trama-ink);
   margin-bottom: 1rem;
 }
 
 .publicar-desafio-subtitulo {
   font-size: 1.1rem;
-  color: #6b7280;
+  color: var(--trama-muted);
   margin: 0;
 }
 
@@ -44,10 +45,10 @@
 .publicar-desafio-error {
   grid-column: 1 / -1;
   padding: 1rem;
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
+  background-color: var(--trama-error-surface);
+  border: 1px solid var(--trama-error-surface);
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--trama-error);
   margin-bottom: 2rem;
 }
 
@@ -59,8 +60,8 @@
 }
 
 .publicar-desafio-ayuda {
-  background-color: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  background-color: var(--trama-selection);
+  border-left: 4px solid var(--trama-action);
   border-radius: 8px;
   padding: 1.5rem;
 }
@@ -68,7 +69,7 @@
 .publicar-desafio-ayuda h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--trama-action);
   margin-top: 0;
   margin-bottom: 1rem;
 }
@@ -81,21 +82,21 @@
 
 .publicar-desafio-ayuda li {
   padding: 0.5rem 0;
-  color: #1e40af;
+  color: var(--trama-action);
   line-height: 1.6;
 }
 
 .publicar-desafio-ayuda strong {
   font-weight: 600;
-  color: #1e40af;
+  color: var(--trama-action);
 }
 
 .publicar-desafio-nota {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: #dbeafe;
+  background-color: var(--trama-selection);
   border-radius: 4px;
-  color: #0c4a6e;
+  color: var(--trama-action);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -122,4 +123,6 @@
   .publicar-desafio-ayuda {
     order: 2;
   }
+}
+
 }

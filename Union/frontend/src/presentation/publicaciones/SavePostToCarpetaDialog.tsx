@@ -236,11 +236,11 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
               <label className="section-label">Tus carpetas</label>
 
               {cargandoCarpetas ? (
-                <p style={{ textAlign: 'center', color: '#888', fontSize: '14px' }}>
+                <p style={{ textAlign: 'center', color: 'var(--trama-muted)', fontSize: '14px' }}>
                   Cargando carpetas...
                 </p>
               ) : carpetas.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#888', fontSize: '14px' }}>
+                <p style={{ textAlign: 'center', color: 'var(--trama-muted)', fontSize: '14px' }}>
                   No tienes carpetas creadas.
                 </p>
               ) : (
@@ -355,15 +355,15 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
           justify-content: space-between;
           align-items: center;
           padding: 20px;
-          border-bottom: 1px solid #e0e0e0;
-          background-color: #f9f9f9;
+          border-bottom: 1px solid var(--trama-line);
+          background-color: var(--trama-subtle);
         }
 
         .dialog-header h2 {
           margin: 0;
           font-size: 18px;
           font-weight: 600;
-          color: #333;
+          color: var(--trama-ink);
         }
 
         .close-button {
@@ -371,7 +371,7 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
           border: none;
           font-size: 24px;
           cursor: pointer;
-          color: #666;
+          color: var(--trama-muted);
           padding: 0;
           width: 32px;
           height: 32px;
@@ -383,7 +383,7 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
         }
 
         .close-button:hover:not(:disabled) {
-          background-color: #e9ecef;
+          background-color: var(--trama-subtle);
         }
 
         .close-button:disabled {
@@ -401,7 +401,7 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
           display: block;
           font-size: 14px;
           font-weight: 600;
-          color: #333;
+          color: var(--trama-ink);
           margin-bottom: 12px;
         }
 
@@ -420,8 +420,8 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
           align-items: center;
           gap: 12px;
           padding: 12px;
-          background-color: #f9f9f9;
-          border: 1px solid #e0e0e0;
+          background-color: var(--trama-subtle);
+          border: 1px solid var(--trama-line);
           border-radius: 4px;
           cursor: pointer;
           transition: all 0.2s;
@@ -429,8 +429,8 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
         }
 
         .carpeta-item:hover {
-          background-color: #f0f0f0;
-          border-color: #6b7280;
+          background-color: var(--trama-subtle);
+          border-color: var(--trama-muted);
         }
 
         .carpeta-item input[type="radio"] {
@@ -440,13 +440,13 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
 
         .carpeta-name {
           flex: 1;
-          color: #333;
+          color: var(--trama-ink);
           font-weight: 500;
         }
 
         .carpeta-count {
-          color: #999;
-          font-size: 12px;
+          color: var(--trama-muted);
+          font-size: 14px;
         }
 
         .crear-carpeta-section {
@@ -465,9 +465,9 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
         }
 
         .alert-error {
-          background-color: #f8d7da;
-          border: 1px solid #f5c6cb;
-          color: #721c24;
+          background-color: var(--trama-error-surface);
+          border: 1px solid var(--trama-error);
+          color: var(--trama-error);
         }
 
         .dialog-footer {
@@ -475,8 +475,8 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
           gap: 12px;
           justify-content: flex-end;
           padding: 20px;
-          border-top: 1px solid #e0e0e0;
-          background-color: #f9f9f9;
+          border-top: 1px solid var(--trama-line);
+          background-color: var(--trama-subtle);
         }
 
         .btn {
@@ -495,26 +495,26 @@ export const SavePostToCarpetaDialog: React.FC<SavePostToCarpetaDialogProps> = (
         }
 
         .btn-secondary {
-          background-color: #95a5a6;
+          background-color: var(--trama-muted);
           color: white;
         }
 
         .btn-secondary:hover:not(:disabled) {
-          background-color: #7f8c8d;
+          background-color: var(--trama-ink);
         }
 
         .btn-primary {
-          background-color: #4b5563;
+          background-color: var(--trama-muted);
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background-color: #374151;
+          background-color: var(--trama-ink);
         }
 
         .btn-small {
           padding: 8px 12px;
-          font-size: 13px;
+          font-size: 14px;
         }
       `}</style>
     </div>

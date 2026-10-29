@@ -1,3 +1,4 @@
+@layer legacy {
 /**
  * Estilos para BandejaSolicitudesPage (T065)
  * 
@@ -10,7 +11,7 @@
 .bandeja-solicitudes-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--trama-subtle);
   padding: 2rem 1rem;
 }
 
@@ -23,13 +24,13 @@
 .bandeja-solicitudes-header h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--trama-ink);
   margin: 0 0 0.5rem;
 }
 
 .bandeja-solicitudes-subtitulo {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--trama-muted);
   margin: 0;
 }
 
@@ -37,10 +38,10 @@
   max-width: 1000px;
   margin: 0 auto 1.5rem;
   padding: 1rem;
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
+  background-color: var(--trama-error-surface);
+  border: 1px solid var(--trama-error-surface);
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--trama-error);
   font-size: 0.95rem;
 }
 
@@ -54,7 +55,7 @@
   border-radius: 8px;
   padding: 3rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--trama-muted);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -65,7 +66,7 @@
 
 .bandeja-solicitudes-subtexto {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--trama-muted);
 }
 
 .bandeja-solicitudes-lista {
@@ -99,12 +100,12 @@
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--trama-ink);
 }
 
 .bandeja-solicitudes-descripcion {
   margin: 0 0 0.75rem;
-  color: #4b5563;
+  color: var(--trama-muted);
   line-height: 1.5;
   word-break: break-word;
 }
@@ -112,7 +113,7 @@
 .bandeja-solicitudes-fecha {
   margin: 0;
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--trama-muted);
 }
 
 .bandeja-solicitudes-acciones {
@@ -134,21 +135,21 @@
 }
 
 .bandeja-solicitudes-btn-aprobar {
-  background-color: #10b981;
+  background-color: var(--trama-success);
   color: white;
 }
 
 .bandeja-solicitudes-btn-aprobar:hover:not(:disabled) {
-  background-color: #059669;
+  background-color: var(--trama-hover);
 }
 
 .bandeja-solicitudes-btn-rechazar {
-  background-color: #ef4444;
+  background-color: var(--trama-error);
   color: white;
 }
 
 .bandeja-solicitudes-btn-rechazar:hover:not(:disabled) {
-  background-color: #dc2626;
+  background-color: var(--trama-error);
 }
 
 .bandeja-solicitudes-btn-aprobar:disabled,
@@ -160,7 +161,7 @@
 .bandeja-solicitudes-cargando {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: var(--trama-muted);
 }
 
 .bandeja-solicitudes-cargar-mas {
@@ -170,7 +171,7 @@
 
 .bandeja-solicitudes-btn-cargar {
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: var(--trama-action);
   color: white;
   border: none;
   border-radius: 6px;
@@ -180,11 +181,11 @@
 }
 
 .bandeja-solicitudes-btn-cargar:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--trama-action);
 }
 
 .bandeja-solicitudes-btn-cargar:disabled {
-  background-color: #9ca3af;
+  background-color: var(--trama-muted);
   cursor: not-allowed;
 }
 
@@ -192,8 +193,8 @@
   max-width: 1000px;
   margin: 3rem auto 0;
   padding: 1.5rem;
-  background-color: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  background-color: var(--trama-selection);
+  border-left: 4px solid var(--trama-action);
   border-radius: 8px;
 }
 
@@ -202,19 +203,19 @@
   margin-bottom: 1rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--trama-action);
 }
 
 .bandeja-solicitudes-nota p {
   margin: 0.5rem 0;
   font-size: 0.9rem;
-  color: #1e40af;
+  color: var(--trama-action);
   line-height: 1.5;
 }
 
 .bandeja-solicitudes-nota strong {
   font-weight: 600;
-  color: #1e40af;
+  color: var(--trama-action);
 }
 
 /* Responsive */
@@ -243,4 +244,6 @@
   .bandeja-solicitudes-nota {
     margin-top: 2rem;
   }
+}
+
 }

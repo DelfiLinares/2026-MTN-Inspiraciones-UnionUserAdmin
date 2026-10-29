@@ -81,6 +81,28 @@ npm run dev
 - **URL por Defecto**: `http://localhost:5175` (configurado estáticamente en la configuración de Vite).
 - **Consola de test**: `npm run test` para validar todos los flujos de integración y comportamiento cruzado con Vitest.
 
+#### Versión visual Trama
+
+La rama `feat/frontend-v2` actualiza la plataforma unificada siguiendo el
+[manual de marca](manualMarca/MANUAL_MARCA_RED_ARTISTAS.md) y las
+[correcciones de interfaz](manualMarca/feedback.md), sin modificar los contratos
+de la API ni los proyectos independientes.
+
+- Identidad compartida para artistas y administración: Inter local, fondo cálido,
+  texto carbón, acciones cobalto y estados semánticos. Los tokens viven en
+  [global.css](Union/frontend/src/global.css).
+- Símbolo Encuentro provisto por el manual, reutilizado desde su PNG original;
+  no se presenta como un SVG maestro validado. La licencia de Inter se conserva
+  junto con la fuente en [public/brand](Union/frontend/public/brand).
+- Navegación superior en escritorio e inferior en móvil, con espacio reservado
+  para no cubrir contenido. Login y registro se adaptan a escritorio 16:9 y móvil.
+- Inicio sin carrusel: pestañas Para vos y Desafíos, publicaciones y una tarjeta
+  de consigna real. Seguidos queda oculto hasta disponer de una API de feed propia.
+- Perfil con pestañas de obras y carpetas, y edición en una página dedicada.
+  Las carpetas actuales siguen siendo públicas; no se simula almacenamiento privado.
+- Los datos siguen viniendo de la API configurada. Carga, vacío y error se muestran
+  explícitamente; no se incorporan publicaciones ficticias como respaldo.
+
 ---
 
 ## Comandos y Tareas Adicionales por Proyecto

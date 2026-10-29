@@ -252,7 +252,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
         style={{
           padding: '2rem',
           textAlign: 'center',
-          color: '#666',
+          color: 'var(--trama-muted)',
         }}
       >
         <p style={{ margin: 0, fontSize: '14px' }}>Cargando publicaciones...</p>
@@ -316,16 +316,16 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
         style={{
           padding: '2rem',
           textAlign: 'center',
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '6px',
-          color: '#6b7280',
+          backgroundColor: 'var(--trama-subtle)',
+          border: '1px solid var(--trama-line)',
+          borderRadius: 'var(--trama-radius)',
+          color: 'var(--trama-muted)',
         }}
       >
         <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
           {esPerfilPropio ? 'No hay publicaciones aún' : 'No hay publicaciones'}
         </p>
-        <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+        <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>
           {esPerfilPropio
             ? 'Comparte tu primer post para que otros puedan verlo'
             : 'Este usuario no ha compartido publicaciones aún'}
@@ -356,9 +356,9 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
               display: 'flex',
               gap: '1rem',
               padding: '1rem',
-              backgroundColor: '#f9fafb',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
+              backgroundColor: 'var(--trama-subtle)',
+              borderRadius: 'var(--trama-radius)',
+              border: '1px solid var(--trama-line)',
               transition: 'box-shadow 0.2s ease',
               cursor: esPropia ? 'pointer' : 'default',
             }}
@@ -393,7 +393,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   borderRadius: '50%',
                   border: 'none',
                   overflow: 'hidden',
-                  backgroundColor: '#e5e7eb',
+                  backgroundColor: 'var(--trama-line)',
                   padding: 0,
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -426,7 +426,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: '#d1d5db',
+                      backgroundColor: 'var(--trama-line)',
                       fontSize: '24px',
                       fontWeight: 'bold',
                       color: '#ffffff',
@@ -443,8 +443,8 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                 style={{
                   backgroundColor: 'transparent',
                   border: 'none',
-                  color: '#4b5563',
-                  fontSize: '12px',
+                  color: 'var(--trama-muted)',
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   padding: '0',
@@ -456,11 +456,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   transition: 'color 0.2s ease, text-decoration 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLButtonElement).style.color = '#374151'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--trama-ink)'
                   ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'underline'
                 }}
                 onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLButtonElement).style.color = '#4b5563'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--trama-muted)'
                   ;(e.currentTarget as HTMLButtonElement).style.textDecoration = 'none'
                 }}
                 title={`Ver perfil de ${pub.autorNombreUsuario}`}
@@ -475,9 +475,9 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                 flexShrink: 0,
                 width: '120px',
                 height: '120px',
-                borderRadius: '6px',
+                borderRadius: 'var(--trama-radius)',
                 overflow: 'hidden',
-                backgroundColor: '#e5e7eb',
+                backgroundColor: 'var(--trama-line)',
               }}
             >
               <img
@@ -506,7 +506,7 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   margin: '0 0 0.5rem 0',
                   fontSize: '14px',
                   lineHeight: '1.5',
-                  color: '#1f2937',
+                  color: 'var(--trama-ink)',
                   wordBreak: 'break-word',
                   maxHeight: '3rem',
                   overflow: 'hidden',
@@ -520,8 +520,8 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
               <p
                 style={{
                   margin: '0',
-                  fontSize: '12px',
-                  color: '#9ca3af',
+                  fontSize: '14px',
+                  color: 'var(--trama-muted)',
                 }}
               >
                 {pub.fechaCreacion instanceof Date
@@ -545,11 +545,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   disabled={cargandoAccion === pub.id}
                   style={{
                     padding: '0.5rem 0.75rem',
-                    backgroundColor: '#4b5563',
+                    backgroundColor: 'var(--trama-action)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '12px',
+                    borderRadius: 'var(--trama-radius)',
+                    fontSize: '14px',
                     fontWeight: '600',
                     cursor: cargandoAccion === pub.id ? 'not-allowed' : 'pointer',
                     opacity: cargandoAccion === pub.id ? 0.6 : 1,
@@ -557,11 +557,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   }}
                   onMouseEnter={(e) => {
                     if (cargandoAccion !== pub.id) {
-                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#374151'
+                      ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-hover)'
                     }
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#4b5563'
+                    ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-action)'
                   }}
                 >
                   {cargandoAccion === pub.id ? 'Editando...' : 'Editar'}
@@ -573,11 +573,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   disabled={cargandoAccion === pub.id}
                   style={{
                     padding: '0.5rem 0.75rem',
-                    backgroundColor: '#ef4444',
+                    backgroundColor: 'var(--trama-error)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '12px',
+                    borderRadius: 'var(--trama-radius)',
+                    fontSize: '14px',
                     fontWeight: '600',
                     cursor: cargandoAccion === pub.id ? 'not-allowed' : 'pointer',
                     opacity: cargandoAccion === pub.id ? 0.6 : 1,
@@ -585,11 +585,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   }}
                   onMouseEnter={(e) => {
                     if (cargandoAccion !== pub.id) {
-                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#dc2626'
+                      ;(e.target as HTMLButtonElement).style.backgroundColor = 'var(--trama-error)'
                     }
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#ef4444'
+                    ;(e.target as HTMLButtonElement).style.backgroundColor = 'var(--trama-error)'
                   }}
                 >
                   {cargandoAccion === pub.id ? 'Eliminando...' : 'Eliminar'}
@@ -601,11 +601,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   disabled={cargandoAccion === pub.id}
                   style={{
                     padding: '0.5rem 0.75rem',
-                    backgroundColor: '#10b981',
+                    backgroundColor: 'var(--trama-action)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
-                    fontSize: '12px',
+                    borderRadius: 'var(--trama-radius)',
+                    fontSize: '14px',
                     fontWeight: '600',
                     cursor: cargandoAccion === pub.id ? 'not-allowed' : 'pointer',
                     opacity: cargandoAccion === pub.id ? 0.6 : 1,
@@ -613,11 +613,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
                   }}
                   onMouseEnter={(e) => {
                     if (cargandoAccion !== pub.id) {
-                      ;(e.target as HTMLButtonElement).style.backgroundColor = '#059669'
+                      ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-hover)'
                     }
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.target as HTMLButtonElement).style.backgroundColor = '#10b981'
+                    ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-action)'
                   }}
                 >
                   {cargandoAccion === pub.id ? 'Guardando...' : 'Guardar'}
@@ -636,11 +636,11 @@ export const PublicacionList: React.FC<PublicacionListProps> = ({
             disabled={cargandoMas}
             style={{
               padding: '0.5rem 1.5rem',
-              backgroundColor: '#f3f4f6',
-              color: '#374151',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '12px',
+              backgroundColor: 'var(--trama-subtle)',
+              color: 'var(--trama-ink)',
+              border: '1px solid var(--trama-line)',
+              borderRadius: 'var(--trama-radius)',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: cargandoMas ? 'not-allowed' : 'pointer',
             }}
@@ -672,7 +672,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   edicionContainer: {
     backgroundColor: 'white',
-    borderRadius: '8px',
+    borderRadius: 'var(--trama-radius)',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     maxHeight: '90vh',
     overflowY: 'auto',
@@ -694,7 +694,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   eliminacionContainer: {
     backgroundColor: 'white',
-    borderRadius: '8px',
+    borderRadius: 'var(--trama-radius)',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     maxHeight: '90vh',
     overflowY: 'auto',
@@ -716,7 +716,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   guardadoContainer: {
     backgroundColor: 'white',
-    borderRadius: '8px',
+    borderRadius: 'var(--trama-radius)',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     maxHeight: '90vh',
     overflowY: 'auto',

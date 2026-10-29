@@ -129,14 +129,14 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
           // AC-04: Visual diferenciación: Seguir (azul/activo) vs Dejar de seguir (gris/inactivo)
           // T062: Cambiar a verde si hay éxito
           backgroundColor: mostrarExito
-            ? '#10b981' // Verde para éxito
+            ? 'var(--trama-success)' // Verde para éxito
             : isFollowing
-              ? '#e5e7eb' // Gris para "Dejar de seguir"
-              : '#4f46e5', // Azul para "Seguir"
-          color: mostrarExito ? 'white' : isFollowing ? '#374151' : 'white',
+              ? 'var(--trama-line)' // Gris para "Dejar de seguir"
+              : 'var(--trama-action)', // Azul para "Seguir"
+          color: mostrarExito ? 'white' : isFollowing ? 'var(--trama-ink)' : 'white',
           border: 'none',
-          borderRadius: '6px',
-          fontSize: '13px',
+          borderRadius: 'var(--trama-radius)',
+          fontSize: '14px',
           fontWeight: '600',
           cursor: isLoading ? 'not-allowed' : 'pointer',
           opacity: isLoading ? 0.6 : 1,
@@ -148,16 +148,16 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
           if (!isLoading && !mostrarExito) {
             const btn = e.currentTarget as HTMLButtonElement
             if (isFollowing) {
-              btn.style.backgroundColor = '#d1d5db'
+              btn.style.backgroundColor = 'var(--trama-line)'
             } else {
-              btn.style.backgroundColor = '#4338ca'
+              btn.style.backgroundColor = 'var(--trama-hover)'
             }
           }
         }}
         onMouseLeave={(e) => {
           const btn = e.currentTarget as HTMLButtonElement
           if (!mostrarExito) {
-            btn.style.backgroundColor = isFollowing ? '#e5e7eb' : '#4f46e5'
+            btn.style.backgroundColor = isFollowing ? 'var(--trama-line)' : 'var(--trama-action)'
           }
         }}
       >
@@ -205,17 +205,17 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
             flexDirection: 'column',
             gap: '0.5rem',
             padding: '0.75rem',
-            backgroundColor: '#fee2e2',
-            border: '1px solid #fecaca',
-            borderRadius: '4px',
+            backgroundColor: 'var(--trama-error-surface)',
+            border: '1px solid var(--trama-error-surface)',
+            borderRadius: 'var(--trama-radius)',
           }}
           role="alert"
         >
           <p
             style={{
               margin: '0',
-              fontSize: '12px',
-              color: '#dc2626',
+              fontSize: '14px',
+              color: 'var(--trama-error)',
               fontWeight: '500',
             }}
           >
@@ -226,21 +226,21 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
             onClick={handleToggle}
             style={{
               padding: '0.35rem 0.75rem',
-              backgroundColor: '#dc2626',
+              backgroundColor: 'var(--trama-error)',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
-              fontSize: '11px',
+              borderRadius: 'var(--trama-radius)',
+              fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
               alignSelf: 'flex-start',
               transition: 'background-color 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#b91c1c'
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-error)'
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#dc2626'
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--trama-error)'
             }}
           >
             Reintentar

@@ -1,3 +1,4 @@
+@layer legacy {
 .nueva-solicitud-page {
   max-width: 900px;
   margin: 0 auto;
@@ -8,18 +9,18 @@
 .nueva-solicitud-encabezado {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid var(--trama-action);
 }
 
 .nueva-solicitud-encabezado h1 {
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.75rem;
-  color: #222;
+  color: var(--trama-ink);
 }
 
 .nueva-solicitud-descripcion {
-  color: #666;
+  color: var(--trama-muted);
   font-size: 0.95rem;
   margin: 0;
   line-height: 1.5;
@@ -29,10 +30,10 @@
 .nueva-solicitud-error {
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  background-color: var(--trama-error-surface);
+  border: 1px solid var(--trama-error);
   border-radius: 4px;
-  color: #721c24;
+  color: var(--trama-error);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -46,7 +47,7 @@
 
 .nueva-solicitud-error-cerrar {
   padding: 0.5rem 1rem;
-  background-color: #721c24;
+  background-color: var(--trama-error);
   color: white;
   border: none;
   border-radius: 4px;
@@ -57,23 +58,23 @@
 }
 
 .nueva-solicitud-error-cerrar:hover {
-  background-color: #5a1419;
+  background-color: var(--trama-error);
 }
 
 /* Formulario */
 .nueva-solicitud-formulario {
   margin-bottom: 3rem;
   padding: 2rem;
-  background-color: #f9f9f9;
+  background-color: var(--trama-subtle);
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--trama-line);
 }
 
 /* Sección de ayuda */
 .nueva-solicitud-ayuda {
   padding: 2rem;
-  background-color: #e8f4f8;
-  border-left: 4px solid #17a2b8;
+  background-color: var(--trama-selection);
+  border-left: 4px solid var(--trama-action);
   border-radius: 4px;
 }
 
@@ -81,7 +82,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 1rem;
-  color: #0c5460;
+  color: var(--trama-action);
 }
 
 .nueva-solicitud-ayuda ul {
@@ -94,7 +95,7 @@
 .nueva-solicitud-ayuda li {
   counter-increment: item;
   margin-bottom: 0.75rem;
-  color: #0c5460;
+  color: var(--trama-action);
   font-size: 0.95rem;
   line-height: 1.5;
   position: relative;
@@ -110,7 +111,7 @@
   justify-content: center;
   width: 1.25rem;
   height: 1.25rem;
-  background-color: #17a2b8;
+  background-color: var(--trama-action);
   color: white;
   border-radius: 50%;
   font-size: 0.75rem;
@@ -118,7 +119,7 @@
 }
 
 .nueva-solicitud-ayuda strong {
-  color: #0c5460;
+  color: var(--trama-action);
   font-weight: 700;
 }
 
@@ -152,4 +153,6 @@
   .nueva-solicitud-error-cerrar {
     width: 100%;
   }
+}
+
 }

@@ -16,12 +16,13 @@ import { AuthProvider } from './services/AuthContext'
 import { AppRoutes } from './routes'
 import { AppRouterAdmin } from './presentation/AppRouterAdmin'
 import { AvisosComunidad } from './presentation/shared/AvisosComunidad'
+import { SiteLayout } from './presentation/shared/SiteLayout'
 
 const RUTAS_CONSOLA_ADMIN = /^\/(?:login-admin(?:\/|$)|admin(?:\/|$)|(?:usuarios|publicaciones|promocion|reportes)\/?$)/
 
 const Raiz: React.FC = () => {
   const { pathname } = useLocation()
-  return RUTAS_CONSOLA_ADMIN.test(pathname) ? <AppRouterAdmin /> : <AppRoutes />
+  return RUTAS_CONSOLA_ADMIN.test(pathname) ? <AppRouterAdmin /> : <SiteLayout><AppRoutes /></SiteLayout>
 }
 
 export const App: React.FC = () => {

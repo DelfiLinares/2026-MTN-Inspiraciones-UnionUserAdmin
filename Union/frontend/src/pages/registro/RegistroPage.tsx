@@ -26,6 +26,7 @@ import { adaptarApiError } from '../../infrastructure/apiErrorAdapter'
 import { ApiError } from '../../infrastructure/httpClient'
 import '../login/login.css'
 import './registro.css'
+import { Brand } from '../../presentation/shared/Brand'
 
 export interface CriteriosPassword {
   longitudMinima: boolean
@@ -154,15 +155,12 @@ export const RegistroPage: React.FC = () => {
 
   return (
     <main className="login-page registro-page">
-      <div className="login-circles registro-circles" aria-hidden="true">
-        <span className="login-circle-outline" />
-        <span className="login-circle-fill" />
-      </div>
-
       <section className="login-column registro-column" aria-labelledby="registro-title">
+        <Link className="trama-brand-link" to="/login"><Brand /></Link>
         <h1 className="login-title registro-title" id="registro-title">
           Crear cuenta
         </h1>
+        <p className="login-intro">Un lugar para tus obras y tus próximas ideas.</p>
 
         <form className="login-form registro-form" onSubmit={handleSubmit} noValidate>
           {errorMensaje && (
@@ -243,7 +241,6 @@ export const RegistroPage: React.FC = () => {
             />
           </div>
 
-          {password.length > 0 && (
             <ul className="registro-password-checklist">
               <li className={criterios.longitudMinima ? 'cumple' : ''}>
                 <span>{criterios.longitudMinima ? '✓' : '•'}</span>
@@ -262,7 +259,6 @@ export const RegistroPage: React.FC = () => {
                 <span>Al menos un carácter especial</span>
               </li>
             </ul>
-          )}
 
           <div className="login-field registro-field">
             <label htmlFor="input-reg-confirm-password">Confirmar</label>
@@ -332,6 +328,7 @@ export const RegistroPage: React.FC = () => {
       </section>
 
       <aside className="login-promo registro-promo" aria-labelledby="registro-promo-title">
+        <span className="login-promo-kicker">Comunidad para artistas</span>
         <h2 className="login-promo-title registro-promo-title" id="registro-promo-title">
           Empezá a crear
         </h2>

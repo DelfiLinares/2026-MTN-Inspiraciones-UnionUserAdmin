@@ -1,3 +1,4 @@
+@layer legacy {
 /**
  * Estilos CSS base compartidos del módulo `002-frontend-admin`.
  *
@@ -24,8 +25,8 @@
   display: flex;
   align-items: center;
   padding: 0.75rem 1.5rem;
-  background-color: #1f2937;
-  border-bottom: 1px solid #111827;
+  background-color: var(--trama-ink);
+  border-bottom: 1px solid var(--trama-ink);
 }
 
 .admin-app-layout__nav-list {
@@ -41,7 +42,7 @@
 }
 
 .admin-app-layout__nav-link {
-  color: #e5e7eb;
+  color: var(--trama-line);
   text-decoration: none;
   font-weight: 500;
   padding: 0.25rem 0.5rem;
@@ -49,11 +50,11 @@
 }
 
 .admin-app-layout__nav-link:hover {
-  background-color: #374151;
+  background-color: var(--trama-ink);
 }
 
 .admin-app-layout__nav-link--activo {
-  background-color: #2563eb;
+  background-color: var(--trama-action);
   color: #ffffff;
 }
 
@@ -73,16 +74,16 @@
 .admin-tabla td {
   text-align: left;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--trama-line);
 }
 
 .admin-tabla th {
   font-weight: 600;
-  background-color: #f9fafb;
+  background-color: var(--trama-subtle);
 }
 
 .admin-tabla tbody tr:hover {
-  background-color: #f3f4f6;
+  background-color: var(--trama-subtle);
 }
 
 /* ---- Botones sensibles / de consulta (AccionSensibleBoton) ---- */
@@ -101,21 +102,21 @@
 }
 
 .accion-sensible-boton--sensible {
-  background-color: #dc2626;
+  background-color: var(--trama-error);
   color: #ffffff;
 }
 
 .accion-sensible-boton--sensible:hover:not(:disabled) {
-  background-color: #b91c1c;
+  background-color: var(--trama-error);
 }
 
 .accion-sensible-boton--consulta {
-  background-color: #e5e7eb;
-  color: #111827;
+  background-color: var(--trama-line);
+  color: var(--trama-ink);
 }
 
 .accion-sensible-boton--consulta:hover:not(:disabled) {
-  background-color: #d1d5db;
+  background-color: var(--trama-line);
 }
 
 /* ---- Confirmación de acciones (ConfirmDialog) ---- */
@@ -144,7 +145,7 @@
 
 .confirm-dialog__mensaje {
   margin: 0 0 1rem;
-  color: #374151;
+  color: var(--trama-ink);
 }
 
 .confirm-dialog__acciones {
@@ -161,12 +162,12 @@
 }
 
 .confirm-dialog__boton--cancelar {
-  background-color: #e5e7eb;
-  color: #111827;
+  background-color: var(--trama-line);
+  color: var(--trama-ink);
 }
 
 .confirm-dialog__boton--confirmar {
-  background-color: #dc2626;
+  background-color: var(--trama-error);
   color: #ffffff;
 }
 
@@ -180,14 +181,14 @@
 .estado-vacio {
   padding: 2rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--trama-muted);
 }
 
 .mensaje-error {
   padding: 0.75rem 1rem;
   border-radius: 0.25rem;
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--trama-error-surface);
+  color: var(--trama-error);
   margin: 0.75rem 0;
 }
 
@@ -196,7 +197,7 @@
 .badge {
   display: inline-block;
   padding: 0.15rem 0.6rem;
-  border-radius: 999px;
+  border-radius:var(--trama-radius);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -206,40 +207,42 @@
 
 /* PrioridadBadge: colores según PrioridadReporte (ALTA/MEDIA/BAJA) */
 .badge--prioridad-alta {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--trama-error-surface);
+  color: var(--trama-error);
 }
 
 .badge--prioridad-media {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--trama-warning-surface);
+  color: var(--trama-warning);
 }
 
 .badge--prioridad-baja {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: var(--trama-line);
+  color: var(--trama-ink);
 }
 
 /* EstadoModeracionBadge: estado PENDIENTE se destaca visualmente frente a los demás (AC-06.3) */
 .badge--estado-pendiente {
-  background-color: #fde68a;
-  color: #78350f;
+  background-color: var(--trama-warning);
+  color: var(--trama-warning);
   font-weight: 700;
-  box-shadow: 0 0 0 2px #f59e0b;
+  box-shadow: 0 0 0 2px var(--trama-warning);
 }
 
 .badge--estado-en-revision {
-  background-color: #dbeafe;
-  color: #1e3a8a;
+  background-color: var(--trama-selection);
+  color: var(--trama-action);
 }
 
 .badge--estado-resuelto {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--trama-success-surface);
+  color: var(--trama-success);
 }
 
 .badge--estado-desestimado {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: var(--trama-line);
+  color: var(--trama-ink);
 }
 
+
+}

@@ -1,3 +1,4 @@
+@layer legacy {
 .detalle-desafios-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -8,7 +9,7 @@
 .detalle-no-disponible h1,
 .detalle-error h1 {
   text-align: center;
-  color: #555;
+  color: var(--trama-muted);
   font-size: 1.1rem;
 }
 
@@ -16,20 +17,20 @@
 .detalle-error {
   padding: 2rem;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
+  background-color: var(--trama-subtle);
+  border: 1px solid var(--trama-line);
   text-align: center;
 }
 
 .detalle-no-disponible p,
 .detalle-error p {
-  color: #777;
+  color: var(--trama-muted);
   margin: 0.5rem 0 1rem;
 }
 
 .detalle-error button {
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
+  background-color: var(--trama-action);
   color: white;
   border: none;
   border-radius: 4px;
@@ -39,7 +40,7 @@
 }
 
 .detalle-error button:hover {
-  background-color: #0056b3;
+  background-color: var(--trama-action);
 }
 
 /* Fotos */
@@ -49,7 +50,7 @@
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 1rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--trama-line);
 }
 
 .detalle-foto-container {
@@ -57,7 +58,7 @@
   margin: 0;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #f0f0f0;
+  background-color: var(--trama-subtle);
 }
 
 .detalle-foto-container img {
@@ -88,17 +89,17 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1rem;
-  color: #222;
+  color: var(--trama-ink);
 }
 
 .detalle-estado {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--trama-muted);
   margin: 0.5rem 0;
 }
 
 .detalle-estado strong {
-  color: #333;
+  color: var(--trama-ink);
   font-weight: 600;
 }
 
@@ -107,7 +108,7 @@
   margin-bottom: 2rem;
   padding: 1rem 0;
   line-height: 1.6;
-  color: #444;
+  color: var(--trama-ink);
   font-size: 1rem;
 }
 
@@ -118,7 +119,7 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   padding: 1.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--trama-line);
 }
 
 .detalle-ambitos,
@@ -130,7 +131,7 @@
 .detalle-ambitos strong,
 .detalle-fechas strong {
   font-weight: 600;
-  color: #333;
+  color: var(--trama-ink);
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
@@ -138,7 +139,7 @@
 .detalle-ambitos p,
 .detalle-fechas p {
   margin: 0;
-  color: #666;
+  color: var(--trama-muted);
   font-size: 0.95rem;
 }
 
@@ -150,8 +151,8 @@
 
 .detalle-ambitos-lista span {
   display: inline-block;
-  background-color: #e8f4f8;
-  color: #007bff;
+  background-color: var(--trama-selection);
+  color: var(--trama-action);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -161,29 +162,29 @@
 .detalle-respuestas {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--trama-line);
 }
 
 .detalle-respuestas h2 {
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0 0 1.5rem;
-  color: #222;
+  color: var(--trama-ink);
 }
 
 .detalle-respuestas-error {
   padding: 1rem;
-  background-color: #fff3cd;
-  border: 1px solid #ffc107;
+  background-color: var(--trama-warning-surface);
+  border: 1px solid var(--trama-warning);
   border-radius: 4px;
-  color: #856404;
+  color: var(--trama-warning);
   margin-bottom: 1rem;
 }
 
 .detalle-respuestas-error button {
   margin-top: 0.75rem;
   padding: 0.5rem 1rem;
-  background-color: #ffc107;
+  background-color: var(--trama-warning);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -192,16 +193,16 @@
 }
 
 .detalle-respuestas-error button:hover {
-  background-color: #e0a800;
+  background-color: var(--trama-warning);
 }
 
 .detalle-respuestas-vacio {
   padding: 2rem;
   text-align: center;
-  background-color: #f9f9f9;
+  background-color: var(--trama-subtle);
   border-radius: 8px;
-  border: 1px dashed #ddd;
-  color: #999;
+  border: 1px dashed var(--trama-line);
+  color: var(--trama-muted);
 }
 
 .detalle-respuestas-vacio p {
@@ -211,7 +212,7 @@
 
 .detalle-respuestas-loading {
   text-align: center;
-  color: #777;
+  color: var(--trama-muted);
   padding: 1rem;
   font-size: 0.95rem;
 }
@@ -224,7 +225,7 @@
 
 .detalle-respuestas-mas button {
   padding: 0.75rem 1.5rem;
-  background-color: #28a745;
+  background-color: var(--trama-success);
   color: white;
   border: none;
   border-radius: 4px;
@@ -234,7 +235,7 @@
 }
 
 .detalle-respuestas-mas button:hover {
-  background-color: #218838;
+  background-color: var(--trama-hover);
 }
 
 /* Responsive */
@@ -259,4 +260,6 @@
   .detalle-respuestas h2 {
     font-size: 1.2rem;
   }
+}
+
 }

@@ -1,3 +1,4 @@
+@layer legacy {
 /* Estilos compartidos de recuperación de contraseña y apelación (spec 008). Paleta y fuente alineadas con login.css. */
 
 .recuperacion-page {
@@ -5,9 +6,9 @@
   place-items: center;
   min-height: 100vh;
   padding: 32px 16px;
-  background: #ddd;
-  color: #232323;
-  font-family: Manrope, Arial, sans-serif;
+  background: var(--trama-line);
+  color: var(--trama-ink);
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .recuperacion-page,
@@ -18,14 +19,14 @@
 .recuperacion-card {
   width: min(100%, 520px);
   padding: 40px 36px;
-  border: 2px solid #d9d9d9;
-  border-radius: 20px;
+  border: 2px solid var(--trama-line);
+  border-radius:var(--trama-radius);
   background: #fff;
 }
 
 .recuperacion-title {
   margin: 0 0 20px;
-  color: #222;
+  color: var(--trama-ink);
   font-size: 34px;
   line-height: 1.1;
 }
@@ -38,7 +39,7 @@
 
 .recuperacion-help {
   margin: 0;
-  color: #555;
+  color: var(--trama-muted);
   font-size: 16px;
   line-height: 1.45;
 }
@@ -50,7 +51,7 @@
 }
 
 .recuperacion-field label {
-  color: #555;
+  color: var(--trama-muted);
   font-size: 16px;
   font-weight: 600;
 }
@@ -59,10 +60,10 @@
 .recuperacion-field textarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1.5px solid #8b8b8b;
+  border: 1.5px solid var(--trama-control);
   border-radius: 10px;
   background: #fff;
-  color: #222;
+  color: var(--trama-ink);
   font: inherit;
   font-size: 18px;
 }
@@ -73,24 +74,24 @@
 }
 
 .recuperacion-field input[aria-invalid='true'] {
-  border-color: #9b2520;
+  border-color: var(--trama-error);
 }
 
 .recuperacion-page :focus-visible {
-  outline: 3px solid #565656;
+  outline: 3px solid var(--trama-action);
   outline-offset: 3px;
 }
 
 .recuperacion-contador {
   align-self: flex-end;
-  color: #6b6b6b;
+  color: var(--trama-muted);
   font-size: 14px;
 }
 
 .recuperacion-requisitos {
   margin: -6px 0 0;
   padding-left: 20px;
-  color: #6b6b6b;
+  color: var(--trama-muted);
   font-size: 14px;
 }
 
@@ -102,7 +103,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #555;
+  color: var(--trama-muted);
   font-size: 15px;
 }
 
@@ -117,26 +118,26 @@
 }
 
 .recuperacion-primary {
-  border: 1.2px solid #505050;
-  background: #505050;
+  border: 1.2px solid var(--trama-ink);
+  background: var(--trama-ink);
   color: #fff;
 }
 
 .recuperacion-primary:disabled {
-  border-color: #aeaeae;
-  background: #aeaeae;
-  color: #e9e9e9;
+  border-color: var(--trama-disabled);
+  background: var(--trama-disabled);
+  color: var(--trama-disabled-ink);
   cursor: not-allowed;
 }
 
 .recuperacion-secondary {
-  border: 1.5px solid #8b8b8b;
+  border: 1.5px solid var(--trama-control);
   background: #fff;
-  color: #333;
+  color: var(--trama-ink);
 }
 
 .recuperacion-secondary:disabled {
-  color: #8b8b8b;
+  color: var(--trama-control);
   cursor: not-allowed;
 }
 
@@ -150,15 +151,15 @@
 }
 
 .recuperacion-error {
-  border: 1px solid #e6b5b2;
-  background: #fff4f3;
-  color: #9b2520;
+  border: 1px solid var(--trama-error);
+  background: var(--trama-error-surface);
+  color: var(--trama-error);
 }
 
 .recuperacion-aviso {
-  border: 1px solid #b7d8bf;
-  background: #f1faf3;
-  color: #1f6b34;
+  border: 1px solid var(--trama-success);
+  background: var(--trama-success-surface);
+  color: var(--trama-success);
 }
 
 .recuperacion-links {
@@ -168,7 +169,7 @@
 }
 
 .recuperacion-links a {
-  color: #555;
+  color: var(--trama-muted);
 }
 
 @media (max-width: 520px) {
@@ -179,4 +180,6 @@
   .recuperacion-title {
     font-size: 28px;
   }
+}
+
 }

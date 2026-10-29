@@ -1,8 +1,9 @@
+@layer legacy {
 .desafios-listado-page {
   width: min(100%, 1100px);
   margin: 0 auto;
   padding: 24px;
-  color: #2f2f2f;
+  color: var(--trama-ink);
 }
 
 .desafios-listado-header h1 {
@@ -12,7 +13,7 @@
 
 .desafios-listado-header p {
   margin-top: 8px;
-  color: #666;
+  color: var(--trama-muted);
 }
 
 .desafios-listado-filtros {
@@ -21,9 +22,9 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   margin: 24px 0;
   padding: 16px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--trama-line);
   border-radius: 12px;
-  background: #fafafa;
+  background: var(--trama-subtle);
 }
 
 .filtro-grupo {
@@ -35,12 +36,12 @@
 .filtro-grupo label,
 .filtro-grupo legend {
   font-weight: 500;
-  color: #333;
+  color: var(--trama-ink);
 }
 
 .filtro-grupo select {
   padding: 8px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--trama-control);
   border-radius: 8px;
   background: #fff;
   font-family: inherit;
@@ -48,9 +49,9 @@
 
 /* T073: Foco visible en filtros para navegación con teclado */
 .filtro-grupo select:focus {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid var(--trama-action);
   outline-offset: 2px;
-  border-color: #4f46e5;
+  border-color: var(--trama-action);
 }
 
 .filtro-ambitos {
@@ -80,13 +81,13 @@
 
 /* T073: Foco visible en checkboxes */
 .filtro-ambito-label input:focus-visible {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid var(--trama-action);
   outline-offset: 2px;
 }
 
 .filtro-ayuda,
 .filtro-ayuda-legend {
-  color: #767676;
+  color: var(--trama-muted);
   font-size: 0.9rem;
   font-weight: normal;
 }
@@ -98,7 +99,7 @@
 }
 
 .desafio-card {
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--trama-line);
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
@@ -116,14 +117,14 @@
 }
 
 .desafio-card:focus {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid var(--trama-action);
   outline-offset: 2px;
 }
 
 .desafio-card-media {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #f1f1f1;
+  background: var(--trama-subtle);
 }
 
 .desafio-card-media img {
@@ -136,7 +137,7 @@
 .desafio-card-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f2f2f2, #e5e5e5);
+  background: var(--trama-subtle);
 }
 
 .desafio-card-contenido {
@@ -165,28 +166,28 @@
 }
 
 .estado-activo {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--trama-success-surface);
+  color: var(--trama-success);
 }
 
 .estado-programado {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--trama-warning-surface);
+  color: var(--trama-warning);
 }
 
 .estado-finalizado {
-  background-color: #e0e7ff;
-  color: #3730a3;
+  background-color: var(--trama-selection);
+  color: var(--trama-action);
 }
 
 .estado-eliminado {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--trama-error-surface);
+  color: var(--trama-error);
 }
 
 .estado-desconocido {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--trama-subtle);
+  color: var(--trama-ink);
 }
 
 /* T073: Utility class para contenido solo para screen readers */
@@ -211,7 +212,7 @@
 
 .desafio-card-ambitos span {
   font-size: 0.85rem;
-  color: #4f46e5;
+  color: var(--trama-action);
 }
 
 .desafios-listado-loading,
@@ -220,13 +221,13 @@
   margin-top: 20px;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--trama-line);
   background: #fff;
 }
 
 .desafios-listado-error {
-  border-color: #f5b4b4;
-  background: #fff5f5;
+  border-color: var(--trama-error);
+  background: var(--trama-error-surface);
 }
 
 .desafios-listado-mas {
@@ -240,7 +241,7 @@
 .desafios-listado-vacio button {
   border: 0;
   border-radius: 8px;
-  background: #4f46e5;
+  background: var(--trama-action);
   color: #fff;
   padding: 10px 16px;
   cursor: pointer;
@@ -249,4 +250,6 @@
 .desafios-listado-error button,
 .desafios-listado-vacio button {
   margin-top: 8px;
+}
+
 }

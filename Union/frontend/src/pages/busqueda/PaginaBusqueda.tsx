@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { ObtenerCatalogoFiltros } from '../../application/busqueda/ObtenerCatalogoFiltros'
 import type { BusquedaRepository } from '../../application/busqueda/BusquedaRepository'
 import { CodecCriteriosUrl } from '../../domain/busqueda/CodecCriteriosUrl'
@@ -137,7 +137,11 @@ export function PaginaBusqueda({
 
   return (
     <main className="pagina-busqueda">
-      <Link to="/feed">Volver a InspiraBoard</Link>
+      <header className="trama-discover-heading">
+        <p className="trama-eyebrow">Seguí tu curiosidad</p>
+        <h1>Descubrir</h1>
+        <p className="trama-muted">Buscá obras por tema, disciplina o técnica. Encontrá una referencia para lo que viene.</p>
+      </header>
       <div className="pagina-busqueda__barra">
         <BarraBusqueda valor={criterios.texto} onCambiar={cambiarTexto} />
         <ChipsFiltrosActivos
@@ -147,7 +151,8 @@ export function PaginaBusqueda({
         />
       </div>
       <div className="pagina-busqueda__cuerpo">
-        <aside className="pagina-busqueda__panel">
+        <details className="pagina-busqueda__panel" open>
+          <summary>Filtros {criterios.filtros.length > 0 && `(${criterios.filtros.length})`}</summary>
           <PanelFiltros
             criterios={criterios}
             catalogo={catalogo}
@@ -156,7 +161,7 @@ export function PaginaBusqueda({
             onQuitar={quitarFiltro}
             onReintentarCatalogo={reintentarCatalogo}
           />
-        </aside>
+        </details>
         <section className="pagina-busqueda__feed">
           <FeedPublicaciones
             items={items}

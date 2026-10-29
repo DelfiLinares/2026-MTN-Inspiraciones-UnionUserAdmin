@@ -168,7 +168,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
                   style={{
                     maxWidth: '100%',
                     height: 'auto',
-                    borderRadius: '4px',
+                    borderRadius: 'var(--trama-radius)',
                     maxHeight: '150px',
                   }}
                 />
@@ -269,15 +269,15 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           justify-content: space-between;
           align-items: center;
           padding: 20px;
-          border-bottom: 2px solid #fee;
-          background-color: #fff8f8;
+          border-bottom: 2px solid var(--trama-error-surface);
+          background-color: var(--trama-error-surface);
         }
 
         .dialog-header h2 {
           margin: 0;
           font-size: 18px;
           font-weight: 600;
-          color: #c0392b;
+          color: var(--trama-error);
         }
 
         .close-button {
@@ -285,7 +285,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           border: none;
           font-size: 24px;
           cursor: pointer;
-          color: #666;
+          color: var(--trama-muted);
           padding: 0;
           width: 32px;
           height: 32px;
@@ -297,7 +297,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
         }
 
         .close-button:hover:not(:disabled) {
-          background-color: #f5f5f5;
+          background-color: var(--trama-subtle);
         }
 
         .close-button:disabled {
@@ -313,10 +313,10 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           display: flex;
           gap: 16px;
           padding: 12px;
-          background-color: #f9f9f9;
+          background-color: var(--trama-subtle);
           border-radius: 4px;
           margin-bottom: 20px;
-          border: 1px solid #e0e0e0;
+          border: 1px solid var(--trama-line);
         }
 
         .post-preview-image {
@@ -325,7 +325,7 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           height: 80px;
           border-radius: 4px;
           overflow: hidden;
-          background-color: #e9ecef;
+          background-color: var(--trama-subtle);
         }
 
         .post-preview-image img {
@@ -343,16 +343,16 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
 
         .post-text-label {
           margin: 0;
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 600;
-          color: #888;
+          color: var(--trama-muted);
           text-transform: uppercase;
         }
 
         .post-text-preview {
           margin: 0;
-          font-size: 13px;
-          color: #333;
+          font-size: 14px;
+          color: var(--trama-ink);
           line-height: 1.4;
           word-break: break-word;
         }
@@ -361,8 +361,8 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           display: flex;
           gap: 16px;
           padding: 16px;
-          background-color: #fff8f8;
-          border: 1px solid #f5c6cb;
+          background-color: var(--trama-error-surface);
+          border: 1px solid var(--trama-error);
           border-radius: 6px;
           margin-bottom: 20px;
         }
@@ -380,20 +380,20 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           margin: 0 0 12px 0;
           font-size: 16px;
           font-weight: 600;
-          color: #c0392b;
+          color: var(--trama-error);
         }
 
         .warning-text {
           margin: 0 0 10px 0;
           font-size: 14px;
-          color: #721c24;
+          color: var(--trama-error);
           line-height: 1.5;
         }
 
         .info-text {
           margin: 0;
-          font-size: 13px;
-          color: #555;
+          font-size: 14px;
+          color: var(--trama-muted);
           line-height: 1.5;
         }
 
@@ -409,9 +409,9 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
         }
 
         .alert-error {
-          background-color: #f8d7da;
-          border: 1px solid #f5c6cb;
-          color: #721c24;
+          background-color: var(--trama-error-surface);
+          border: 1px solid var(--trama-error);
+          color: var(--trama-error);
         }
 
         .dialog-footer {
@@ -419,8 +419,8 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
           gap: 12px;
           justify-content: flex-end;
           padding: 20px;
-          border-top: 1px solid #e0e0e0;
-          background-color: #f9f9f9;
+          border-top: 1px solid var(--trama-line);
+          background-color: var(--trama-subtle);
         }
 
         .btn {
@@ -439,23 +439,23 @@ export const ConfirmDeletePostDialog: React.FC<ConfirmDeletePostDialogProps> = (
         }
 
         .btn-secondary {
-          background-color: #95a5a6;
+          background-color: var(--trama-muted);
           color: white;
         }
 
         .btn-secondary:hover:not(:disabled) {
-          background-color: #7f8c8d;
+          background-color: var(--trama-ink);
         }
 
         /* AC-12.4: Diferenciación visual del botón destructivo */
         .btn-danger {
-          background-color: #e74c3c;
+          background-color: var(--trama-error);
           color: white;
-          border: 2px solid #c0392b;
+          border: 2px solid var(--trama-error);
         }
 
         .btn-danger:hover:not(:disabled) {
-          background-color: #c0392b;
+          background-color: var(--trama-error);
           box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
         }
 

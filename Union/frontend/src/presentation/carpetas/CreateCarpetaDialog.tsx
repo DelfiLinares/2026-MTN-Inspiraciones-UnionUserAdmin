@@ -351,7 +351,7 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
           justify-content: space-between;
           align-items: center;
           padding: 20px;
-          border-bottom: 1px solid #e0e0e0;
+          border-bottom: 1px solid var(--trama-line);
         }
 
         .dialog-header h2 {
@@ -365,7 +365,7 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
           border: none;
           font-size: 24px;
           cursor: pointer;
-          color: #666;
+          color: var(--trama-muted);
           padding: 0;
           width: 32px;
           height: 32px;
@@ -377,7 +377,7 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
         }
 
         .close-button:hover {
-          background-color: #f5f5f5;
+          background-color: var(--trama-subtle);
         }
 
         .dialog-body {
@@ -393,17 +393,17 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
           margin-bottom: 8px;
           font-weight: 500;
           font-size: 14px;
-          color: #333;
+          color: var(--trama-ink);
         }
 
         .required {
-          color: #e74c3c;
+          color: var(--trama-error);
         }
 
         .form-group input {
           width: 100%;
           padding: 10px 12px;
-          border: 1px solid #ccc;
+          border: 1px solid var(--trama-control);
           border-radius: 4px;
           font-size: 14px;
           font-family: inherit;
@@ -413,31 +413,31 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
 
         .form-group input:focus {
           outline: none;
-          border-color: #6b7280;
+          border-color: var(--trama-muted);
           box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.15);
         }
 
         .form-group input:disabled {
-          background-color: #f5f5f5;
+          background-color: var(--trama-subtle);
           cursor: not-allowed;
-          color: #999;
+          color: var(--trama-muted);
         }
 
         .form-group input.input-error {
-          border-color: #e74c3c;
+          border-color: var(--trama-error);
         }
 
         .char-counter {
           margin-top: 6px;
           text-align: right;
-          color: #999;
-          font-size: 12px;
+          color: var(--trama-muted);
+          font-size: 14px;
         }
 
         .field-error {
           margin-top: 6px;
-          color: #e74c3c;
-          font-size: 12px;
+          color: var(--trama-error);
+          font-size: 14px;
         }
 
         .alert {
@@ -452,23 +452,23 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
         }
 
         .alert-warning {
-          background-color: #fff3cd;
-          border: 1px solid #ffc107;
-          color: #856404;
+          background-color: var(--trama-warning-surface);
+          border: 1px solid var(--trama-warning);
+          color: var(--trama-warning);
         }
 
         .alert-error {
-          background-color: #f8d7da;
-          border: 1px solid #f5c6cb;
-          color: #721c24;
+          background-color: var(--trama-error-surface);
+          border: 1px solid var(--trama-error);
+          color: var(--trama-error);
         }
 
         .limit-info {
           margin-top: 12px;
           padding-top: 12px;
-          border-top: 1px solid #e0e0e0;
+          border-top: 1px solid var(--trama-line);
           text-align: center;
-          color: #666;
+          color: var(--trama-muted);
         }
 
         .dialog-footer {
@@ -476,7 +476,7 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
           gap: 12px;
           justify-content: flex-end;
           padding: 20px;
-          border-top: 1px solid #e0e0e0;
+          border-top: 1px solid var(--trama-line);
         }
 
         .btn {
@@ -495,21 +495,21 @@ export const CreateCarpetaDialog: React.FC<CreateCarpetaDialogProps> = ({
         }
 
         .btn-primary {
-          background-color: #4b5563;
+          background-color: var(--trama-muted);
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background-color: #374151;
+          background-color: var(--trama-ink);
         }
 
         .btn-secondary {
-          background-color: #95a5a6;
+          background-color: var(--trama-muted);
           color: white;
         }
 
         .btn-secondary:hover:not(:disabled) {
-          background-color: #7f8c8d;
+          background-color: var(--trama-ink);
         }
       `}</style>
     </div>

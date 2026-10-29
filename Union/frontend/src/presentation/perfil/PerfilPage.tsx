@@ -4,7 +4,6 @@ import { useAuth } from '../../services/AuthContext'
 import { UsuarioPerfil as Usuario } from '../../domain/UsuarioPerfil'
 import { PerfilPropio } from './PerfilPropio'
 import { PerfilAjeno } from './PerfilAjeno'
-import { PerfilSiteHeader } from './PerfilSiteHeader'
 import { ProfileNotFoundView } from './ProfileNotFoundView'
 import { usuarioPerfilService } from '../../services/perfilUsuarioService'
 import { seguimientoService } from '../../services/seguimientoService'
@@ -216,7 +215,6 @@ export const PerfilPage: React.FC = () => {
     // T034: Modales integrados de edición y cambio de foto
     return (
       <>
-        <PerfilSiteHeader usuario={usuarioPerfil} />
         <PerfilPropio
           key={usuarioPerfil.id}
           usuario={usuarioPerfil}
@@ -234,7 +232,6 @@ export const PerfilPage: React.FC = () => {
     // T021: PerfilAjeno con opción de seguimiento
     return (
       <>
-      <PerfilSiteHeader usuario={usuarioPerfil} />
       <PerfilAjeno
         key={usuarioPerfil.id}
         usuario={usuarioPerfil}

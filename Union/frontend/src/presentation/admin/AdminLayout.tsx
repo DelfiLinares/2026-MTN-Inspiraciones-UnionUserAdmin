@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { authAdminService } from '../../services/AuthAdminService'
 import { obtenerSesion } from '../../infrastructure/sessionManager'
+import { Brand } from '../shared/Brand'
 import '../shared/shared.css'
 import './admin.css'
 
@@ -41,7 +42,7 @@ export const AdminLayout: React.FC = () => {
     <a className="admin-skip" href="#admin-contenido">Ir al contenido</a>
     <header className="admin-site-header">
       <div className="admin-header-inner">
-        <Link className="admin-brand" to="/admin/dashboard">InspiraBoard</Link>
+        <Link className="admin-brand trama-brand-link" to="/admin/dashboard"><Brand /></Link>
         <span className="admin-label">Administración</span>
         <div className="admin-session"><span>{nombre || 'Administrador'}</span><button type="button" onClick={() => { authAdminService.logout(); navigate('/login-admin', { replace: true }) }}>Cerrar sesión</button></div>
       </div>
@@ -53,6 +54,6 @@ export const AdminLayout: React.FC = () => {
       {subrutas.length > 0 && <nav className="admin-subnav" aria-label="Secciones de la página">{subrutas.map(({ruta, nombre: etiqueta}) => <NavLink key={ruta} to={ruta} end={ruta === '/admin/desafios' || ruta === '/admin/reportes'}>{etiqueta}</NavLink>)}</nav>}
       <Outlet />
     </main>
-    <footer className="admin-site-footer"><span>InspiraBoard · Administración</span><span>Un espacio para cuidar la comunidad creativa.</span></footer>
+    <footer className="admin-site-footer"><span>trama · Administración</span><span>Un espacio para cuidar la comunidad creativa.</span></footer>
   </div>
 }

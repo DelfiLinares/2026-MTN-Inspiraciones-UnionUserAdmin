@@ -76,9 +76,28 @@ describe('PerfilPropio categorías favoritas', () => {
     expect(screen.getByText('Pop')).toBeInTheDocument()
 
     const editButton = screen.getByRole('button', { name: 'Editar perfil' })
-    expect(editButton).toHaveStyle({ backgroundColor: '#4b5563' })
+    expect(editButton).toHaveStyle({ backgroundColor: 'var(--trama-action)' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Cambiar categorías' }))
     expect(await screen.findByText('Formulario de categorías')).toBeInTheDocument()
+  })
+
+  it('separa obras y carpetas, y abre la edición como página en lugar de un modal', async () => {
+    render(
+      <MemoryRouter initialEntries={['/perfil']}>
+        <Routes>
+          <Route path="/perfil" element={<PerfilPropio usuario={usuario} />} />
+          <Route path="/editar-perfil" element={<h1>Edición de perfil como página</h1>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('button', { name: 'Obras', exact: true })).toHaveAttribute('aria-pressed', 'true')
+    expect(document.getElementById('perfil-carpetas')).not.toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Guardados y carpetas' }))
+    expect(document.getElementById('perfil-carpetas')).toBeVisible()
+    expect(document.getElementById('perfil-obras')).not.toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Editar perfil' }))
+    expect(await screen.findByRole('heading', { name: 'Edición de perfil como página' })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })

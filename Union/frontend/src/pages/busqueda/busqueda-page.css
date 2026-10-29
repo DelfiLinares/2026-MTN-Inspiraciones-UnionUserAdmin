@@ -1,3 +1,4 @@
+@layer legacy {
 .pagina-busqueda {
   display: flex;
   flex-direction: column;
@@ -29,4 +30,6 @@
   .pagina-busqueda__cuerpo {
     grid-template-columns: 260px minmax(0, 1fr);
   }
+}
+
 }

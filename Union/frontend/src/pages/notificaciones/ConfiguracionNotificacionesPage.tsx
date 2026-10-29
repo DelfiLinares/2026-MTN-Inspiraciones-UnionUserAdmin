@@ -49,7 +49,6 @@ export function ConfiguracionNotificacionesPage() {
     finally { setGuardando(false) }
   }
   return <main className="preferencias-notificaciones">
-    <Link className="preferencias-notificaciones__marca" to="/feed">InspiraBoard</Link>
     <section aria-labelledby="notificaciones-titulo">
       <h1 id="notificaciones-titulo">Elegí qué querés recibir</h1>
       <p>Seguí las conversaciones que nacen de tus ideas. Podés cambiar estas preferencias cuando quieras.</p>

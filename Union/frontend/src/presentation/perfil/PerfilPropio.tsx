@@ -11,7 +11,7 @@ import {
   obtenerCatalogoOnboarding,
   obtenerMisInteresesOnboarding,
 } from '../../services/onboardingInteresesService'
-import { EditarPerfilForm } from './EditarPerfilForm'
+import { useModalFocus } from '../admin/useModalFocus'
 import { PhotoUploadField } from './PhotoUploadField'
 import { CarpetaList } from '../carpetas/CarpetaList'
 import { PublicacionList } from '../publicaciones/PublicacionList'
@@ -36,7 +36,7 @@ const TAMANIO_PAGINA = 20
  *    - Cantidad de seguidores
  *
  * 2. Ofrece acciones del perfil propio (AC-01.4, T034):
- *    - Botón "Editar perfil" (abre modal con EditarPerfilForm, T032)
+ *    - Botón "Editar perfil" (navega a la página de edición)
  *    - Botón "Cambiar foto" (abre modal con PhotoUploadField, T033)
  *
  * 3. Muestra carpetas públicas del usuario (AC-01.2):
@@ -103,10 +103,10 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   onPerfilActualizado,
 }) => {
   const navigate = useNavigate()
+  const [pestana, setPestana] = useState<'obras' | 'carpetas'>('obras')
   const [mostrarAcciones, setMostrarAcciones] = useState(false)
 
   // T034: Estado para modal de edición
-  const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
   const [mostrarModalFoto, setMostrarModalFoto] = useState(false)
   const [usuarioActualizado, setUsuarioActualizado] = useState(usuario)
   const [categoriasFavoritas, setCategoriasFavoritas] = useState<string[]>([])
@@ -266,7 +266,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   }, [])
 
   const handleEditarPerfil = () => {
-    setMostrarModalEditar(true)
+    navigate('/editar-perfil')
   }
 
   const handleCambiarFoto = () => {
@@ -274,18 +274,9 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   }
 
   const handleCerrarModal = () => {
-    setMostrarModalEditar(false)
     setMostrarModalFoto(false)
   }
-
-  // T034: Callback cuando se actualiza el perfil
-  const handlePerfilActualizado = (usuarioActual: Usuario) => {
-    setUsuarioActualizado(usuarioActual)
-    setMostrarModalEditar(false)
-    if (onPerfilActualizado) {
-      onPerfilActualizado(usuarioActual)
-    }
-  }
+  const fotoModalRef = useModalFocus(mostrarModalFoto, handleCerrarModal, false)
 
   // T033: Callback cuando se actualiza la foto
   const handleFotoActualizada = (usuarioActual: Usuario) => {
@@ -370,25 +361,17 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div className="trama-profile">
       {/* AC-01.1: Encabezado de perfil con datos personales */}
-      <section
-        style={{
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <section className="trama-profile-header">
+        <div className="trama-profile-identity">
           {/* Foto de perfil */}
           <div
             style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              backgroundColor: '#e5e7eb',
+              backgroundColor: 'var(--trama-line)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -407,7 +390,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#6b7280' }}>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'var(--trama-muted)' }}>
                 {usuario.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -421,7 +404,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '600',
                 }}
               >
@@ -431,7 +414,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           </div>
 
           {/* Datos personales */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ marginBottom: '1rem' }}>
               <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '20px', fontWeight: '700' }}>
                 @{usuario.username}
@@ -441,13 +424,13 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 aria-label="Categorías favoritas"
                 style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.5rem' }}
               >
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>Favoritas:</span>
+                <span style={{ fontSize: '14px', color: 'var(--trama-muted)' }}>Favoritas:</span>
                 {cargandoCategoriasFavoritas ? (
-                  <span role="status" style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span role="status" style={{ fontSize: '14px', color: 'var(--trama-muted)' }}>
                     Cargando...
                   </span>
                 ) : errorCategoriasFavoritas ? (
-                  <span role="alert" style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span role="alert" style={{ fontSize: '14px', color: 'var(--trama-muted)' }}>
                     {errorCategoriasFavoritas}
                   </span>
                 ) : categoriasFavoritas.length > 0 ? (
@@ -456,18 +439,18 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                       key={categoria}
                       style={{
                         padding: '0.2rem 0.5rem',
-                        backgroundColor: '#f3f4f6',
-                        border: '1px solid #d1d5db',
+                        backgroundColor: 'var(--trama-subtle)',
+                        border: '1px solid var(--trama-line)',
                         borderRadius: '999px',
-                        color: '#374151',
-                        fontSize: '12px',
+                        color: 'var(--trama-ink)',
+                        fontSize: '14px',
                       }}
                     >
                       {categoria}
                     </span>
                   ))
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--trama-muted)' }}>
                     Sin categorías favoritas
                   </span>
                 )}
@@ -476,11 +459,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   onClick={() => navigate('/cuestionario')}
                   style={{
                     padding: '0.3rem 0.6rem',
-                    backgroundColor: '#e5e7eb',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '12px',
+                    backgroundColor: 'var(--trama-line)',
+                    color: 'var(--trama-ink)',
+                    border: '1px solid var(--trama-line)',
+                    borderRadius: 'var(--trama-radius)',
+                    fontSize: '14px',
                     fontWeight: '600',
                     cursor: 'pointer',
                   }}
@@ -488,7 +471,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                   Cambiar categorías
                 </button>
               </div>
-              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: '#6b7280' }}>
+              <p style={{ margin: '0 0 0.25rem 0', fontSize: '14px', color: 'var(--trama-muted)' }}>
                 {usuario.cantidadSeguidores} {usuario.cantidadSeguidores === 1 ? 'seguidor' : 'seguidores'}
               </p>
             </div>
@@ -496,14 +479,14 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
             {/* Sobre mí */}
             {usuario.sobreMi && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#374151' }}>{usuario.sobreMi}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-ink)' }}>{usuario.sobreMi}</p>
               </div>
             )}
 
             {/* Descripción */}
             {usuario.descripcion && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>{usuario.descripcion}</p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>{usuario.descripcion}</p>
               </div>
             )}
 
@@ -513,34 +496,40 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 onClick={handleEditarPerfil}
                 style={{
                   padding: '0.5rem 1rem',
-                  backgroundColor: '#4b5563',
+                  backgroundColor: 'var(--trama-action)',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
+                  borderRadius: 'var(--trama-radius)',
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                 }}
               >
                 Editar perfil
               </button>
+              <button type="button" onClick={handleCambiarFoto}>Cambiar foto</button>
               {/* AC-01.5: NO mostrar botón de seguir en perfil propio */}
             </div>
           </div>
         </div>
       </section>
+      <nav className="trama-tabs" aria-label="Contenido del perfil">
+        <button type="button" aria-pressed={pestana === 'obras'} aria-controls="perfil-obras" onClick={() => setPestana('obras')}>Obras</button>
+        <button type="button" aria-pressed={pestana === 'carpetas'} aria-controls="perfil-carpetas" onClick={() => setPestana('carpetas')}>Guardados y carpetas</button>
+      </nav>
 
       {/* AC-01.2: Carpetas públicas del usuario (T046: Integración de CarpetaList) */}
       {/* T074: Estados de loading/empty/error para carpetas */}
-      <section style={{ marginBottom: '2rem' }}>
+      <section id="perfil-carpetas" hidden={pestana !== 'carpetas'} style={{ marginBottom: '2rem' }}>
+        <p className="trama-muted">Organizá tus referencias en carpetas. Las carpetas actuales son públicas.</p>
         {errorCarpetas && (
           <div
             style={{
               padding: '1rem',
-              backgroundColor: '#fee',
-              border: '1px solid #fcc',
-              borderRadius: '6px',
-              color: '#c33',
+              backgroundColor: 'var(--trama-error-surface)',
+              border: '1px solid var(--trama-error-surface)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-error)',
               marginBottom: '1rem',
               fontSize: '14px',
             }}
@@ -550,7 +539,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         )}
 
         {cargandoCarpetas ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--trama-muted)' }}>
             <p>Cargando carpetas...</p>
           </div>
         ) : (
@@ -576,7 +565,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
 
       {/* AC-01.3: Publicaciones propias del usuario (T057: Integración con PublicacionList y callbacks) */}
       {/* T074: Estados de loading/empty/error para publicaciones */}
-      <section>
+      <section id="perfil-obras" hidden={pestana !== 'obras'}>
         <div
             style={{
               display: 'flex',
@@ -585,7 +574,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               marginBottom: '1rem',
             }}
           >
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'var(--trama-ink)' }}>
               Publicaciones
             </h2>
             <button
@@ -593,11 +582,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
               onClick={() => setMostrarCrearPublicacion(true)}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#4b5563',
+                backgroundColor: 'var(--trama-action)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
-                fontSize: '12px',
+                borderRadius: 'var(--trama-radius)',
+                fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}
@@ -609,10 +598,10 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           <div
             style={{
               padding: '1rem',
-              backgroundColor: '#fee',
-              border: '1px solid #fcc',
-              borderRadius: '6px',
-              color: '#c33',
+              backgroundColor: 'var(--trama-error-surface)',
+              border: '1px solid var(--trama-error-surface)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-error)',
               marginBottom: '1rem',
               fontSize: '14px',
             }}
@@ -622,7 +611,7 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         )}
 
         {cargandoPublicaciones ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--trama-muted)' }}>
             <p>Cargando publicaciones...</p>
           </div>
         ) : publicacionesActuales.length === 0 ? (
@@ -631,16 +620,16 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
             style={{
               padding: '2rem',
               textAlign: 'center',
-              backgroundColor: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              color: '#6b7280',
+              backgroundColor: 'var(--trama-subtle)',
+              border: '1px solid var(--trama-line)',
+              borderRadius: 'var(--trama-radius)',
+              color: 'var(--trama-muted)',
             }}
           >
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '15px', fontWeight: '500' }}>
               No hay publicaciones aún
             </p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--trama-muted)' }}>
               Comparte tu primer post para que otros puedan verlo
             </p>
           </div>
@@ -672,44 +661,14 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
         />
       )}
 
-      {/* T034: Modal de edición de perfil con EditarPerfilForm integrado */}
-      {mostrarModalEditar && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            overflowY: 'auto',
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-              maxWidth: '600px',
-              width: '90%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              margin: 'auto',
-            }}
-          >
-            <EditarPerfilForm
-              usuario={usuarioActualizado}
-              onCancel={handleCerrarModal}
-              onPerfilActualizado={handlePerfilActualizado}
-            />
-          </div>
-        </div>
-      )}
-
       {/* T033: Modal de cambio de foto con PhotoUploadField integrado */}
       {mostrarModalFoto && (
         <div
+          ref={fotoModalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="perfil-foto-title"
+          tabIndex={-1}
           style={{
             position: 'fixed',
             inset: 0,
@@ -723,14 +682,14 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
           <div
             style={{
               backgroundColor: 'white',
-              borderRadius: '8px',
+              borderRadius: 'var(--trama-radius)',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
               maxWidth: '500px',
               width: '90%',
               padding: '2rem',
             }}
           >
-            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
+            <h2 id="perfil-foto-title" style={{ margin: '0 0 1.5rem 0', fontSize: '18px', fontWeight: '700', color: 'var(--trama-ink)' }}>
               Cambiar foto de perfil
             </h2>
             <PhotoUploadField fotoActual={usuarioActualizado.foto} onFotoActualizada={handleFotoActualizada} />
@@ -740,11 +699,11 @@ export const PerfilPropio: React.FC<PerfilPropioProps> = ({
                 width: '100%',
                 marginTop: '1rem',
                 padding: '0.5rem',
-                backgroundColor: '#e5e7eb',
-                color: '#374151',
+                backgroundColor: 'var(--trama-line)',
+                color: 'var(--trama-ink)',
                 border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
+                borderRadius: 'var(--trama-radius)',
+                fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
               }}

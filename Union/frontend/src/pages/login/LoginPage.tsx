@@ -24,6 +24,7 @@ import {
   MENSAJE_CREDENCIALES_INVALIDAS,
 } from '../../services/authService'
 import './login.css'
+import { Brand } from '../../presentation/shared/Brand'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
@@ -99,15 +100,12 @@ export const LoginPage: React.FC = () => {
 
   return (
     <main className="login-page">
-      <div className="login-circles" aria-hidden="true">
-        <span className="login-circle-outline" />
-        <span className="login-circle-fill" />
-      </div>
-
       <section className="login-column" aria-labelledby="login-title">
+        <Link className="trama-brand-link" to="/login"><Brand /></Link>
         <h1 className="login-title" id="login-title">
           Bienvenido de<br />vuelta
         </h1>
+        <p className="login-intro">Volvé a conectar con lo que te inspira.</p>
 
         <form className="login-form" onSubmit={handleSubmitMailPassword}>
           {mensajeExito && (
@@ -201,7 +199,9 @@ export const LoginPage: React.FC = () => {
       </section>
 
       <aside className="login-promo" aria-labelledby="login-promo-title">
+        <span className="login-promo-kicker">Comunidad para artistas</span>
         <h2 className="login-promo-title" id="login-promo-title">Empezá a crear</h2>
+        <p>Encontrá ideas. Compartí lo que creás.</p>
         <p>¿Aún no te registraste?</p>
         <Link to="/registro">Registrate</Link>
       </aside>
