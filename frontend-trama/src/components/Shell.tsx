@@ -91,7 +91,7 @@ export function SiteLayout({ admin = false }: { admin?: boolean }) {
         <Link className="mobile-brand" to={admin ? '/admin/resumen' : '/inicio'} aria-label="Trama, ir al inicio"><Brand /></Link>
         <Link className="demo-indicator" to="/acerca"><CircleDot size={15} aria-hidden="true" /><span>Demo local</span><span className="demo-explanation">Obras y perfiles de ejemplo</span></Link>
         <div className="header-actions">
-          {admin ? <Link className="button button-secondary" to="/inicio"><ArrowUpRight size={19} aria-hidden="true" /><span className="desktop-label">Comunidad</span></Link>
+          {admin ? <Link className="button button-secondary" to="/inicio" aria-label="Comunidad" title="Ver comunidad"><ArrowUpRight size={19} aria-hidden="true" /><span className="desktop-label">Comunidad</span></Link>
             : <Link className="button button-primary publish-button" to="/publicar" aria-label="Publicar una obra"><Plus size={21} aria-hidden="true" /><span className="desktop-label">Publicar</span></Link>}
           <Link className="icon-button header-profile" to={user ? '/perfil' : '/ingresar'} aria-label={user ? `Tu perfil: ${user.name}` : 'Ingresar a Trama'}>{user ? <Avatar user={user} /> : <UserRound size={22} aria-hidden="true" />}</Link>
         </div>

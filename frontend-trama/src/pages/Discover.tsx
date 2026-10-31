@@ -37,7 +37,7 @@ export function DiscoverPage() {
   const artists = state.users.filter(user => user.role === 'artist' && user.status === 'active' && (!discipline || user.disciplines.some(value => value === discipline)) && normalize(`${user.name} ${user.handle} ${user.bio} ${user.disciplines.join(' ')}`).includes(normalize(query)))
   const filteredPlaces = places.filter(place => (!area || place.area === area) && normalize(`${place.name} ${place.area} ${place.kind}`).includes(normalize(query)))
   const mapPlace = filteredPlaces.find(place => place.id === selectedPlace) ?? filteredPlaces[0]
-  const techniqueOptions = Array.from(new Set(visiblePosts(state).filter(post => post.kind === (tab === 'musica' ? 'audio' : 'image')).map(post => post.technique)))
+  const techniqueOptions = Array.from(new Set(visiblePosts(state).filter(post => post.kind === (tab === 'musica' ? 'audio' : 'image')).map(post => post.technique).filter(Boolean)))
   const filters = (mobile = false) => <>
     {tab !== 'musica' && <SelectField label="Disciplina" value={mobile ? draftDiscipline : discipline} onChange={event => mobile ? setDraftDiscipline(event.target.value) : update({ disciplina: event.target.value })}
       options={[{ value: '', label: 'Todas las disciplinas' }, ...disciplines.map(value => ({ value, label: value }))]} />}

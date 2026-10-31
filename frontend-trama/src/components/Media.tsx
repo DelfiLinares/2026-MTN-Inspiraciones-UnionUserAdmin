@@ -40,6 +40,7 @@ export function AudioPlayer({ post }: { post: Post }) {
     setError('')
     setLoading(true)
     try {
+      if (audio.error) audio.load()
       if (audio.ended) audio.currentTime = 0
       await audio.play()
     } catch (failure) {

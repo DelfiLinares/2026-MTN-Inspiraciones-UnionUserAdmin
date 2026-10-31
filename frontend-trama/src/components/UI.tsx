@@ -91,7 +91,7 @@ export function Tabs({ items, value, onChange, label, children }: { items: { val
       {items.map((item, index) => <button key={item.value} type="button" ref={element => { buttons.current[index] = element }}
         role="tab" id={`${id}-${item.value}`} aria-controls={`${id}-panel`} aria-selected={value === item.value} tabIndex={value === item.value ? 0 : -1}
         onClick={() => onChange(item.value)} onKeyDown={event => {
-          let next = index
+          let next: number
           if (event.key === 'ArrowRight') next = (index + 1) % items.length
           else if (event.key === 'ArrowLeft') next = (index - 1 + items.length) % items.length
           else if (event.key === 'Home') next = 0
